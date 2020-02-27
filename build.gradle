@@ -20,7 +20,7 @@ if (file(externalFileName).exists()) {
 
 description = 'payment-method-equens'
 group = 'com.payline.payment.scti-equens'
-version = '1.2-SNAPSHOT'
+version = '1.2'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
