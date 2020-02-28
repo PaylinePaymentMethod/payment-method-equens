@@ -95,15 +95,19 @@ public class PluginUtils {
     }
 
     /**
-     * Try to found in aspsps list an aspsp with the given BIC11
-     * if no aspsp found, try again by reducing the BIC11 into a BIC8
+     * Try to find in aspsps list an aspsp with the given BIC11
+     * if no aspsp found, try again by truncating the BIC11 into a BIC8
      *
      * @param aspsps The list of aspsp
-     * @param bic    The BIC to foind
+     * @param bic    The BIC to find
      * @return The ID of the aspsp
      * @see https://payline.atlassian.net/browse/PAYLAPMEXT-221
      */
     public static String getAspspIdFromBIC(List<Aspsp> aspsps, String bic) {
+        if (isEmpty(bic) || bic.length()<8){
+            throw new InvalidDataException("Invalid bic:" + bic);
+        }
+
         // try with the full BIC11
         String aspspId = filter(aspsps, bic);
 

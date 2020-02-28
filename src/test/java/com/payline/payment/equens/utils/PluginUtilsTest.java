@@ -77,6 +77,8 @@ class PluginUtilsTest {
         Assertions.assertEquals("1409", PluginUtils.getAspspIdFromBIC(aspsps, "PSSTFRPPXXX"));
         Assertions.assertThrows(PluginException.class, () -> PluginUtils.getAspspIdFromBIC(aspsps, "ABADBIC8"));
         Assertions.assertThrows(PluginException.class, () -> PluginUtils.getAspspIdFromBIC(aspsps, "BADBIC11"));
+        Assertions.assertThrows(PluginException.class, () -> PluginUtils.getAspspIdFromBIC(aspsps, "BADBIC7"));
+        Assertions.assertThrows(PluginException.class, () -> PluginUtils.getAspspIdFromBIC(aspsps, null));
     }
 
 }
