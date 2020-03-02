@@ -94,8 +94,37 @@ public class PluginUtils {
         return (s == null || s.length() == 0);
     }
 
-
+    /**
+     * Try to find in aspsps list an aspsp with the given BIC11
+     * if no aspsp found, try again by truncating the BIC11 into a BIC8
+     *
+     * @param aspsps The list of aspsp
+     * @param bic    The BIC to find
+     * @return The ID of the aspsp
+     * @see https://payline.atlassian.net/browse/PAYLAPMEXT-221
+     */
     public static String getAspspIdFromBIC(List<Aspsp> aspsps, String bic) {
+        if (isEmpty(bic) || bic.length()<8){
+            throw new InvalidDataException("Invalid bic:" + bic);
+        }
+
+        // try with the full BIC11
+        String aspspId = filter(aspsps, bic);
+
+        // no aspsp for this BIC11, we'll try with the BIC8
+        if (aspspId == null) {
+            aspspId = filter(aspsps, bic.substring(0, 8));
+        }
+
+        if (aspspId == null) {
+            throw new InvalidDataException("Aspsp list does not contain the bic:" + bic);
+        }
+
+        // return its aspspId
+        return aspspId;
+    }
+
+    public static String filter(List<Aspsp> aspsps, String bic) {
         // found aspsp with the correct Bic
         List<Aspsp> goodAspsps = aspsps.stream()
                 .filter(x -> !PluginUtils.isEmpty(x.getBic()))
@@ -103,7 +132,7 @@ public class PluginUtils {
                 .collect(Collectors.toList());
 
         if (goodAspsps.isEmpty()) {
-            throw new InvalidDataException("Aspsp list does not contain the bic:"+ bic);
+            return null;
         }
 
         // return its aspspId
