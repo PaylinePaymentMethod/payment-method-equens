@@ -8,10 +8,7 @@ import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
 import com.payline.pmapi.bean.wallet.bean.WalletDisplay;
 import com.payline.pmapi.bean.wallet.bean.field.WalletDisplayFieldText;
 import com.payline.pmapi.bean.wallet.bean.field.WalletField;
-import com.payline.pmapi.bean.wallet.request.WalletCreateRequest;
-import com.payline.pmapi.bean.wallet.request.WalletDeleteRequest;
-import com.payline.pmapi.bean.wallet.request.WalletDisplayRequest;
-import com.payline.pmapi.bean.wallet.request.WalletUpdateRequest;
+import com.payline.pmapi.bean.wallet.request.*;
 import com.payline.pmapi.bean.wallet.response.WalletCreateResponse;
 import com.payline.pmapi.bean.wallet.response.WalletDeleteResponse;
 import com.payline.pmapi.bean.wallet.response.WalletDisplayResponse;
@@ -80,7 +77,6 @@ public class WalletServiceImpl implements WalletService {
             String key = PluginUtils.extractKey(walletDisplayRequest.getPluginConfiguration());
             String data = rsaUtils.decrypt(encryptedData, key);
 
-
             //Build wallet display fields
             walletFields.add(WalletDisplayFieldText.builder().content(data).build());
 
@@ -92,4 +88,10 @@ public class WalletServiceImpl implements WalletService {
                 .walletFields(walletFields)
                 .build();
     }
+
+    @Override
+    public boolean hasWalletDisplay(final WalletDisplayRequest walletDisplayRequest) {
+        return true;
+    }
+
 }
