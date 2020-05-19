@@ -95,22 +95,49 @@ public class LogoPaymentFormConfigurationServiceTest {
         doReturn("image/png").when( config ).get("logo.contentType");
 
         // when: calling method getLogo()
-        PaymentFormLogo paymentFormLogo = testService.getLogo( "whatever", Locale.getDefault() );
+        PaymentFormLogo paymentFormLogo = testService.getLogo("whatever", Locale.getDefault());
 
         // then:
-        assertNotNull( paymentFormLogo.getContentType() );
-        assertNotNull( paymentFormLogo.getFile() );
+        assertNotNull(paymentFormLogo.getContentType());
+        assertNotNull(paymentFormLogo.getFile());
     }
 
     @Test
     void getLogo_wrongFilename(){
         // given: a valid configuration
-        doReturn("does_not_exist.png").when( config ).get("logo.filename");
-        doReturn("png").when( config ).get("logo.format");
-        doReturn("image/png").when( config ).get("logo.contentType");
+        doReturn("does_not_exist.png").when(config).get("logo.filename");
+        doReturn("png").when(config).get("logo.format");
+        doReturn("image/png").when(config).get("logo.contentType");
 
         // when: calling method getLogo(), then: an exception is thrown
-        assertThrows( PluginException.class, () -> testService.getLogo( "whatever", Locale.getDefault() ) );
+        assertThrows(PluginException.class, () -> testService.getLogo("whatever", Locale.getDefault() ) );
     }
+
+    @Test
+    void getWalletLogoNominal(){
+        // given: a valid configuration
+        doReturn("test_logo.png").when(config).get("logoWallet.filename");
+        doReturn("png").when(config).get("logoWallet.format");
+        doReturn("image/png").when(config).get("logoWallet.contentType");
+
+        //Call wallet logo service.
+        PaymentFormLogo paymentFormLogo = testService.getWalletLogo("SCTI_EQUENS", Locale.getDefault());
+
+        // check
+        assertEquals("image/png",paymentFormLogo.getContentType());
+        assertNotNull( paymentFormLogo.getFile() );
+    }
+
+    @Test
+    void getWalletLogoWithWrongConfiguration(){
+        // given: a valid configuration
+        doReturn("does_not_exist.png").when( config ).get("logoWallet.filename");
+        doReturn("png").when( config ).get("logoWallet.format");
+        doReturn("image/png").when( config ).get("logoWallet.contentType");
+
+        // check
+        assertThrows( PluginException.class, () -> testService.getWalletLogo("SCTI_EQUENS", Locale.getDefault()));
+    }
+
 
 }
