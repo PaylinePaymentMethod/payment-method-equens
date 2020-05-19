@@ -2,17 +2,16 @@ package com.payline.payment.equens.service.impl;
 
 import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.utils.PluginUtils;
+import com.payline.payment.equens.utils.properties.ConfigProperties;
 import com.payline.payment.equens.utils.security.RSAUtils;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
 import com.payline.pmapi.bean.wallet.bean.WalletDisplay;
 import com.payline.pmapi.bean.wallet.bean.field.WalletDisplayFieldText;
 import com.payline.pmapi.bean.wallet.bean.field.WalletField;
+import com.payline.pmapi.bean.wallet.bean.field.logo.WalletLogoResponseFile;
 import com.payline.pmapi.bean.wallet.request.*;
-import com.payline.pmapi.bean.wallet.response.WalletCreateResponse;
-import com.payline.pmapi.bean.wallet.response.WalletDeleteResponse;
-import com.payline.pmapi.bean.wallet.response.WalletDisplayResponse;
-import com.payline.pmapi.bean.wallet.response.WalletUpdateResponse;
+import com.payline.pmapi.bean.wallet.response.*;
 import com.payline.pmapi.bean.wallet.response.impl.WalletCreateResponseFailure;
 import com.payline.pmapi.bean.wallet.response.impl.WalletCreateResponseSuccess;
 import com.payline.pmapi.bean.wallet.response.impl.WalletDeleteResponseSuccess;
@@ -26,6 +25,7 @@ import java.util.List;
 public class WalletServiceImpl implements WalletService {
     private static final Logger LOGGER = LogManager.getLogger(WalletServiceImpl.class);
     private RSAUtils rsaUtils = RSAUtils.getInstance();
+    protected ConfigProperties config = ConfigProperties.getInstance();
 
     @Override
     public WalletDeleteResponse deleteWallet(WalletDeleteRequest walletDeleteRequest) {
@@ -94,4 +94,14 @@ public class WalletServiceImpl implements WalletService {
         return true;
     }
 
+    @Override
+    public boolean hasCustomLogo(final WalletLogoRequest walletLogoRequest) {
+        return true;
+    }
+
+    @Override
+    public WalletLogoResponse getWalletLogo(final WalletLogoRequest walletLogoRequest) {
+        return WalletLogoResponseFile.builder().ratio(
+                Integer.parseInt(config.get("logoWallet.ratio"))).build();
+    }
 }

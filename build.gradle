@@ -19,7 +19,7 @@ if (file(externalFileName).exists()) {
 
 description = 'payment-method-equens'
 group = 'com.payline.payment.scti-equens'
-version = '1.4-SNAPSHOT'
+version = '1.5.1-SNAPSHOT'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -27,7 +27,7 @@ targetCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
 
 ext {
-    paymentMethodApiVersion = '1.8-SNAPSHOT'
+    paymentMethodApiVersion = '1.8'
     paymentMethodIntegrationVersion = '1.4'
 }
 

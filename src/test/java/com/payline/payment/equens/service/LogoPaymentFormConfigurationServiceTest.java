@@ -41,76 +41,106 @@ public class LogoPaymentFormConfigurationServiceTest {
     @BeforeEach
     void setup(){
         testService = new TestService();
-        MockitoAnnotations.initMocks( this );
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
     void getPaymentFormLogo_nominal(){
         // given: the configuration is correct
         PaymentFormLogoRequest paymentFormLogoRequest = MockUtils.aPaymentFormLogoRequest();
-        doReturn("64").when( config ).get("logo.height");
-        doReturn("64").when( config ).get("logo.width");
-        doReturn( "EquensWorldline" ).when( i18n ).getMessage("paymentMethod.name", paymentFormLogoRequest.getLocale() );
+        doReturn("64").when(config).get("logo.height");
+        doReturn("64").when(config).get("logo.width");
+        doReturn("EquensWorldline").when(i18n).getMessage("paymentMethod.name", paymentFormLogoRequest.getLocale());
 
         // when: calling method getPaymentFormLogo()
-        PaymentFormLogoResponse logoResponse = testService.getPaymentFormLogo( paymentFormLogoRequest );
+        PaymentFormLogoResponse logoResponse = testService.getPaymentFormLogo(paymentFormLogoRequest);
 
         // then:
-        assertTrue( logoResponse instanceof PaymentFormLogoResponseFile );
-        assertEquals( 64, ((PaymentFormLogoResponseFile) logoResponse).getHeight() );
-        assertEquals( 64, ((PaymentFormLogoResponseFile) logoResponse).getWidth() );
-        assertTrue( ((PaymentFormLogoResponseFile) logoResponse).getTitle().contains("EquensWorldline") );
-        assertTrue( ((PaymentFormLogoResponseFile) logoResponse).getAlt().contains("EquensWorldline") );
+        assertTrue(logoResponse instanceof PaymentFormLogoResponseFile);
+        assertEquals(64, ((PaymentFormLogoResponseFile) logoResponse).getHeight());
+        assertEquals(64, ((PaymentFormLogoResponseFile) logoResponse).getWidth());
+        assertTrue(((PaymentFormLogoResponseFile) logoResponse).getTitle().contains("EquensWorldline"));
+        assertTrue(((PaymentFormLogoResponseFile) logoResponse).getAlt().contains("EquensWorldline"));
     }
 
     @Test
     void getPaymentFormLogo_wrongHeight(){
         // given: the logo.height config value is incorrect (not an integer)
         PaymentFormLogoRequest paymentFormLogoRequest = MockUtils.aPaymentFormLogoRequest();
-        doReturn("abc").when( config ).get("logo.height");
-        doReturn("64").when( config ).get("logo.width");
-        doReturn( "EquensWorldline" ).when( i18n ).getMessage("paymentMethod.name", paymentFormLogoRequest.getLocale() );
+        doReturn("abc").when(config).get("logo.height");
+        doReturn("64").when(config).get("logo.width");
+        doReturn("EquensWorldline").when(i18n)
+                .getMessage("paymentMethod.name", paymentFormLogoRequest.getLocale());
 
         // when: calling method getPaymentFormLogo()
-        assertThrows( PluginException.class, () -> testService.getPaymentFormLogo( paymentFormLogoRequest ) );
+        assertThrows(PluginException.class, () -> testService.getPaymentFormLogo(paymentFormLogoRequest));
     }
 
     @Test
     void getPaymentFormLogo_wrongWidth(){
         // given: the logo.height config value is incorrect (not an integer)
         PaymentFormLogoRequest paymentFormLogoRequest = MockUtils.aPaymentFormLogoRequest();
-        doReturn("64").when( config ).get("logo.height");
-        doReturn("abc").when( config ).get("logo.width");
-        doReturn( "EquensWorldline" ).when( i18n ).getMessage("paymentMethod.name", paymentFormLogoRequest.getLocale() );
+        doReturn("64").when(config).get("logo.height");
+        doReturn("abc").when(config).get("logo.width");
+        doReturn("EquensWorldline").when(i18n).getMessage("paymentMethod.name",
+                paymentFormLogoRequest.getLocale());
 
         // when: calling method getPaymentFormLogo()
-        assertThrows( PluginException.class, () -> testService.getPaymentFormLogo( paymentFormLogoRequest ) );
+        assertThrows(PluginException.class, () -> testService.getPaymentFormLogo(paymentFormLogoRequest));
     }
 
     @Test
     void getLogo_nominal(){
         // given: a valid configuration
-        doReturn("test_logo.png").when( config ).get("logo.filename");
-        doReturn("png").when( config ).get("logo.format");
-        doReturn("image/png").when( config ).get("logo.contentType");
+        doReturn("test_logo.png").when(config).get("logo.filename");
+        doReturn("png").when(config).get("logo.format");
+        doReturn("image/png").when(config).get("logo.contentType");
 
         // when: calling method getLogo()
-        PaymentFormLogo paymentFormLogo = testService.getLogo( "whatever", Locale.getDefault() );
+        PaymentFormLogo paymentFormLogo = testService.getLogo("whatever", Locale.getDefault());
 
         // then:
-        assertNotNull( paymentFormLogo.getContentType() );
-        assertNotNull( paymentFormLogo.getFile() );
+        assertNotNull(paymentFormLogo.getContentType());
+        assertNotNull(paymentFormLogo.getFile());
     }
 
     @Test
     void getLogo_wrongFilename(){
         // given: a valid configuration
-        doReturn("does_not_exist.png").when( config ).get("logo.filename");
-        doReturn("png").when( config ).get("logo.format");
-        doReturn("image/png").when( config ).get("logo.contentType");
+        doReturn("does_not_exist.png").when(config).get("logo.filename");
+        doReturn("png").when(config).get("logo.format");
+        doReturn("image/png").when(config).get("logo.contentType");
 
         // when: calling method getLogo(), then: an exception is thrown
-        assertThrows( PluginException.class, () -> testService.getLogo( "whatever", Locale.getDefault() ) );
+        assertThrows(PluginException.class, () -> testService.getLogo("whatever", Locale.getDefault()));
     }
+
+    @Test
+    void getWalletLogoNominal(){
+        // given: a valid configuration
+        doReturn("test_logo.png").when(config).get("logoWallet.filename");
+        doReturn("png").when(config).get("logoWallet.format");
+        doReturn("image/png").when(config).get("logoWallet.contentType");
+
+        //Call wallet logo service.
+        PaymentFormLogo paymentFormLogo = testService.getWalletLogo("SCTI_EQUENS", Locale.getDefault());
+
+        // check
+        assertEquals("image/png",paymentFormLogo.getContentType());
+        assertNotNull(paymentFormLogo.getFile());
+    }
+
+    @Test
+    void getWalletLogoWithWrongConfiguration(){
+        // given: a invalid configuration
+        doReturn("does_not_exist.png").when(config).get("logoWallet.filename");
+        doReturn("png").when(config).get("logoWallet.format");
+        doReturn("image/png").when(config).get("logoWallet.contentType");
+
+        // check
+        assertThrows(PluginException.class, () -> testService.getWalletLogo("SCTI_EQUENS",
+                Locale.getDefault()));
+    }
+
 
 }
