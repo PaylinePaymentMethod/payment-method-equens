@@ -12,7 +12,7 @@ apply plugin: 'jacoco'
 
 description = 'payment-method-equens'
 group = 'com.payline.payment.scti-equens'
-version = '1.6-SNAPSHOT'
+version = '1.6'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
