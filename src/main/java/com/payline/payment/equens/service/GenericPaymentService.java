@@ -3,8 +3,6 @@ package com.payline.payment.equens.service;
 import com.payline.payment.equens.bean.GenericPaymentRequest;
 import com.payline.payment.equens.bean.business.fraud.PsuSessionInformation;
 import com.payline.payment.equens.bean.business.payment.*;
-import com.payline.payment.equens.bean.business.psu.Psu;
-import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
 import com.payline.payment.equens.bean.business.reachdirectory.GetAspspsResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.InvalidDataException;
@@ -71,9 +69,6 @@ public class GenericPaymentService {
             pisHttpClient.init(paymentRequest.getPartnerConfiguration());
             psuHttpclient.init(paymentRequest.getPartnerConfiguration());
 
-            // Create a new PSU
-            Psu newPsu = psuHttpclient.createPsu(new PsuCreateRequest.PsuCreateRequestBuilder().build(), requestConfiguration);
-
             // Check required contract properties
             List<String> requiredContractProperties = Arrays.asList(
                     Constants.ContractConfigurationKeys.CHANNEL_TYPE,
@@ -92,7 +87,7 @@ public class GenericPaymentService {
             });
 
             // Build PaymentInitiationRequest (Equens) from PaymentRequest (Payline)
-            PaymentInitiationRequest request = buildPaymentInitiationRequest(paymentRequest, newPsu, paymentData);
+            PaymentInitiationRequest request = buildPaymentInitiationRequest(paymentRequest, paymentData);
 
             // Send the payment initiation request
             PaymentInitiationResponse paymentInitResponse = pisHttpClient.initPayment(request, requestConfiguration);
@@ -217,7 +212,7 @@ public class GenericPaymentService {
     }
 
     // Build PaymentInitiationRequest (Equens) from PaymentRequest (Payline)
-    PaymentInitiationRequest buildPaymentInitiationRequest(GenericPaymentRequest paymentRequest, Psu newPsu, PaymentData paymentData) {
+    PaymentInitiationRequest buildPaymentInitiationRequest(GenericPaymentRequest paymentRequest, PaymentData paymentData) {
 
         // extract BIC and IBAN
         String bic = paymentData.getBic();
@@ -276,7 +271,6 @@ public class GenericPaymentService {
                 .withRiskInformation(
                         new RiskInformation.RiskInformationBuilder()
                                 .withMerchantCategoryCode(paymentRequest.getSubMerchant() != null ? paymentRequest.getSubMerchant().getSubMerchantMCC() : null)
-                                .withMerchantCustomerId(paymentRequest.getBuyer().getCustomerIdentifier())
                                 .withDeliveryAddress(deliveryAddress)
                                 .withChannelType(
                                         paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.CHANNEL_TYPE).getValue()
@@ -289,7 +283,7 @@ public class GenericPaymentService {
                 .withChargeBearer(
                         paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.CHARGE_BEARER).getValue()
                 )
-                .withPsuId(newPsu.getPsuId())
+                .withPsuId(paymentRequest.getBuyer().getCustomerIdentifier())
                 .withPaymentProduct(
                         paymentRequest.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT)
                 ).withDebtorName(paymentRequest.getBuyer().getFullName().getLastName());

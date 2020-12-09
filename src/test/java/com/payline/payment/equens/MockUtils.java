@@ -99,6 +99,7 @@ public class MockUtils {
     public static Buyer aBuyer() {
         return Buyer.BuyerBuilder.aBuyer()
                 .withFullName(new Buyer.FullName("Marie", "Durand", "1"))
+                .withCustomerIdentifier("CUSTOMERID")
                 .build();
     }
 
