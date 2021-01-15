@@ -48,7 +48,7 @@ class PaymentWalletServiceImplTest {
 
         WalletPaymentRequest paymentRequest = WalletPaymentRequest.builder()
                 .wallet(wallet)
-                .pluginConfiguration(MockUtils.aPluginConfiguration())
+                .partnerConfiguration(MockUtils.aPartnerConfiguration())
                 .build();
 
         PaymentResponseRedirect.RedirectionRequest redirectionRequest = PaymentResponseRedirect.RedirectionRequest.RedirectionRequestBuilder

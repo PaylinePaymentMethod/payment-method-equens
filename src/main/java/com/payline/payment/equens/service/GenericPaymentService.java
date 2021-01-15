@@ -202,7 +202,7 @@ public class GenericPaymentService {
 
         // get the countryCode from the BIC
         String countryCode = PluginUtils.getCountryCodeFromBIC(
-                jsonService.fromJson(PluginUtils.extractBanks(paymentRequest.getPluginConfiguration()), GetAspspsResponse.class).getAspsps()
+                jsonService.fromJson(paymentRequest.getPluginConfiguration(), GetAspspsResponse.class).getAspsps()
                 , bic);
 
         // if the buyer choose a bank from Spain, IBAN is required
@@ -229,7 +229,7 @@ public class GenericPaymentService {
 
         // get the aspspId from the BIC
         String aspspId = PluginUtils.getAspspIdFromBIC(
-                jsonService.fromJson(PluginUtils.extractBanks(paymentRequest.getPluginConfiguration()), GetAspspsResponse.class).getAspsps()
+                jsonService.fromJson(paymentRequest.getPluginConfiguration(), GetAspspsResponse.class).getAspsps()
                 , bic);
 
         // Extract delivery address

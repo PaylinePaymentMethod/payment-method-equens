@@ -80,10 +80,6 @@ public class PluginUtils {
         return extract(s, 0);
     }
 
-    public static String extractKey(String s) {
-        return extract(s, 1);
-
-    }
 
     /**
      * check if a String is null or empty

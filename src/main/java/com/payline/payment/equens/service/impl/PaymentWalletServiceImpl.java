@@ -6,6 +6,7 @@ import com.payline.payment.equens.exception.InvalidDataException;
 import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.service.GenericPaymentService;
+import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.payment.equens.utils.security.RSAUtils;
 import com.payline.pmapi.bean.common.FailureCause;
@@ -34,7 +35,7 @@ public class PaymentWalletServiceImpl implements PaymentWalletService {
                 throw new InvalidDataException("WalletPaymentRequest shall have a pluginPaymentData");
             }
 
-            String key = PluginUtils.extractKey(walletPaymentRequest.getPluginConfiguration());
+            String key = walletPaymentRequest.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.ENCRYPTION_KEY);
             String data = rsaUtils.decrypt(encryptedData, key);
 
             // create the WalletPaymentData object to recover the BIC

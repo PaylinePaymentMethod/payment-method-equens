@@ -214,7 +214,7 @@ class ConfigurationServiceImplTest {
     @Test
     void retrievePluginConfiguration_nominal(){
         // given: the HTTP client returns a proper response
-        String input = PluginUtils.extractBanks( MockUtils.aPluginConfiguration());
+        String input = MockUtils.aPluginConfiguration();
         doReturn( JsonService.getInstance().fromJson( input, GetAspspsResponse.class ) ).when( pisHttpClient ).getAspsps( any(RequestConfiguration.class) );
 
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration(MockUtils.getExampleCountry());

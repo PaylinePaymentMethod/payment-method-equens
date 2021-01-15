@@ -95,7 +95,7 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
         if (pluginConfiguration == null) {
             LOGGER.warn("pluginConfiguration is null");
         } else {
-            List<Aspsp> aspsps = jsonService.fromJson(PluginUtils.extractBanks(pluginConfiguration), GetAspspsResponse.class).getAspsps();
+            List<Aspsp> aspsps = jsonService.fromJson(pluginConfiguration, GetAspspsResponse.class).getAspsps();
             List<Aspsp> validAspsps = filter(aspsps, listCountryCode);
 
             for (Aspsp aspsp : validAspsps) {

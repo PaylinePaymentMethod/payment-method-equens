@@ -40,6 +40,7 @@ public class Constants {
         public static final String PAYLINE_CLIENT_NAME = "paylineclientName";
         public static final String PAYLINE_ONBOARDING_ID = "paylineOnboardingId";
         public static final String PAYMENT_PRODUCT = "paymentProduct";
+        public static final String ENCRYPTION_KEY = "encryptionKey";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private PartnerConfigurationKeys() {
