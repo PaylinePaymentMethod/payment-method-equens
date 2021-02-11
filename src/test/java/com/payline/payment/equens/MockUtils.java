@@ -7,8 +7,9 @@ import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.service.impl.ConfigurationServiceImpl;
-import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.TestUtils;
+import com.payline.payment.equens.utils.constant.ContractConfigurationKeys;
+import com.payline.payment.equens.utils.constant.PartnerConfigurationKeys;
 import com.payline.payment.equens.utils.http.Authorization;
 import com.payline.payment.equens.utils.security.RSAHolder;
 import com.payline.pmapi.bean.common.Buyer;
@@ -147,21 +148,21 @@ public class MockUtils {
      */
     public static ContractConfiguration aContractConfiguration(String exampleCountry) {
         Map<String, ContractProperty> contractProperties = new HashMap<>();
-        contractProperties.put(Constants.ContractConfigurationKeys.CHANNEL_TYPE,
+        contractProperties.put(ContractConfigurationKeys.CHANNEL_TYPE,
                 new ContractProperty(ConfigurationServiceImpl.ChannelType.ECOMMERCE.getType()));
-        contractProperties.put(Constants.ContractConfigurationKeys.CHARGE_BEARER,
+        contractProperties.put(ContractConfigurationKeys.CHARGE_BEARER,
                 new ContractProperty(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer()));
-        contractProperties.put(Constants.ContractConfigurationKeys.CLIENT_NAME, new ContractProperty("MarketPay"));
-        contractProperties.put(Constants.ContractConfigurationKeys.MERCHANT_IBAN, new ContractProperty("FR1400490001510000000002"));
-        contractProperties.put(Constants.ContractConfigurationKeys.MERCHANT_NAME, new ContractProperty("John Snow"));
-        contractProperties.put(Constants.ContractConfigurationKeys.ONBOARDING_ID, new ContractProperty("XXXXXX"));
-        contractProperties.put(Constants.ContractConfigurationKeys.SCA_METHOD,
+        contractProperties.put(ContractConfigurationKeys.CLIENT_NAME, new ContractProperty("MarketPay"));
+        contractProperties.put(ContractConfigurationKeys.MERCHANT_IBAN, new ContractProperty("FR1400490001510000000002"));
+        contractProperties.put(ContractConfigurationKeys.MERCHANT_NAME, new ContractProperty("John Snow"));
+        contractProperties.put(ContractConfigurationKeys.ONBOARDING_ID, new ContractProperty("XXXXXX"));
+        contractProperties.put(ContractConfigurationKeys.SCA_METHOD,
                 new ContractProperty(ConfigurationServiceImpl.ScaMethod.REDIRECT));
-        contractProperties.put(Constants.ContractConfigurationKeys.PURPOSE_CODE,
+        contractProperties.put(ContractConfigurationKeys.PURPOSE_CODE,
                 new ContractProperty(ConfigurationServiceImpl.PurposeCode.COMMERCE.getCode()));
-        contractProperties.put(Constants.ContractConfigurationKeys.COUNTRIES,
+        contractProperties.put(ContractConfigurationKeys.COUNTRIES,
                 new ContractProperty(exampleCountry));
-        contractProperties.put(Constants.ContractConfigurationKeys.PISP_CONTRACT,
+        contractProperties.put(ContractConfigurationKeys.PISP_CONTRACT,
                 new ContractProperty("123456789012"));
 
         return new ContractConfiguration("INST EquensWorldline", contractProperties);
@@ -217,20 +218,20 @@ public class MockUtils {
      */
     public static PartnerConfiguration aPartnerConfiguration() {
         Map<String, String> partnerConfigurationMap = new HashMap<>();
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_TOKEN, "https://xs2a.awltest.de/xs2a/routingservice/services/authorize/token");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_ASPSPS, "https://xs2a.awltest.de/xs2a/routingservice/services/directory/v1/aspsps?allDetails=true");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments/{paymentId}/status");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PSU_PSUS, "https://xs2a.awltest.de/xs2a/routingservice/services/psumgmt/v1/psus");
+        partnerConfigurationMap.put(PartnerConfigurationKeys.API_URL_TOKEN, "https://xs2a.awltest.de/xs2a/routingservice/services/authorize/token");
+        partnerConfigurationMap.put(PartnerConfigurationKeys.API_URL_PIS_ASPSPS, "https://xs2a.awltest.de/xs2a/routingservice/services/directory/v1/aspsps?allDetails=true");
+        partnerConfigurationMap.put(PartnerConfigurationKeys.API_URL_PIS_PAYMENTS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments");
+        partnerConfigurationMap.put(PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments/{paymentId}/status");
+        partnerConfigurationMap.put(PartnerConfigurationKeys.API_URL_PSU_PSUS, "https://xs2a.awltest.de/xs2a/routingservice/services/psumgmt/v1/psus");
 
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME, "MarketPay");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID, "XXXXXX");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT, "Instant");
+        partnerConfigurationMap.put(PartnerConfigurationKeys.PAYLINE_CLIENT_NAME, "MarketPay");
+        partnerConfigurationMap.put(PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID, "XXXXXX");
+        partnerConfigurationMap.put(PartnerConfigurationKeys.PAYMENT_PRODUCT, "Instant");
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
-        sensitiveConfigurationMap.put(Constants.PartnerConfigurationKeys.CLIENT_CERTIFICATE, aClientCertificatePem());
-        sensitiveConfigurationMap.put(Constants.PartnerConfigurationKeys.CLIENT_PRIVATE_KEY, aPrivateKeyPem());
-        sensitiveConfigurationMap.put(Constants.PartnerConfigurationKeys.ENCRYPTION_KEY, "thisIsAKey");
+        sensitiveConfigurationMap.put(PartnerConfigurationKeys.CLIENT_CERTIFICATE, aClientCertificatePem());
+        sensitiveConfigurationMap.put(PartnerConfigurationKeys.CLIENT_PRIVATE_KEY, aPrivateKeyPem());
+        sensitiveConfigurationMap.put(PartnerConfigurationKeys.ENCRYPTION_KEY, "thisIsAKey");
 
         return new PartnerConfiguration(partnerConfigurationMap, sensitiveConfigurationMap);
     }
@@ -403,7 +404,7 @@ public class MockUtils {
                 .addPreferredScaMethod(ConfigurationServiceImpl.ScaMethod.REDIRECT)
                 .withChargeBearer(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer())
                 .withPsuId("1")
-                .withPaymentProduct(MockUtils.aPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT))
+                .withPaymentProduct(MockUtils.aPartnerConfiguration().getProperty(PartnerConfigurationKeys.PAYMENT_PRODUCT))
                 .withDebtorName("Durand");
     }
 

@@ -5,7 +5,8 @@ import com.payline.payment.equens.bean.business.EquensErrorResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.InvalidDataException;
 import com.payline.payment.equens.exception.PluginException;
-import com.payline.payment.equens.utils.Constants;
+import com.payline.payment.equens.utils.constant.ContractConfigurationKeys;
+import com.payline.payment.equens.utils.constant.PartnerConfigurationKeys;
 import com.payline.payment.equens.utils.security.RSAHolder;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
@@ -47,20 +48,20 @@ abstract class EquensHttpClient extends OAuthHttpClient {
     public void init(PartnerConfiguration partnerConfiguration) {
         try {
             // Build RSA holder from PartnerConfiguration
-            if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.CLIENT_CERTIFICATE ) == null ){
-                throw new InvalidDataException("Missing client certificate chain from partner configuration (sensitive properties)");
+            if( partnerConfiguration.getProperty( PartnerConfigurationKeys.CLIENT_CERTIFICATE ) == null ){
+                throw new InvalidDataException("Missing client certificate chain from partner configuration (sentitive properties)");
             }
-            if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.CLIENT_PRIVATE_KEY ) == null ){
+            if( partnerConfiguration.getProperty( PartnerConfigurationKeys.CLIENT_PRIVATE_KEY ) == null ){
                 throw new InvalidDataException("Missing client private key from partner configuration (sensitive properties)");
             }
-            if( partnerConfiguration.getProperty( Constants.PartnerConfigurationKeys.API_URL_TOKEN ) == null ){
+            if( partnerConfiguration.getProperty( PartnerConfigurationKeys.API_URL_TOKEN ) == null ){
                 throw new InvalidDataException("Missing API URL Token from partner configuration");
             }
 
             // Initialize RsaHolder instance
             this.rsaHolder = new RSAHolder.RSAHolderBuilder()
-                    .parseChain( partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.CLIENT_CERTIFICATE) )
-                    .parsePrivateKey( partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.CLIENT_PRIVATE_KEY) )
+                    .parseChain( partnerConfiguration.getProperty(PartnerConfigurationKeys.CLIENT_CERTIFICATE) )
+                    .parsePrivateKey( partnerConfiguration.getProperty(PartnerConfigurationKeys.CLIENT_PRIVATE_KEY) )
                     .build();
 
         } catch ( IOException | GeneralSecurityException e ){
@@ -68,7 +69,7 @@ abstract class EquensHttpClient extends OAuthHttpClient {
         }
 
         // Build authorization endpoint
-        String authorizationEndpoint = partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.API_URL_TOKEN);
+        String authorizationEndpoint = partnerConfiguration.getProperty(PartnerConfigurationKeys.API_URL_TOKEN);
 
         // Pass these elements to the parent method initializer
         super.init(authorizationEndpoint);
@@ -80,21 +81,21 @@ abstract class EquensHttpClient extends OAuthHttpClient {
     protected Map<String, String> authorizationHeaders(String uri, RequestConfiguration requestConfiguration ) {
         // Check required data
         ContractConfiguration contractConfiguration = requestConfiguration.getContractConfiguration();
-        if( contractConfiguration.getProperty( Constants.ContractConfigurationKeys.CLIENT_NAME ) == null
-                || contractConfiguration.getProperty( Constants.ContractConfigurationKeys.CLIENT_NAME ).getValue() == null ){
+        if( contractConfiguration.getProperty( ContractConfigurationKeys.CLIENT_NAME ) == null
+                || contractConfiguration.getProperty( ContractConfigurationKeys.CLIENT_NAME ).getValue() == null ){
             throw new InvalidDataException("Missing client name in contract configuration");
         }
-        if( contractConfiguration.getProperty( Constants.ContractConfigurationKeys.ONBOARDING_ID ) == null
-                || contractConfiguration.getProperty( Constants.ContractConfigurationKeys.ONBOARDING_ID ).getValue() == null ){
+        if( contractConfiguration.getProperty( ContractConfigurationKeys.ONBOARDING_ID ) == null
+                || contractConfiguration.getProperty( ContractConfigurationKeys.ONBOARDING_ID ).getValue() == null ){
             throw new InvalidDataException("Missing onboarding id in contract configuration");
         }
 
         // Build headers list
         Map<String, String> headers = new LinkedHashMap<>();
         headers.put(HEADER_AUTH_APP, this.appName());
-        headers.put(HEADER_AUTH_CLIENT, contractConfiguration.getProperty( Constants.ContractConfigurationKeys.CLIENT_NAME ).getValue());
+        headers.put(HEADER_AUTH_CLIENT, contractConfiguration.getProperty( ContractConfigurationKeys.CLIENT_NAME ).getValue());
         headers.put(HEADER_AUTH_DATE, new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.US).format(new Date()));
-        headers.put(HEADER_AUTH_ID, contractConfiguration.getProperty( Constants.ContractConfigurationKeys.ONBOARDING_ID ).getValue());
+        headers.put(HEADER_AUTH_ID, contractConfiguration.getProperty( ContractConfigurationKeys.ONBOARDING_ID ).getValue());
 
         // Generate the request signature
         Signature signature = this.generateSignature( uri, headers );

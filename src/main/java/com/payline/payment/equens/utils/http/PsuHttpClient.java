@@ -5,7 +5,7 @@ import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
 import com.payline.payment.equens.bean.business.psu.PsuCreateResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.InvalidDataException;
-import com.payline.payment.equens.utils.Constants;
+import com.payline.payment.equens.utils.constant.PartnerConfigurationKeys;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.StringEntity;
@@ -45,7 +45,7 @@ public class PsuHttpClient extends EquensHttpClient {
      */
     public Psu createPsu(PsuCreateRequest psuCreateRequest, RequestConfiguration requestConfiguration ){
         // Service full URL
-        String url = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.API_URL_PSU_PSUS);
+        String url = requestConfiguration.getPartnerConfiguration().getProperty(PartnerConfigurationKeys.API_URL_PSU_PSUS);
         if (url == null) {
             throw new InvalidDataException("Missing API psus url in PartnerConfiguration");
         }

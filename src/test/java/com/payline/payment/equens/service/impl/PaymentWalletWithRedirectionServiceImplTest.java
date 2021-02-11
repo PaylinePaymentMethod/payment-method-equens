@@ -1,7 +1,7 @@
 package com.payline.payment.equens.service.impl;
 
 import com.payline.payment.equens.MockUtils;
-import com.payline.payment.equens.utils.Constants;
+import com.payline.payment.equens.utils.constant.RequestContextKeys;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.RequestContext;
 import com.payline.pmapi.bean.payment.Wallet;
@@ -72,7 +72,7 @@ class PaymentWalletWithRedirectionServiceImplTest {
     void testFinalizeRedirection() {
 
         final Map<String, String> requestData = new HashMap();
-        requestData.put(Constants.RequestContextKeys.PAYMENT_ID, "1234");
+        requestData.put(RequestContextKeys.PAYMENT_ID, "1234");
         final RequestContext requestContext = RequestContext.RequestContextBuilder.aRequestContext().withRequestData(
                 requestData).build();
         final WalletRedirectionPaymentRequest walletRedirectionPaymentRequest = WalletRedirectionPaymentRequest.builder()

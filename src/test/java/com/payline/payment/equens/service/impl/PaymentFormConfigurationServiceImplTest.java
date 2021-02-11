@@ -4,9 +4,10 @@ import com.payline.payment.equens.MockUtils;
 import com.payline.payment.equens.bean.business.reachdirectory.Detail;
 import com.payline.payment.equens.utils.i18n.I18nService;
 import com.payline.pmapi.bean.common.FailureCause;
+import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormInputFieldSelect;
 import com.payline.pmapi.bean.paymentform.bean.field.SelectOption;
 import com.payline.pmapi.bean.paymentform.bean.form.AbstractPaymentForm;
-import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
+import com.payline.pmapi.bean.paymentform.bean.form.CustomForm;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseFailure;
@@ -36,13 +37,13 @@ class PaymentFormConfigurationServiceImplTest {
     private I18nService i18n;
 
     private String aspspsJson = "{\"Application\":\"PIS\",\"ASPSP\":[" +
-            "{\"AspspId\":\"1234\",\"Name\":[\"a Bank\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Normal|Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"MOOBARBAZXX\"}," +
-            "{\"AspspId\":\"4321\",\"Name\":[\"another Bank\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"FOOBARBA\"}," +
-            "{\"AspspId\":\"1409\",\"Name\":[\"La Banque Postale\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Normal\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"PSSTFRPP\"}," +
-            "{\"AspspId\":\"1601\",\"Name\":[\"BBVA\"],\"CountryCode\":\"ES\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"BBVAESMM\"}," +
-            "{\"AspspId\":\"1602\",\"Name\":[\"Santander\"],\"CountryCode\":\"ES\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"ES140049\"}," +
-            "{\"AspspId\":\"1603\",\"Name\":[\"Santander\"],\"CountryCode\":\"IT\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"IT14004\"}," +
-            "{\"AspspId\":\"224\",\"CountryCode\":\"DE\",\"Name\":[\"08/15direkt\"],\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}]}" +
+            "{\"AspspId\":\"1234\",\"Name\":[\"a Bank\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Value\":\"Normal|Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"MOOBARBAZXX\"}," +
+            "{\"AspspId\":\"4321\",\"Name\":[\"another Bank\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"FOOBARBA\"}," +
+            "{\"AspspId\":\"1409\",\"Name\":[\"La Banque Postale\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Value\":\"Normal\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"PSSTFRPP\"}," +
+            "{\"AspspId\":\"1601\",\"Name\":[\"BBVA\"],\"CountryCode\":\"ES\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"BBVAESMM\"}," +
+            "{\"AspspId\":\"1602\",\"Name\":[\"Santander\"],\"CountryCode\":\"ES\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"ES140049\"}," +
+            "{\"AspspId\":\"1603\",\"Name\":[\"Santander\"],\"CountryCode\":\"IT\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"IT14004\"}," +
+            "{\"AspspId\":\"224\",\"CountryCode\":\"DE\",\"Name\":[\"08/15direkt\"],\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}]}" +
             "],\"MessageCreateDateTime\":\"2019-11-15T16:52:37.092+0100\",\"MessageId\":\"6f31954f-7ad6-4a63-950c-a2a363488e\"}";
 
     @BeforeEach
@@ -72,9 +73,10 @@ class PaymentFormConfigurationServiceImplTest {
         AbstractPaymentForm form = ((PaymentFormConfigurationResponseSpecific) response).getPaymentForm();
         assertNotNull(form.getButtonText());
         assertNotNull(form.getDescription());
-        assertEquals(BankTransferForm.class, form.getClass());
-        BankTransferForm bankTransferForm = (BankTransferForm) form;
-        assertEquals(2, bankTransferForm.getBanks().size());
+        assertEquals(CustomForm.class, form.getClass());
+        CustomForm customForm = (CustomForm) form;
+        assertEquals(1,customForm.getCustomFields().size());
+        assertEquals(PaymentFormInputFieldSelect.class,customForm.getCustomFields().get(0).getClass());
     }
 
     @Test

@@ -12,7 +12,6 @@ public class Aspsp {
     private String bic;
     @SerializedName("CountryCode")
     private String countryCode;
-    // Do not map Details because it would require another bean that we would not use anyway...
     @SerializedName("Name")
     private List<String> name;
     @SerializedName("Details")

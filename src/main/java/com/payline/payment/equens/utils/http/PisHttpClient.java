@@ -7,7 +7,7 @@ import com.payline.payment.equens.bean.business.payment.PaymentStatusResponse;
 import com.payline.payment.equens.bean.business.reachdirectory.GetAspspsResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.InvalidDataException;
-import com.payline.payment.equens.utils.Constants;
+import com.payline.payment.equens.utils.constant.PartnerConfigurationKeys;
 import com.payline.pmapi.logger.LogManager;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
@@ -50,7 +50,7 @@ public class PisHttpClient extends EquensHttpClient {
      */
     public GetAspspsResponse getAspsps(RequestConfiguration requestConfiguration) {
         // Service full URL
-        String url = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.API_URL_PIS_ASPSPS);
+        String url = requestConfiguration.getPartnerConfiguration().getProperty(PartnerConfigurationKeys.API_URL_PIS_ASPSPS);
         if (url == null) {
             throw new InvalidDataException("Missing API aspsps url in PartnerConfiguration");
         }
@@ -79,7 +79,7 @@ public class PisHttpClient extends EquensHttpClient {
      */
     public PaymentInitiationResponse initPayment(PaymentInitiationRequest paymentInitiationRequest, RequestConfiguration requestConfiguration) {
         // Service full URL
-        String url = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS);
+        String url = requestConfiguration.getPartnerConfiguration().getProperty(PartnerConfigurationKeys.API_URL_PIS_PAYMENTS);
         if (url == null) {
             throw new InvalidDataException("Missing API payments url in PartnerConfiguration");
         }
@@ -116,7 +116,7 @@ public class PisHttpClient extends EquensHttpClient {
      */
     public PaymentStatusResponse paymentStatus(String paymentId, RequestConfiguration requestConfiguration, boolean autoConfirm) {
         // Service full URL
-        String url = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS);
+        String url = requestConfiguration.getPartnerConfiguration().getProperty(PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS);
         if (url == null) {
             throw new InvalidDataException("Missing API payment status url in PartnerConfiguration");
         }

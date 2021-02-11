@@ -5,8 +5,8 @@ import com.payline.payment.equens.bean.business.payment.PaymentStatusResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.bean.pmapi.TransactionAdditionalData;
 import com.payline.payment.equens.exception.PluginException;
+import com.payline.payment.equens.utils.constant.ContractConfigurationKeys;
 import com.payline.payment.equens.service.JsonService;
-import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.http.PisHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.common.OnHoldCause;
@@ -51,8 +51,8 @@ public abstract class AbstractRedirectionServiceImpl {
             // Retrieve merchant IBAN
             String merchantIban = null;
             if (requestConfiguration.getContractConfiguration()
-                    .getProperty(Constants.ContractConfigurationKeys.MERCHANT_IBAN) != null) {
-                merchantIban = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_IBAN).getValue();
+                    .getProperty(ContractConfigurationKeys.MERCHANT_IBAN) != null) {
+                merchantIban = requestConfiguration.getContractConfiguration().getProperty(ContractConfigurationKeys.MERCHANT_IBAN).getValue();
             }
 
             // Build the appropriate response

@@ -4,13 +4,13 @@ import com.payline.payment.equens.bean.business.reachdirectory.GetAspspsResponse
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.service.JsonService;
-import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
+import com.payline.payment.equens.utils.constant.ContractConfigurationKeys;
+import com.payline.payment.equens.utils.constant.PartnerConfigurationKeys;
 import com.payline.payment.equens.utils.http.PisHttpClient;
 import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.payment.equens.utils.i18n.I18nService;
 import com.payline.payment.equens.utils.properties.ReleaseProperties;
-import com.payline.payment.equens.utils.security.RSAUtils;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
@@ -92,7 +92,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private PisHttpClient pisHttpClient = PisHttpClient.getInstance();
     private PsuHttpClient psuHttpClient = PsuHttpClient.getInstance();
     private ReleaseProperties releaseProperties = ReleaseProperties.getInstance();
-    private RSAUtils rsaUtils = RSAUtils.getInstance();
 
 
     @Override
@@ -100,26 +99,26 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         List<AbstractParameter> parameters = new ArrayList<>();
 
         // Client name
-        parameters.add(this.newInputParameter(Constants.ContractConfigurationKeys.CLIENT_NAME, true, locale));
+        parameters.add(this.newInputParameter(ContractConfigurationKeys.CLIENT_NAME, true, locale));
 
         // Onboarding ID
-        parameters.add(this.newInputParameter(Constants.ContractConfigurationKeys.ONBOARDING_ID, true, locale));
+        parameters.add(this.newInputParameter(ContractConfigurationKeys.ONBOARDING_ID, true, locale));
 
         // merchant iban
-        parameters.add(this.newInputParameter(Constants.ContractConfigurationKeys.MERCHANT_IBAN, false, locale));
+        parameters.add(this.newInputParameter(ContractConfigurationKeys.MERCHANT_IBAN, false, locale));
 
         // merchant name
-        parameters.add(this.newInputParameter(Constants.ContractConfigurationKeys.MERCHANT_NAME, false, locale));
+        parameters.add(this.newInputParameter(ContractConfigurationKeys.MERCHANT_NAME, false, locale));
 
         // channel type
         Map<String, String> channelTypes = new HashMap<>();
         channelTypes.put(ChannelType.ECOMMERCE.getType(), ChannelType.ECOMMERCE.getType());
-        parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.CHANNEL_TYPE, channelTypes, ChannelType.ECOMMERCE.getType(), true, locale));
+        parameters.add(this.newListBoxParameter(ContractConfigurationKeys.CHANNEL_TYPE, channelTypes, ChannelType.ECOMMERCE.getType(), true, locale));
 
         // SCA method
         Map<String, String> scaMethods = new HashMap<>();
         scaMethods.put(ScaMethod.REDIRECT, ScaMethod.REDIRECT);
-        parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.SCA_METHOD, scaMethods, ScaMethod.REDIRECT, true, locale));
+        parameters.add(this.newListBoxParameter(ContractConfigurationKeys.SCA_METHOD, scaMethods, ScaMethod.REDIRECT, true, locale));
 
         // Charge bearer
         Map<String, String> chargeBearers = new HashMap<>();
@@ -127,24 +126,24 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         chargeBearers.put(ChargeBearer.DEBT.getBearer(), ChargeBearer.DEBT.getBearer());
         chargeBearers.put(ChargeBearer.SHAR.getBearer(), ChargeBearer.SHAR.getBearer());
         chargeBearers.put(ChargeBearer.SLEV.getBearer(), ChargeBearer.SLEV.getBearer());
-        parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.CHARGE_BEARER, chargeBearers, ChargeBearer.SLEV.getBearer(), true, locale));
+        parameters.add(this.newListBoxParameter(ContractConfigurationKeys.CHARGE_BEARER, chargeBearers, ChargeBearer.SLEV.getBearer(), true, locale));
 
         // purpose code
         Map<String, String> purposeCodes = new HashMap<>();
         purposeCodes.put(PurposeCode.CARPARK.getCode(), PurposeCode.CARPARK.getCode());
         purposeCodes.put(PurposeCode.COMMERCE.getCode(), PurposeCode.COMMERCE.getCode());
         purposeCodes.put(PurposeCode.TRANSPORT.getCode(), PurposeCode.TRANSPORT.getCode());
-        parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.PURPOSE_CODE, purposeCodes, PurposeCode.COMMERCE.getCode(), true, locale));
+        parameters.add(this.newListBoxParameter(ContractConfigurationKeys.PURPOSE_CODE, purposeCodes, PurposeCode.COMMERCE.getCode(), true, locale));
 
         // Create a listBox who display countries accepted by the API
         Map<String, String> countryCode = new HashMap<>();
         countryCode.put(CountryCode.FR.name(), i18n.getMessage("countryCode.fr", locale));
         countryCode.put(CountryCode.ES.name(), i18n.getMessage("countryCode.es", locale));
         countryCode.put(CountryCode.ALL.name(), i18n.getMessage("countryCode.all", locale));
-        parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.COUNTRIES, countryCode, CountryCode.ALL.name(), true, locale));
+        parameters.add(this.newListBoxParameter(ContractConfigurationKeys.COUNTRIES, countryCode, CountryCode.ALL.name(), true, locale));
 
         // PISP contract
-        parameters.add(this.newInputParameter(Constants.ContractConfigurationKeys.PISP_CONTRACT, true, locale));
+        parameters.add(this.newInputParameter(ContractConfigurationKeys.PISP_CONTRACT, true, locale));
 
         return parameters;
     }
@@ -165,15 +164,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         // check PISP format (N12)
-        String pispContract = accountInfo.get(Constants.ContractConfigurationKeys.PISP_CONTRACT);
+        String pispContract = accountInfo.get(ContractConfigurationKeys.PISP_CONTRACT);
         if (PluginUtils.isEmpty(pispContract) ||  pispContract.length() > 12  || !PluginUtils.isNumeric(pispContract)) {
-            String message = i18n.getMessage(I18N_CONTRACT_PREFIX + Constants.ContractConfigurationKeys.PISP_CONTRACT + ".badFormat", locale);
-            errors.put(Constants.ContractConfigurationKeys.PISP_CONTRACT, message);
+            String message = i18n.getMessage(I18N_CONTRACT_PREFIX + ContractConfigurationKeys.PISP_CONTRACT + ".badFormat", locale);
+            errors.put(ContractConfigurationKeys.PISP_CONTRACT, message);
         }
 
         // Check the clientName and onboarding ID
-        String clientNameKey = Constants.ContractConfigurationKeys.CLIENT_NAME;
-        String onboardingIdKey = Constants.ContractConfigurationKeys.ONBOARDING_ID;
+        String clientNameKey = ContractConfigurationKeys.CLIENT_NAME;
+        String onboardingIdKey = ContractConfigurationKeys.ONBOARDING_ID;
 
         // If one of them is missing, no need to go further as they are both required to get an access token
         if (errors.containsKey(clientNameKey) || errors.containsKey(onboardingIdKey)) {
@@ -217,17 +216,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             pluginConfigurationIs now formated as: { banks }&&&privateKey
              */
             PartnerConfiguration partnerConfiguration = retrievePluginConfigurationRequest.getPartnerConfiguration();
-            if (partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME) == null) {
+            if (partnerConfiguration.getProperty(PartnerConfigurationKeys.PAYLINE_CLIENT_NAME) == null) {
                 throw new PluginException("Missing Payline clientName from partner configuration");
             }
-            if (partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID) == null) {
+            if (partnerConfiguration.getProperty(PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID) == null) {
                 throw new PluginException("Missing Payline onboardingId from partner configuration");
             }
             Map<String, ContractProperty> contractProperties = new HashMap<>();
-            contractProperties.put(Constants.ContractConfigurationKeys.CLIENT_NAME,
-                    new ContractProperty(partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME)));
-            contractProperties.put(Constants.ContractConfigurationKeys.ONBOARDING_ID,
-                    new ContractProperty(partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID)));
+            contractProperties.put(ContractConfigurationKeys.CLIENT_NAME,
+                    new ContractProperty(partnerConfiguration.getProperty(PartnerConfigurationKeys.PAYLINE_CLIENT_NAME)));
+            contractProperties.put(ContractConfigurationKeys.ONBOARDING_ID,
+                    new ContractProperty(partnerConfiguration.getProperty(PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID)));
             ContractConfiguration contractConfiguration = new ContractConfiguration("fake contract", contractProperties);
 
             RequestConfiguration requestConfiguration = new RequestConfiguration(
@@ -242,9 +241,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             GetAspspsResponse apspsps = pisHttpClient.getAspsps(requestConfiguration);
 
             // Serialize the list (as JSON)
-            String banks = jsonService.toJson(apspsps);
-
-            return banks;
+            return jsonService.toJson(apspsps);
         } catch (RuntimeException e) {
             LOGGER.error("Could not retrieve plugin configuration due to a plugin error", e);
             return retrievePluginConfigurationRequest.getPluginConfiguration();

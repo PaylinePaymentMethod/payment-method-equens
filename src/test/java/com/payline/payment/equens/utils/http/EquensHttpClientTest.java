@@ -4,7 +4,7 @@ import com.payline.payment.equens.MockUtils;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.InvalidDataException;
 import com.payline.payment.equens.exception.PluginException;
-import com.payline.payment.equens.utils.Constants;
+import com.payline.payment.equens.utils.constant.ContractConfigurationKeys;
 import com.payline.payment.equens.utils.security.RSAHolder;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
@@ -78,7 +78,7 @@ class EquensHttpClientTest {
         // given: client name is missing from ContractConfiguration
         String uri = "http://test.domain.fr/path";
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration(MockUtils.getExampleCountry());
-        contractConfiguration.getContractProperties().remove(Constants.ContractConfigurationKeys.CLIENT_NAME);
+        contractConfiguration.getContractProperties().remove(ContractConfigurationKeys.CLIENT_NAME);
         RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
 
         // when: calling authorizationHeaders(), then: an exception is thrown
@@ -90,7 +90,7 @@ class EquensHttpClientTest {
         // given: onboarding id is missing from ContractConfiguration
         String uri = "http://test.domain.fr/path";
         ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration(MockUtils.getExampleCountry());
-        contractConfiguration.getContractProperties().remove(Constants.ContractConfigurationKeys.ONBOARDING_ID);
+        contractConfiguration.getContractProperties().remove(ContractConfigurationKeys.ONBOARDING_ID);
         RequestConfiguration requestConfiguration = new RequestConfiguration(contractConfiguration, MockUtils.anEnvironment(), MockUtils.aPartnerConfiguration());
 
         // when: calling authorizationHeaders(), then: an exception is thrown

@@ -10,8 +10,10 @@ import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.InvalidDataException;
 import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.service.impl.ConfigurationServiceImpl;
-import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
+import com.payline.payment.equens.utils.constant.ContractConfigurationKeys;
+import com.payline.payment.equens.utils.constant.PartnerConfigurationKeys;
+import com.payline.payment.equens.utils.constant.RequestContextKeys;
 import com.payline.payment.equens.utils.http.PisHttpClient;
 import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.pmapi.bean.common.Amount;
@@ -76,13 +78,13 @@ public class GenericPaymentService {
 
             // Check required contract properties
             List<String> requiredContractProperties = Arrays.asList(
-                    Constants.ContractConfigurationKeys.CHANNEL_TYPE,
-                    Constants.ContractConfigurationKeys.CHARGE_BEARER,
-                    Constants.ContractConfigurationKeys.MERCHANT_IBAN,
-                    Constants.ContractConfigurationKeys.MERCHANT_NAME,
-                    Constants.ContractConfigurationKeys.PURPOSE_CODE,
-                    Constants.ContractConfigurationKeys.SCA_METHOD,
-                    Constants.ContractConfigurationKeys.COUNTRIES
+                    ContractConfigurationKeys.CHANNEL_TYPE,
+                    ContractConfigurationKeys.CHARGE_BEARER,
+                    ContractConfigurationKeys.MERCHANT_IBAN,
+                    ContractConfigurationKeys.MERCHANT_NAME,
+                    ContractConfigurationKeys.PURPOSE_CODE,
+                    ContractConfigurationKeys.SCA_METHOD,
+                    ContractConfigurationKeys.COUNTRIES
             );
             requiredContractProperties.forEach(key -> {
                 if (paymentRequest.getContractConfiguration().getProperty(key) == null
@@ -104,7 +106,7 @@ public class GenericPaymentService {
 
             // request context
             Map<String, String> requestData = new HashMap<>();
-            requestData.put(Constants.RequestContextKeys.PAYMENT_ID, paymentInitResponse.getPaymentId());
+            requestData.put(RequestContextKeys.PAYMENT_ID, paymentInitResponse.getPaymentId());
             RequestContext requestContext = RequestContext.RequestContextBuilder.aRequestContext()
                     .withRequestData(requestData)
                     .withSensitiveRequestData(new HashMap<>())
@@ -198,7 +200,7 @@ public class GenericPaymentService {
 
 
         // get the list of countryCode available by the merchant
-        listCountryCode = PluginUtils.createListCountry(paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.COUNTRIES).getValue());
+        listCountryCode = PluginUtils.createListCountry(paymentRequest.getContractConfiguration().getProperty(ContractConfigurationKeys.COUNTRIES).getValue());
 
         // get the countryCode from the BIC
         String countryCode = PluginUtils.getCountryCodeFromBIC(
@@ -237,13 +239,13 @@ public class GenericPaymentService {
         if (paymentRequest.getBuyer().getAddresses() != null) {
             deliveryAddress = buildAddress(paymentRequest.getBuyer().getAddressForType(Buyer.AddressType.DELIVERY));
         }
-        String merchantName = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_NAME).getValue();
+        String merchantName = paymentRequest.getContractConfiguration().getProperty(ContractConfigurationKeys.MERCHANT_NAME).getValue();
         String creditorName =  PluginUtils.isEmpty(merchantName) ? null : merchantName;
-        String creditorAccountIdentification = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_IBAN).getValue();
+        String creditorAccountIdentification = paymentRequest.getContractConfiguration().getProperty(ContractConfigurationKeys.MERCHANT_IBAN).getValue();
         Account creditorAccount =  PluginUtils.isEmpty(creditorAccountIdentification) ?  null : new Account.AccountBuilder().withIdentification(creditorAccountIdentification).build();
 
         String softDescriptor = paymentRequest.getSoftDescriptor();
-        String pispContract = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PISP_CONTRACT).getValue();
+        String pispContract = paymentRequest.getContractConfiguration().getProperty(ContractConfigurationKeys.PISP_CONTRACT).getValue();
 
         PaymentInitiationRequest.PaymentInitiationRequestBuilder paymentInitiationRequestBuilder = new PaymentInitiationRequest.PaymentInitiationRequestBuilder()
                 .withAspspId(aspspId)
@@ -265,7 +267,7 @@ public class GenericPaymentService {
                 .withPaymentAmount(convertAmount(paymentRequest.getAmount()))
                 .withPaymentCurrency(paymentRequest.getAmount().getCurrency().getCurrencyCode())
                 .withPurposeCode(
-                        paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PURPOSE_CODE).getValue()
+                        paymentRequest.getContractConfiguration().getProperty(ContractConfigurationKeys.PURPOSE_CODE).getValue()
                 )
                 .withPsuSessionInformation(
                         new PsuSessionInformation.PsuSessionInformationBuilder()
@@ -279,19 +281,19 @@ public class GenericPaymentService {
                                 .withMerchantCustomerId(paymentRequest.getBuyer().getCustomerIdentifier())
                                 .withDeliveryAddress(deliveryAddress)
                                 .withChannelType(
-                                        paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.CHANNEL_TYPE).getValue()
+                                        paymentRequest.getContractConfiguration().getProperty(ContractConfigurationKeys.CHANNEL_TYPE).getValue()
                                 )
                                 .build()
                 )
                 .addPreferredScaMethod(
-                        paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.SCA_METHOD).getValue()
+                        paymentRequest.getContractConfiguration().getProperty(ContractConfigurationKeys.SCA_METHOD).getValue()
                 )
                 .withChargeBearer(
-                        paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.CHARGE_BEARER).getValue()
+                        paymentRequest.getContractConfiguration().getProperty(ContractConfigurationKeys.CHARGE_BEARER).getValue()
                 )
                 .withPsuId(newPsu.getPsuId())
                 .withPaymentProduct(
-                        paymentRequest.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT)
+                        paymentRequest.getPartnerConfiguration().getProperty(PartnerConfigurationKeys.PAYMENT_PRODUCT)
                 ).withDebtorName(paymentRequest.getBuyer().getFullName().getLastName());
 
         // add the debtor account only if he gives his IBAN, to avoid an empty object
