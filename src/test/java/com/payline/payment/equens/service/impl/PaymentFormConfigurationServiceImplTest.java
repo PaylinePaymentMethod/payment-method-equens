@@ -137,6 +137,20 @@ class PaymentFormConfigurationServiceImplTest {
         // then: there is only 1 bank choice at the end
         assertEquals(2, result.size());
     }
+    @Test
+    void getBanks_withoutBic() {
+        String json = "{\"Application\":\"PIS\",\"ASPSP\":[" +
+                "{\"AspspId\":\"1234\",\"Name\":[\"a Bank\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Normal|Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"MOOBARBAZXX\"}]}";
+
+        // when: calling getBanks method
+        List<String> listCountry = new ArrayList<>();
+        listCountry.add(Locale.FRANCE.getCountry());
+        List<SelectOption> result = service.getBanks(json, listCountry);
+
+        // then: The Bic is not contained in the name of the bank
+        assertEquals("a Bank",result.get(0).getValue());
+        assertEquals("MOOBARBAZXX",result.get(0).getKey());
+    }
 
     @Test
     void getBanks_filterAspspByMultipleCountryCode() {

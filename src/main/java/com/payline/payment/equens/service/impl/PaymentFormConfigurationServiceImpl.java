@@ -116,14 +116,13 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
 
     private SelectOption createAspspOption(Aspsp aspsp) {
         // add the aspsp name if exists
-        StringBuilder valuesBuilder = new StringBuilder(aspsp.getBic());
+        String valuesBuilder = "";
         if (aspsp.getName() != null && !aspsp.getName().isEmpty()) {
-            valuesBuilder.append(" - ")
-                    .append(aspsp.getName().get(0));
+            valuesBuilder = aspsp.getName().get(0);
         }
         return SelectOption.SelectOptionBuilder.aSelectOption()
                 .withKey(aspsp.getBic())
-                .withValue(valuesBuilder.toString())
+                .withValue(valuesBuilder)
                 .build();
     }
 
