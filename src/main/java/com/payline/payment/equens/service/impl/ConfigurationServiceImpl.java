@@ -63,6 +63,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             return bearer;
         }
     }
+    public enum PaymentProduct {
+        NORMAL("Normal"), INSTANT("Instant");
+
+        private final String paymentProduct;
+        PaymentProduct(String paymentProduct) {
+            this.paymentProduct = paymentProduct;
+        }
+
+        public String getPaymentProduct() {
+            return paymentProduct;
+        }
+    }
 
     public enum PurposeCode {
         CARPARK("Carpark"), COMMERCE("Commerce"), TRANSPORT("Transport");
@@ -110,6 +122,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         // merchant name
         parameters.add(this.newInputParameter(Constants.ContractConfigurationKeys.MERCHANT_NAME, false, locale));
+
+        //Choix du paiement mode (Normal/Instant).
+        final Map<String, String> paymentProduct = new HashMap<>();
+        paymentProduct.put(PaymentProduct.NORMAL.getPaymentProduct(), PaymentProduct.NORMAL.getPaymentProduct());
+        paymentProduct.put(PaymentProduct.INSTANT.getPaymentProduct(), PaymentProduct.INSTANT.getPaymentProduct());
+        parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT, paymentProduct, PaymentProduct.NORMAL.getPaymentProduct(), true, locale));
 
         // channel type
         Map<String, String> channelTypes = new HashMap<>();

@@ -139,7 +139,7 @@ class LogoPaymentFormConfigurationServiceTest {
         doReturn("image/png").when(config).get("logoWallet.contentType");
 
         //Call wallet logo service.
-        PaymentFormLogo paymentFormLogo = testService.getWalletLogo("SCTI_EQUENS", Locale.getDefault());
+        PaymentFormLogo paymentFormLogo = testService.getWalletLogo("EQUENS", Locale.getDefault());
 
         // check
         assertEquals("image/png", paymentFormLogo.getContentType());
@@ -155,7 +155,7 @@ class LogoPaymentFormConfigurationServiceTest {
 
         // check
         try {
-            testService.getWalletLogo("SCTI_EQUENS", locale);
+            testService.getWalletLogo("EQUENS", locale);
             Assertions.fail("should be an PluginException");
         } catch (PluginException e) {
             Assertions.assertEquals("Plugin error: unable to load the logo file", e.getMessage());
