@@ -20,6 +20,7 @@ public class Constants {
         public static final String SCA_METHOD = "scaMethod";
         public static final String COUNTRIES = "countries";
         public static final String PISP_CONTRACT = "pisp";
+        public static final String PAYMENT_PRODUCT = "paymentProduct";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private ContractConfigurationKeys() {
@@ -39,7 +40,6 @@ public class Constants {
         public static final String CLIENT_PRIVATE_KEY = "clientPrivateKey";
         public static final String PAYLINE_CLIENT_NAME = "paylineclientName";
         public static final String PAYLINE_ONBOARDING_ID = "paylineOnboardingId";
-        public static final String PAYMENT_PRODUCT = "paymentProduct";
         public static final String ENCRYPTION_KEY = "encryptionKey";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
