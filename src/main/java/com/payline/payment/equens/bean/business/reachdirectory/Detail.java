@@ -8,7 +8,7 @@ public class Detail {
     @SerializedName("Api")
     private String api;
 
-    @SerializedName("FieldName")
+    @SerializedName("Fieldname")
     private String fieldName;
 
     @SerializedName("Type")
