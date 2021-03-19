@@ -119,7 +119,7 @@ class PaymentFormConfigurationServiceImplTest {
         // when: calling getBanks method
         List<String> listCountry = new ArrayList<>();
         listCountry.add(Locale.GERMANY.getCountry());
-        List<SelectOption> result = service.getBanks(aspspsJson, listCountry);
+        List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
 
         // then: the aspsp is ignered because there is no BIC
         assertTrue(result.isEmpty());
@@ -132,7 +132,7 @@ class PaymentFormConfigurationServiceImplTest {
         // when: calling getBanks method
         List<String> listCountry = new ArrayList<>();
         listCountry.add(Locale.FRANCE.getCountry());
-        List<SelectOption> result = service.getBanks(aspspsJson, listCountry);
+        List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
 
         // then: there is only 1 bank choice at the end
         assertEquals(2, result.size());
@@ -146,7 +146,7 @@ class PaymentFormConfigurationServiceImplTest {
         List<String> listCountry = new ArrayList<>();
         listCountry.add(Locale.FRANCE.getCountry());
         listCountry.add("ES");
-        List<SelectOption> result = service.getBanks(aspspsJson, listCountry);
+        List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
 
         // then: there is 2 banks choice at the end
         assertEquals(4, result.size());
@@ -159,7 +159,7 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(new Detail("API", "PaymentProduct", "SUPPORTED", "Normal", "protocol1"));
         details.add(new Detail("API", "foo2", "MANDATORY", null, "protocol1"));
 
-        Assertions.assertFalse( service.isCompatible(details));
+        Assertions.assertFalse( service.isCompatibleBank(details, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
     }
 
     @Test
@@ -169,7 +169,7 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(new Detail("API", "PaymentProduct", "SUPPORTED", "Normal|Instant", "protocol1"));
         details.add(new Detail("API", "foo2", "MANDATORY", null, "protocol1"));
 
-        Assertions.assertTrue( service.isCompatible(details));
+        Assertions.assertTrue( service.isCompatibleBank(details, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
     }
 
     @Test
@@ -179,7 +179,7 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(new Detail("API", "PaymentProduct", "SUPPORTED", "Instant", "protocol1"));
         details.add(new Detail("API", "foo2", "MANDATORY", null, "protocol1"));
 
-        Assertions.assertTrue( service.isCompatible(details));
+        Assertions.assertTrue( service.isCompatibleBank(details, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
     }
 
     @Test
@@ -188,11 +188,11 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(new Detail("API", "foo", "MANDATORY", null, "protocol1"));
         details.add(new Detail("API", "foo2", "MANDATORY", null, "protocol1"));
 
-        Assertions.assertTrue( service.isCompatible(details));
+        Assertions.assertTrue( service.isCompatibleBank(details, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
     }
 
     @Test
     void isCompatibleNull(){
-        Assertions.assertTrue( service.isCompatible(null));
+        Assertions.assertTrue( service.isCompatibleBank(null, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
     }
 }

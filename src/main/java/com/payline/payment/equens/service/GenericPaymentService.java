@@ -291,7 +291,8 @@ public class GenericPaymentService {
                 )
                 .withPsuId(newPsu.getPsuId())
                 .withPaymentProduct(
-                        paymentRequest.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT)
+                        paymentRequest.getContractConfiguration()
+                                .getProperty(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT).getValue()
                 ).withDebtorName(paymentRequest.getBuyer().getFullName().getLastName());
 
         // add the debtor account only if he gives his IBAN, to avoid an empty object

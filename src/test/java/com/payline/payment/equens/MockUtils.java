@@ -163,6 +163,7 @@ public class MockUtils {
                 new ContractProperty(exampleCountry));
         contractProperties.put(Constants.ContractConfigurationKeys.PISP_CONTRACT,
                 new ContractProperty("123456789012"));
+        contractProperties.put(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT, new ContractProperty("Instant"));
 
         return new ContractConfiguration("INST EquensWorldline", contractProperties);
     }
@@ -225,7 +226,6 @@ public class MockUtils {
 
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME, "MarketPay");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID, "XXXXXX");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT, "Instant");
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
         sensitiveConfigurationMap.put(Constants.PartnerConfigurationKeys.CLIENT_CERTIFICATE, aClientCertificatePem());
@@ -403,7 +403,7 @@ public class MockUtils {
                 .addPreferredScaMethod(ConfigurationServiceImpl.ScaMethod.REDIRECT)
                 .withChargeBearer(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer())
                 .withPsuId("1")
-                .withPaymentProduct(MockUtils.aPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT))
+                .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct())
                 .withDebtorName("Durand");
     }
 

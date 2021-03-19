@@ -10,6 +10,9 @@ import com.payline.payment.equens.service.LogoPaymentFormConfigurationService;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.pmapi.bean.common.FailureCause;
+import com.payline.pmapi.bean.payment.ContractProperty;
+import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormField;
+import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormInputFieldCheckbox;
 import com.payline.pmapi.bean.paymentform.bean.field.SelectOption;
 import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
 import com.payline.pmapi.bean.paymentform.bean.form.CustomForm;
@@ -21,6 +24,8 @@ import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -34,27 +39,34 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
     @Override
     public PaymentFormConfigurationResponse getPaymentFormConfiguration(PaymentFormConfigurationRequest paymentFormConfigurationRequest) {
         PaymentFormConfigurationResponse pfcResponse;
-        List<String> listCountryCode;
-
+        final List<String> listCountryCode;
+        final ContractProperty paymentModeProperty;
         try {
-            Locale locale = paymentFormConfigurationRequest.getLocale();
+            final Locale locale = paymentFormConfigurationRequest.getLocale();
 
             // build the banks list from the plugin configuration
             if (paymentFormConfigurationRequest.getPluginConfiguration() == null) {
                 throw new InvalidDataException("Plugin configuration must not be null");
             }
             // check if the string who contain the list of country is empty
-            String countries = paymentFormConfigurationRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.COUNTRIES).getValue();
+            final String countries = paymentFormConfigurationRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.COUNTRIES).getValue();
             if (PluginUtils.isEmpty(countries)) {
                 throw new InvalidDataException("country must not be empty");
             }
 
             listCountryCode = PluginUtils.createListCountry(countries);
 
-            List<SelectOption> banks = this.getBanks(paymentFormConfigurationRequest.getPluginConfiguration(), listCountryCode);
+            paymentModeProperty = paymentFormConfigurationRequest
+                    .getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT);
+
+            if (paymentModeProperty == null || PluginUtils.isEmpty(paymentModeProperty.getValue())) {
+                throw new InvalidDataException("Payment product must not be empty");
+            }
+
+            final List<SelectOption> banks = this.getBanks(paymentFormConfigurationRequest.getPluginConfiguration(), listCountryCode, paymentModeProperty.getValue());
 
             // Build the payment form
-            CustomForm form = BankTransferForm.builder()
+            final CustomForm form = BankTransferForm.builder()
                     .withBanks(banks)
                     .withDescription(i18n.getMessage("paymentForm.description", locale))
                     .withDisplayButton(true)
@@ -90,31 +102,31 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
      * @param listCountryCode     List of 2-letters country code
      * @return The list of banks, as select options.
      */
-    List<SelectOption> getBanks(String pluginConfiguration, List<String> listCountryCode) {
+    List<SelectOption> getBanks(String pluginConfiguration, List<String> listCountryCode, String paymentMode) {
         final List<SelectOption> options = new ArrayList<>();
         if (pluginConfiguration == null) {
             LOGGER.warn("pluginConfiguration is null");
         } else {
             List<Aspsp> aspsps = jsonService.fromJson(pluginConfiguration, GetAspspsResponse.class).getAspsps();
-            List<Aspsp> validAspsps = filter(aspsps, listCountryCode);
+            List<Aspsp> validAspsps = filter(aspsps, listCountryCode, paymentMode);
 
             for (Aspsp aspsp : validAspsps) {
-                options.add(createAspspOption(aspsp));
+                options.add(addAspspOption(aspsp));
             }
         }
         return options;
     }
 
-    private List<Aspsp> filter(List<Aspsp> aspsps, List<String> listCountryCode) {
+    private List<Aspsp> filter(List<Aspsp> aspsps, List<String> listCountryCode, String paymentMode) {
         return aspsps.stream()
                 .filter(e -> e.getCountryCode() != null)
                 .filter(e -> listCountryCode.isEmpty() || listCountryCode.contains(e.getCountryCode()))
                 .filter(e -> !PluginUtils.isEmpty(e.getBic()))
-                .filter(e -> isCompatible(e.getDetails()))
+                .filter(e -> isCompatibleBank(e.getDetails(), paymentMode))
                 .collect(Collectors.toList());
     }
 
-    private SelectOption createAspspOption(Aspsp aspsp) {
+    private SelectOption addAspspOption(Aspsp aspsp) {
         // add the aspsp name if exists
         StringBuilder valuesBuilder = new StringBuilder(aspsp.getBic());
         if (aspsp.getName() != null && !aspsp.getName().isEmpty()) {
@@ -134,12 +146,12 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
      * @param details
      * @return true if compatible or no info
      */
-    public boolean isCompatible(List<Detail> details) {
+    public boolean isCompatibleBank(List<Detail> details, final String paymentMode) {
         boolean isCompatible = true;
 
         if(details != null){
             for (Detail detail : details) {
-                if (!PluginUtils.isEmpty(detail.getValue()) && !detail.getValue().contains("Instant")) {
+                if (!PluginUtils.isEmpty(detail.getValue()) && !detail.getValue().contains(paymentMode)) {
                     isCompatible = false;
                     break;
                 }
