@@ -46,5 +46,9 @@ public class Detail {
     public String getProtocolVersion() {
         return protocolVersion;
     }
+
+    public String getType() {
+        return type;
+    }
 }
 

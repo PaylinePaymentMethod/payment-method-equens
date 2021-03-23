@@ -1,5 +1,6 @@
 package com.payline.payment.equens.service.impl;
 
+import com.google.gson.Gson;
 import com.payline.payment.equens.MockUtils;
 import com.payline.payment.equens.bean.business.reachdirectory.Detail;
 import com.payline.payment.equens.utils.i18n.I18nService;
@@ -35,14 +36,21 @@ class PaymentFormConfigurationServiceImplTest {
     @Mock
     private I18nService i18n;
 
-    private String aspspsJson = "{\"Application\":\"PIS\",\"ASPSP\":[" +
-            "{\"AspspId\":\"1234\",\"Name\":[\"a Bank\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Normal|Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"MOOBARBAZXX\"}," +
-            "{\"AspspId\":\"4321\",\"Name\":[\"another Bank\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"FOOBARBA\"}," +
-            "{\"AspspId\":\"1409\",\"Name\":[\"La Banque Postale\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Normal\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"PSSTFRPP\"}," +
-            "{\"AspspId\":\"1601\",\"Name\":[\"BBVA\"],\"CountryCode\":\"ES\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"BBVAESMM\"}," +
-            "{\"AspspId\":\"1602\",\"Name\":[\"Santander\"],\"CountryCode\":\"ES\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"ES140049\"}," +
-            "{\"AspspId\":\"1603\",\"Name\":[\"Santander\"],\"CountryCode\":\"IT\",\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"IT14004\"}," +
-            "{\"AspspId\":\"224\",\"CountryCode\":\"DE\",\"Name\":[\"08/15direkt\"],\"Details\":[{\"Api\":\"POST /payments\",\"FieldName\":\"PaymentProduct\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}]}" +
+    private final String aspspsJson = "{\"Application\":\"PIS\",\"ASPSP\":[" +
+            // FR - Normal|Instant
+            "{\"AspspId\":\"1234\",\"Name\":[\"a Bank\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Type\":\"SUPPORTED\",\"Value\":\"Normal|Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"MOOBARBAZXX\"}," +
+            // FR - Normal|Instant
+            "{\"AspspId\":\"4321\",\"Name\":[\"another Bank\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Type\":\"SUPPORTED\",\"Value\":\"Normal|Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"FOOBARBA\"}," +
+            // FR - Normal
+            "{\"AspspId\":\"1409\",\"Name\":[\"La Banque Postale\"],\"CountryCode\":\"FR\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Type\":\"SUPPORTED\",\"Value\":\"Normal\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"PSSTFRPP\"}," +
+            // ES - Instant
+            "{\"AspspId\":\"1601\",\"Name\":[\"BBVA\"],\"CountryCode\":\"ES\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Type\":\"SUPPORTED\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"BBVAESMM\"}," +
+            // ES - Instant
+            "{\"AspspId\":\"1602\",\"Name\":[\"Santander\"],\"CountryCode\":\"ES\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Type\":\"SUPPORTED\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"ES140049\"}," +
+            // IT - Instant
+            "{\"AspspId\":\"1603\",\"Name\":[\"Santander\"],\"CountryCode\":\"IT\",\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Type\":\"SUPPORTED\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}],\"BIC\":\"IT14004\"}," +
+            // DE - Instant
+            "{\"AspspId\":\"224\",\"CountryCode\":\"DE\",\"Name\":[\"08/15direkt\"],\"Details\":[{\"Api\":\"POST /payments\",\"Fieldname\":\"PaymentProduct\",\"Type\":\"SUPPORTED\",\"Value\":\"Instant\",\"ProtocolVersion\":\"STET_V_1_4_0_47\"}]}" +
             "],\"MessageCreateDateTime\":\"2019-11-15T16:52:37.092+0100\",\"MessageId\":\"6f31954f-7ad6-4a63-950c-a2a363488e\"}";
 
     @BeforeEach
@@ -58,34 +66,34 @@ class PaymentFormConfigurationServiceImplTest {
 
     @Test
     void getPaymentFormConfiguration_nominal() {
-        // given: the plugin configuration contains 2 french banks and the locale is FRANCE
-        PaymentFormConfigurationRequest request = MockUtils.aPaymentFormConfigurationRequestBuilder()
-                .withLocale(Locale.FRANCE)
-                .withPluginConfiguration(aspspsJson)
-                .build();
+        // given: the plugin configuration contains 3 french banks and the locale is FRANCE
+        final PaymentFormConfigurationRequest request = MockUtils.aPaymentFormConfigurationRequestBuilder()
+                                                                 .withLocale(Locale.FRANCE)
+                                                                 .withPluginConfiguration(aspspsJson)
+                                                                 .build();
 
         // when: calling getPaymentFormConfiguration method
-        PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(request);
+        final PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(request);
 
         // then: response is a success, the form is a BankTransferForm and the number of banks is correct
         assertEquals(PaymentFormConfigurationResponseSpecific.class, response.getClass());
-        AbstractPaymentForm form = ((PaymentFormConfigurationResponseSpecific) response).getPaymentForm();
+        final AbstractPaymentForm form = ((PaymentFormConfigurationResponseSpecific) response).getPaymentForm();
         assertNotNull(form.getButtonText());
         assertNotNull(form.getDescription());
         assertEquals(BankTransferForm.class, form.getClass());
-        BankTransferForm bankTransferForm = (BankTransferForm) form;
+        final BankTransferForm bankTransferForm = (BankTransferForm) form;
         assertEquals(2, bankTransferForm.getBanks().size());
     }
 
     @Test
     void getPaymentFormConfiguration_invalidPluginConfiguration() {
         // given: the plugin configuration is invalid
-        PaymentFormConfigurationRequest request = MockUtils.aPaymentFormConfigurationRequestBuilder()
-                .withPluginConfiguration("{not valid")
-                .build();
+        final PaymentFormConfigurationRequest request = MockUtils.aPaymentFormConfigurationRequestBuilder()
+                                                                 .withPluginConfiguration("{not valid")
+                                                                 .build();
 
         // when: calling getPaymentFormConfiguration method
-        PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(request);
+        final PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(request);
 
         // then: response is a failure
         assertEquals(PaymentFormConfigurationResponseFailure.class, response.getClass());
@@ -96,12 +104,12 @@ class PaymentFormConfigurationServiceImplTest {
     @Test
     void getPaymentFormConfiguration_invalidCountry() {
         // given: the plugin configuration is invalid
-        PaymentFormConfigurationRequest request = MockUtils.aPaymentFormConfigurationRequestBuilder()
-                .withContractConfiguration(MockUtils.aContractConfiguration(null))
-                .build();
+        final PaymentFormConfigurationRequest request = MockUtils.aPaymentFormConfigurationRequestBuilder()
+                                                                 .withContractConfiguration(MockUtils.aContractConfiguration(null))
+                                                                 .build();
 
         // when: calling getPaymentFormConfiguration method
-        PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(request);
+        final PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(request);
 
         // then: response is a failure
         assertEquals(PaymentFormConfigurationResponseFailure.class, response.getClass());
@@ -117,9 +125,9 @@ class PaymentFormConfigurationServiceImplTest {
         // @see https://payline.atlassian.net/browse/PAYLAPMEXT-219
 
         // when: calling getBanks method
-        List<String> listCountry = new ArrayList<>();
+        final List<String> listCountry = new ArrayList<>();
         listCountry.add(Locale.GERMANY.getCountry());
-        List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
+        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
 
         // then: the aspsp is ignered because there is no BIC
         assertTrue(result.isEmpty());
@@ -130,9 +138,9 @@ class PaymentFormConfigurationServiceImplTest {
         // @see: https://payline.atlassian.net/browse/PAYLAPMEXT-203
 
         // when: calling getBanks method
-        List<String> listCountry = new ArrayList<>();
+        final List<String> listCountry = new ArrayList<>();
         listCountry.add(Locale.FRANCE.getCountry());
-        List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
+        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
 
         // then: there is only 1 bank choice at the end
         assertEquals(2, result.size());
@@ -143,56 +151,135 @@ class PaymentFormConfigurationServiceImplTest {
         // @see: https://payline.atlassian.net/browse/PAYLAPMEXT-203
 
         // when: calling getBanks method
-        List<String> listCountry = new ArrayList<>();
+        final List<String> listCountry = new ArrayList<>();
         listCountry.add(Locale.FRANCE.getCountry());
         listCountry.add("ES");
-        List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
+        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry,
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
 
         // then: there is 2 banks choice at the end
         assertEquals(4, result.size());
     }
 
     @Test
-    void isCompatibleNormal(){
-        List<Detail> details = new ArrayList<>();
-        details.add(new Detail("API", "foo", "MANDATORY", null, "protocol1"));
-        details.add(new Detail("API", "PaymentProduct", "SUPPORTED", "Normal", "protocol1"));
-        details.add(new Detail("API", "foo2", "MANDATORY", null, "protocol1"));
-
-        Assertions.assertFalse( service.isCompatibleBank(details, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+    void isCompatibleNormalWithNullDetail() {
+        Assertions.assertTrue(service.isCompatibleBank(null,
+                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProduct()));
     }
 
     @Test
-    void isCompatibleNormalAndInstant(){
-        List<Detail> details = new ArrayList<>();
-        details.add(new Detail("API", "foo", "MANDATORY", null, "protocol1"));
-        details.add(new Detail("API", "PaymentProduct", "SUPPORTED", "Normal|Instant", "protocol1"));
-        details.add(new Detail("API", "foo2", "MANDATORY", null, "protocol1"));
+    void shouldBeCompatibleNormalWithOneDetailsWithValueNormal() {
+        final List<Detail> details = new ArrayList<>();
+        details.add(detailWithPostPaymentNormal());
 
-        Assertions.assertTrue( service.isCompatibleBank(details, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+        Assertions.assertTrue(service.isCompatibleBank(details,
+                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProduct()));
     }
 
     @Test
-    void isCompatibleInstant(){
-        List<Detail> details = new ArrayList<>();
-        details.add(new Detail("API", "foo", "MANDATORY", null, "protocol1"));
-        details.add(new Detail("API", "PaymentProduct", "SUPPORTED", "Instant", "protocol1"));
-        details.add(new Detail("API", "foo2", "MANDATORY", null, "protocol1"));
+    void shouldBeCompatibleNormalWithOneDetailsWithValueNormalAndInstant() {
+        final List<Detail> details = new ArrayList<>();
+        details.add(detailWithPostPaymentInstantAndNormal());
 
-        Assertions.assertTrue( service.isCompatibleBank(details, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+        Assertions.assertTrue(service.isCompatibleBank(details,
+                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProduct()));
     }
 
     @Test
-    void isCompatibleNone(){
-        List<Detail> details = new ArrayList<>();
-        details.add(new Detail("API", "foo", "MANDATORY", null, "protocol1"));
-        details.add(new Detail("API", "foo2", "MANDATORY", null, "protocol1"));
+    void shouldNotBeCompatibleNormalWithOneDetailsWithValueInstant() {
+        final List<Detail> details = new ArrayList<>();
+        details.add(detailWithPostPaymentInstant());
 
-        Assertions.assertTrue( service.isCompatibleBank(details, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+        Assertions.assertFalse(service.isCompatibleBank(details,
+                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProduct()));
     }
 
     @Test
-    void isCompatibleNull(){
-        Assertions.assertTrue( service.isCompatibleBank(null, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+    void shouldNotBeCompatibleInstantWithNullDetail() {
+        Assertions.assertFalse(service.isCompatibleBank(null,
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+    }
+
+    @Test
+    void shouldBeCompatibleInstantWithOneDetailsWithValueNormalAndInstant() {
+        final List<Detail> details = new ArrayList<>();
+        details.add(detailWithPostPaymentInstantAndNormal());
+
+        Assertions.assertTrue(service.isCompatibleBank(details,
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+    }
+
+    @Test
+    void shouldBeCompatibleInstantWithOneDetailsWithValueInstant() {
+        final List<Detail> details = new ArrayList<>();
+        details.add(detailWithPostPaymentInstant());
+
+        Assertions.assertTrue(service.isCompatibleBank(details,
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+    }
+
+    @Test
+    void shouldNotBeCompatibleWithTwoDetailsWithValuesButNoInstant() {
+        final List<Detail> details = new ArrayList<>();
+        details.add(detailWithPostPaymentRandomValue());
+        details.add(detailWithPostPaymentRandomValue());
+
+        Assertions.assertFalse(service.isCompatibleBank(details,
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+    }
+
+    private Detail detailWithNoPostPayment() {
+        return detailFromJSON("{\n" +
+                "          \"Api\": \"POST autreapi\",\n" +
+                "          \"Fieldname\" : \"PaymentProduct\",\n" +
+                "          \"Type\": \"SUPPORTED\",\n" +
+                "          \"Value\": \"Normal|Instant\",\n" +
+                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
+                "        }");
+    }
+
+    private Detail detailWithPostPaymentInstantAndNormal() {
+        return detailFromJSON("{\n" +
+                "          \"Api\": \"POST /payments\",\n" +
+                "          \"Fieldname\" : \"PaymentProduct\",\n" +
+                "          \"Type\": \"SUPPORTED\",\n" +
+                "          \"Value\": \"Normal|Instant\",\n" +
+                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
+                "        }");
+    }
+
+    private Detail detailWithPostPaymentInstant() {
+        return detailFromJSON("{\n" +
+                "          \"Api\": \"POST /payments\",\n" +
+                "          \"Fieldname\" : \"PaymentProduct\",\n" +
+                "          \"Type\": \"SUPPORTED\",\n" +
+                "          \"Value\": \"Instant\",\n" +
+                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
+                "        }");
+    }
+
+    private Detail detailWithPostPaymentNormal() {
+        return detailFromJSON("{\n" +
+                "          \"Api\": \"POST /payments\",\n" +
+                "          \"Fieldname\" : \"PaymentProduct\",\n" +
+                "          \"Type\": \"SUPPORTED\",\n" +
+                "          \"Value\": \"Normal\",\n" +
+                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
+                "        }");
+    }
+
+    private Detail detailWithPostPaymentRandomValue() {
+        return detailFromJSON("{\n" +
+                "          \"Api\": \"POST /payments\",\n" +
+                "          \"Fieldname\" : \"PaymentProduct\",\n" +
+                "          \"Type\": \"SUPPORTED\",\n" +
+                "          \"Value\": \"Random\",\n" +
+                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
+                "        }");
+    }
+
+    private Detail detailFromJSON(final String json) {
+        final Gson gson = new Gson();
+        return gson.fromJson(json, Detail.class);
     }
 }
