@@ -23,16 +23,15 @@ import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFor
 import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigurationService {
 
     private static final Logger LOGGER = LogManager.getLogger(PaymentFormConfigurationServiceImpl.class);
+    private static final String PAYMENT_PRODUCT_FIELD_NAME = "PaymentProduct";
+    private static final String SUPPORTED_TYPE = "SUPPORTED";
+    private static final String POST_PAYMENTS_API = "POST /payments";
 
     JsonService jsonService = JsonService.getInstance();
 
@@ -146,17 +145,23 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
      * @param details
      * @return true if compatible or no info
      */
-    public boolean isCompatibleBank(List<Detail> details, final String paymentMode) {
-        boolean isCompatible = true;
+    public boolean isCompatibleBank(final List<Detail> details, final String paymentMode) {
+        final Map<String, Boolean> compatibilityMap = new HashMap<>();
+        for (ConfigurationServiceImpl.PaymentProduct product : ConfigurationServiceImpl.PaymentProduct.values()) {
+            compatibilityMap.put(product.getPaymentProduct(), product.getSupportedByDefault());
+        }
 
-        if(details != null){
+        if (details != null) {
             for (Detail detail : details) {
-                if (!PluginUtils.isEmpty(detail.getValue()) && !detail.getValue().contains(paymentMode)) {
-                    isCompatible = false;
-                    break;
+                if (PAYMENT_PRODUCT_FIELD_NAME.equals(detail.getFieldName())
+                   && SUPPORTED_TYPE.equals(detail.getType())
+                   && POST_PAYMENTS_API.equals(detail.getApi())) {
+                    for (ConfigurationServiceImpl.PaymentProduct product : ConfigurationServiceImpl.PaymentProduct.values()) {
+                        compatibilityMap.put(product.getPaymentProduct(), detail.getValue().contains(product.getPaymentProduct()));
+                    }
                 }
             }
         }
-        return isCompatible;
+        return compatibilityMap.get(paymentMode);
     }
 }

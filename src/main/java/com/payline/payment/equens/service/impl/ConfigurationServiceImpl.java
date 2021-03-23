@@ -64,15 +64,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
     }
     public enum PaymentProduct {
-        NORMAL("Normal"), INSTANT("Instant");
+        NORMAL("Normal", true), INSTANT("Instant", false);
 
         private final String paymentProduct;
-        PaymentProduct(String paymentProduct) {
+        private final Boolean supportedByDefault;
+        PaymentProduct(String paymentProduct, Boolean supportedByDefault) {
             this.paymentProduct = paymentProduct;
+            this.supportedByDefault = supportedByDefault;
         }
 
         public String getPaymentProduct() {
             return paymentProduct;
+        }
+
+        public Boolean getSupportedByDefault() {
+            return supportedByDefault;
         }
     }
 
