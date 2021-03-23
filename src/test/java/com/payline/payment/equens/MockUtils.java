@@ -360,8 +360,8 @@ public class MockUtils {
     public static PaymentInitiationRequest.PaymentInitiationRequestBuilder aPaymentInitiationRequestBuilder(String debtorAccount){
         return new PaymentInitiationRequest.PaymentInitiationRequestBuilder()
                 .withAspspId("1410")
-                .withEndToEndId( "PAYLINE" + timestamp )
-                .withInitiatingPartyReferenceId( "REF" + timestamp )
+                .withEndToEndId("REF" + timestamp)
+                .withInitiatingPartyReferenceId( "PAYLINE" + timestamp )
                 .withInitiatingPartyReturnUrl( "http://redirectionURL.com" )
                 .withRemittanceInformation( "softDescriptor123456789012" )
                 .withRemittanceInformationStructured(
