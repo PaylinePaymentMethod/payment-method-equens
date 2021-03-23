@@ -262,8 +262,8 @@ public class GenericPaymentService {
 
         PaymentInitiationRequest.PaymentInitiationRequestBuilder paymentInitiationRequestBuilder = new PaymentInitiationRequest.PaymentInitiationRequestBuilder()
                 .withAspspId(aspspId)
-                .withEndToEndId(paymentRequest.getTransactionId())
-                .withInitiatingPartyReferenceId(paymentRequest.getOrder().getReference())
+                .withEndToEndId(paymentRequest.getOrder().getReference())
+                .withInitiatingPartyReferenceId(paymentRequest.getTransactionId())
                 .withInitiatingPartyReturnUrl(paymentRequest.getEnvironment().getRedirectionReturnURL())
                 .withRemittanceInformation(softDescriptor + pispContract)
                 .withRemittanceInformationStructured(
