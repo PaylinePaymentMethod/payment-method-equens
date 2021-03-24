@@ -4,6 +4,7 @@ import com.payline.payment.equens.bean.business.fraud.PsuSessionInformation;
 import com.payline.payment.equens.bean.business.payment.*;
 import com.payline.payment.equens.bean.business.psu.Psu;
 import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
+import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.service.impl.ConfigurationServiceImpl;
@@ -677,5 +678,14 @@ public class MockUtils {
         return new PaymentData.PaymentDataBuilder()
                 .withIban("anIbanWithMoreThan8Charactere")
                 .build();
+    }
+
+    public static Aspsp anAspsp() {
+        return jsonService.fromJson("{\n" +
+                "    \"AspspId\": \"10\",\n" +
+                "    \"BIC\": \"PSSTFRPP\",\n" +
+                "    \"CountryCode\": \"FR\",\n" +
+                "    \"Name\": [\"La banque Postale\"\n]\n" +
+                "}", Aspsp.class);
     }
 }
