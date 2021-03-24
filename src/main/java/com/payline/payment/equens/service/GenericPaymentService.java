@@ -5,6 +5,7 @@ import com.payline.payment.equens.bean.business.fraud.PsuSessionInformation;
 import com.payline.payment.equens.bean.business.payment.*;
 import com.payline.payment.equens.bean.business.psu.Psu;
 import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
+import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
 import com.payline.payment.equens.bean.business.reachdirectory.GetAspspsResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.InvalidDataException;
@@ -33,6 +34,7 @@ public class GenericPaymentService {
     private PisHttpClient pisHttpClient = PisHttpClient.getInstance();
     private PsuHttpClient psuHttpclient = PsuHttpClient.getInstance();
     private static JsonService jsonService = JsonService.getInstance();
+    private BankService bankService = BankService.getInstance();
 
     private GenericPaymentService() {
     }
@@ -193,44 +195,57 @@ public class GenericPaymentService {
         }
     }
 
-    void validateIban(GenericPaymentRequest paymentRequest, String bic, String iban) {
-        List<String> listCountryCode;
-
+    void validateIban(GenericPaymentRequest paymentRequest, PaymentData paymentData) {
 
         // get the list of countryCode available by the merchant
-        listCountryCode = PluginUtils.createListCountry(paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.COUNTRIES).getValue());
+        final List<String> listCountryCode = PluginUtils.createListCountry(
+                paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.COUNTRIES).getValue());
 
-        // get the countryCode from the BIC
-        String countryCode = PluginUtils.getCountryCodeFromBIC(
-                jsonService.fromJson(paymentRequest.getPluginConfiguration(), GetAspspsResponse.class).getAspsps()
-                , bic);
+        String countryCode = "";
+        // get the countryCode from the BIC or ASPSP id
+        if (paymentData.getBic() != null) {
+            countryCode = PluginUtils.getCountryCodeFromBIC(
+                    jsonService.fromJson(paymentRequest.getPluginConfiguration(), GetAspspsResponse.class).getAspsps()
+                    , paymentData.getBic());
+        }
+        if (paymentData.getAspspId() != null){
+            final Aspsp aspsp = bankService.fetchAspsp(paymentRequest.getPluginConfiguration(), paymentData.getAspspId());
+            if (aspsp != null) {
+                countryCode = aspsp.getCountryCode();
+            }
+        }
+
+        if (PluginUtils.isEmpty(countryCode)) {
+            throw new InvalidDataException("Unable to determine country code for this transaction");
+        }
 
         // if the buyer choose a bank from Spain, IBAN is required
-        if (countryCode.equalsIgnoreCase(ConfigurationServiceImpl.CountryCode.ES.name()) && PluginUtils.isEmpty(iban)) {
+        if (countryCode.equalsIgnoreCase(ConfigurationServiceImpl.CountryCode.ES.name()) && PluginUtils.isEmpty(paymentData.getIban())) {
             throw new InvalidDataException("IBAN is required for Spain");
         }
 
         // if the buyer want to use his IBAN, it should be an IBAN from a country available by the merchant
-        if (!PluginUtils.isEmpty(iban) && !PluginUtils.correctIban(listCountryCode, iban)) {
+        if (!PluginUtils.isEmpty(paymentData.getIban()) && !PluginUtils.correctIban(listCountryCode, paymentData.getIban())) {
             throw new InvalidDataException("IBAN should be from a country available by the merchant " + listCountryCode.toString());
         }
     }
 
     // Build PaymentInitiationRequest (Equens) from PaymentRequest (Payline)
-    PaymentInitiationRequest buildPaymentInitiationRequest(GenericPaymentRequest paymentRequest, Psu newPsu, PaymentData paymentData) {
+    protected PaymentInitiationRequest buildPaymentInitiationRequest(GenericPaymentRequest paymentRequest, Psu newPsu, PaymentData paymentData) {
 
         // extract BIC and IBAN
         String bic = paymentData.getBic();
         String iban = paymentData.getIban();
+        String aspspId = paymentData.getAspspId();
 
         // Control on the input data (to avoid NullPointerExceptions)
         validateRequest(paymentRequest);
-        validateIban(paymentRequest, bic, iban);
-
-        // get the aspspId from the BIC
-        String aspspId = PluginUtils.getAspspIdFromBIC(
-                jsonService.fromJson(paymentRequest.getPluginConfiguration(), GetAspspsResponse.class).getAspsps()
-                , bic);
+        validateIban(paymentRequest, paymentData);
+        if (aspspId == null) {
+            aspspId = PluginUtils.getAspspIdFromBIC(
+                    jsonService.fromJson(paymentRequest.getPluginConfiguration(), GetAspspsResponse.class).getAspsps()
+                    , bic);
+        }
 
         // Extract delivery address
         Address deliveryAddress = null;
