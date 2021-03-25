@@ -403,7 +403,7 @@ public class MockUtils {
                 .addPreferredScaMethod(ConfigurationServiceImpl.ScaMethod.REDIRECT)
                 .withChargeBearer(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer())
                 .withPsuId("1")
-                .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct())
+                .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct())
                 .withDebtorName("Durand");
     }
 

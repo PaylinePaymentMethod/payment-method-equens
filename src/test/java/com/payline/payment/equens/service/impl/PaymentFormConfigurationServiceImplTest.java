@@ -127,7 +127,7 @@ class PaymentFormConfigurationServiceImplTest {
         // when: calling getBanks method
         final List<String> listCountry = new ArrayList<>();
         listCountry.add(Locale.GERMANY.getCountry());
-        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
+        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct());
 
         // then: the aspsp is ignered because there is no BIC
         assertTrue(result.isEmpty());
@@ -140,7 +140,7 @@ class PaymentFormConfigurationServiceImplTest {
         // when: calling getBanks method
         final List<String> listCountry = new ArrayList<>();
         listCountry.add(Locale.FRANCE.getCountry());
-        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
+        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct());
 
         // then: there is only 1 bank choice at the end
         assertEquals(2, result.size());
@@ -155,7 +155,7 @@ class PaymentFormConfigurationServiceImplTest {
         listCountry.add(Locale.FRANCE.getCountry());
         listCountry.add("ES");
         final List<SelectOption> result = service.getBanks(aspspsJson, listCountry,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct());
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct());
 
         // then: there is 2 banks choice at the end
         assertEquals(4, result.size());
@@ -164,7 +164,7 @@ class PaymentFormConfigurationServiceImplTest {
     @Test
     void isCompatibleNormalWithNullDetail() {
         Assertions.assertTrue(service.isCompatibleBank(null,
-                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProduct()));
+                ConfigurationServiceImpl.PaymentProduct.NORMAL.getProduct()));
     }
 
     @Test
@@ -173,7 +173,7 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(detailWithPostPaymentNormal());
 
         Assertions.assertTrue(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProduct()));
+                ConfigurationServiceImpl.PaymentProduct.NORMAL.getProduct()));
     }
 
     @Test
@@ -182,7 +182,7 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(detailWithPostPaymentInstantAndNormal());
 
         Assertions.assertTrue(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProduct()));
+                ConfigurationServiceImpl.PaymentProduct.NORMAL.getProduct()));
     }
 
     @Test
@@ -191,13 +191,13 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(detailWithPostPaymentInstant());
 
         Assertions.assertFalse(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProduct()));
+                ConfigurationServiceImpl.PaymentProduct.NORMAL.getProduct()));
     }
 
     @Test
     void shouldNotBeCompatibleInstantWithNullDetail() {
         Assertions.assertFalse(service.isCompatibleBank(null,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct()));
     }
 
     @Test
@@ -206,7 +206,7 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(detailWithPostPaymentInstantAndNormal());
 
         Assertions.assertTrue(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct()));
     }
 
     @Test
@@ -215,7 +215,7 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(detailWithPostPaymentInstant());
 
         Assertions.assertTrue(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct()));
     }
 
     @Test
@@ -225,7 +225,7 @@ class PaymentFormConfigurationServiceImplTest {
         details.add(detailWithPostPaymentRandomValue());
 
         Assertions.assertFalse(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProduct()));
+                ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct()));
     }
 
     private Detail detailWithNoPostPayment() {

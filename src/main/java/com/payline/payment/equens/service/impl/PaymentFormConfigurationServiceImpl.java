@@ -11,8 +11,6 @@ import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.ContractProperty;
-import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormField;
-import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormInputFieldCheckbox;
 import com.payline.pmapi.bean.paymentform.bean.field.SelectOption;
 import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
 import com.payline.pmapi.bean.paymentform.bean.form.CustomForm;
@@ -148,7 +146,7 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
     public boolean isCompatibleBank(final List<Detail> details, final String paymentMode) {
         final Map<String, Boolean> compatibilityMap = new HashMap<>();
         for (ConfigurationServiceImpl.PaymentProduct product : ConfigurationServiceImpl.PaymentProduct.values()) {
-            compatibilityMap.put(product.getPaymentProduct(), product.getSupportedByDefault());
+            compatibilityMap.put(product.getProduct(), product.getSupportedByDefault());
         }
 
         if (details != null) {
@@ -157,7 +155,7 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
                    && SUPPORTED_TYPE.equals(detail.getType())
                    && POST_PAYMENTS_API.equals(detail.getApi())) {
                     for (ConfigurationServiceImpl.PaymentProduct product : ConfigurationServiceImpl.PaymentProduct.values()) {
-                        compatibilityMap.put(product.getPaymentProduct(), detail.getValue().contains(product.getPaymentProduct()));
+                        compatibilityMap.put(product.getProduct(), detail.getValue().contains(product.getProduct()));
                     }
                 }
             }
