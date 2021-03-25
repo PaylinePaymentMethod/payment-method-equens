@@ -110,10 +110,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         public static final String REDIRECT = "Redirect";
     }
 
-    private final I18nService i18n = I18nService.getInstance();
-    private final PisHttpClient pisHttpClient = PisHttpClient.getInstance();
-    private final PsuHttpClient psuHttpClient = PsuHttpClient.getInstance();
-    private final ReleaseProperties releaseProperties = ReleaseProperties.getInstance();
+    private I18nService i18n = I18nService.getInstance();
+    private PisHttpClient pisHttpClient = PisHttpClient.getInstance();
+    private PsuHttpClient psuHttpClient = PsuHttpClient.getInstance();
+    private ReleaseProperties releaseProperties = ReleaseProperties.getInstance();
 
 
     @Override
