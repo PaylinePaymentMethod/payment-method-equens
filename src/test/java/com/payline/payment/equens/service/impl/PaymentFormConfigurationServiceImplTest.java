@@ -3,11 +3,17 @@ package com.payline.payment.equens.service.impl;
 import com.google.gson.Gson;
 import com.payline.payment.equens.MockUtils;
 import com.payline.payment.equens.bean.business.reachdirectory.Detail;
+import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.i18n.I18nService;
 import com.payline.pmapi.bean.common.FailureCause;
+import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormDisplayFieldText;
+import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormField;
+import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormInputFieldSelect;
 import com.payline.pmapi.bean.paymentform.bean.field.SelectOption;
+import com.payline.pmapi.bean.paymentform.bean.field.specific.PaymentFormInputFieldIban;
 import com.payline.pmapi.bean.paymentform.bean.form.AbstractPaymentForm;
 import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
+import com.payline.pmapi.bean.paymentform.bean.form.CustomForm;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseFailure;
@@ -80,9 +86,19 @@ class PaymentFormConfigurationServiceImplTest {
         final AbstractPaymentForm form = ((PaymentFormConfigurationResponseSpecific) response).getPaymentForm();
         assertNotNull(form.getButtonText());
         assertNotNull(form.getDescription());
-        assertEquals(BankTransferForm.class, form.getClass());
-        final BankTransferForm bankTransferForm = (BankTransferForm) form;
-        assertEquals(2, bankTransferForm.getBanks().size());
+        assertEquals(CustomForm.class, form.getClass());
+        final CustomForm customForm = (CustomForm) form;
+        final List<PaymentFormField> customFields = customForm.getCustomFields();
+        assertEquals(3, customFields.size());
+        assertTrue(customFields.get(0) instanceof PaymentFormInputFieldIban);
+        final PaymentFormInputFieldIban ibanField = (PaymentFormInputFieldIban)customFields.get(0);
+        assertEquals(BankTransferForm.IBAN_KEY, ibanField.getKey());
+        assertTrue(customFields.get(1) instanceof PaymentFormDisplayFieldText);
+        assertTrue(customFields.get(2) instanceof PaymentFormInputFieldSelect);
+        final PaymentFormInputFieldSelect selectFields = (PaymentFormInputFieldSelect)customFields.get(2);
+        assertEquals(Constants.FormKeys.ASPSP_ID, selectFields.getKey());
+        assertNotNull(selectFields.getSelectOptions());
+        assertEquals(2, selectFields.getSelectOptions().size());
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.payline.payment.equens.bean.GenericPaymentRequest;
 import com.payline.payment.equens.bean.business.payment.PaymentData;
 import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.service.GenericPaymentService;
+import com.payline.payment.equens.utils.Constants;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
@@ -20,11 +21,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponse paymentRequest(PaymentRequest paymentRequest) {
         try {
-            GenericPaymentRequest genericPaymentRequest = new GenericPaymentRequest(paymentRequest);
-
-            PaymentData paymentData = new PaymentData.PaymentDataBuilder()
+            final GenericPaymentRequest genericPaymentRequest = new GenericPaymentRequest(paymentRequest);
+            final PaymentData paymentData = new PaymentData.PaymentDataBuilder()
                     .withBic(paymentRequest.getPaymentFormContext().getPaymentFormParameter().get(BankTransferForm.BANK_KEY))
                     .withIban(paymentRequest.getPaymentFormContext().getSensitivePaymentFormParameter().get(BankTransferForm.IBAN_KEY))
+                    .withAspspId(paymentRequest.getPaymentFormContext().getPaymentFormParameter().get(Constants.FormKeys.ASPSP_ID))
                     .build();
 
             // execute the payment Request

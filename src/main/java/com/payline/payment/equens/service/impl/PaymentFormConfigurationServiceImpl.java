@@ -11,9 +11,11 @@ import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.ContractProperty;
+import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormDisplayFieldText;
 import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormField;
-import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormInputFieldCheckbox;
+import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormInputFieldSelect;
 import com.payline.pmapi.bean.paymentform.bean.field.SelectOption;
+import com.payline.pmapi.bean.paymentform.bean.field.specific.PaymentFormInputFieldIban;
 import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
 import com.payline.pmapi.bean.paymentform.bean.form.CustomForm;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
@@ -25,6 +27,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.payline.payment.equens.utils.Constants.FormKeys.*;
 
 public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigurationService {
 
@@ -64,13 +68,41 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
 
             final List<SelectOption> banks = this.getBanks(paymentFormConfigurationRequest.getPluginConfiguration(), listCountryCode, paymentModeProperty.getValue());
 
+            final List<PaymentFormField> customFields = new ArrayList<>();
+
+            // Champ IBAN
+            final PaymentFormInputFieldIban ibanField = PaymentFormInputFieldIban.IbanFieldBuilder.anIbanField()
+                    .withKey(BankTransferForm.IBAN_KEY)
+                    .withLabel(i18n.getMessage(FIELD_IBAN_LABEL, locale))
+                    .withRequired(false)
+                    .build();
+            customFields.add(ibanField);
+
+            // Champ OU
+            final PaymentFormDisplayFieldText separatorField = PaymentFormDisplayFieldText.PaymentFormDisplayFieldTextBuilder
+                    .aPaymentFormDisplayFieldText()
+                    .withContent(i18n.getMessage(FIELD_OR_LABEL, locale))
+                    .build();
+            customFields.add(separatorField);
+
+            // Champ de selection de banque
+            final PaymentFormInputFieldSelect selectField = PaymentFormInputFieldSelect.PaymentFormFieldSelectBuilder.aPaymentFormInputFieldSelect()
+                    .withSelectOptions(banks)
+                    .withIsFilterable(true)
+                    .withKey(Constants.FormKeys.ASPSP_ID)
+                    .withLabel(i18n.getMessage(FIELD_BANKS_LABEL, locale))
+                    .withPlaceholder(i18n.getMessage(FIELD_PLACEHOLDER_LABEL, locale))
+                    .withValidationErrorMessage(i18n.getMessage(FIELD_BANKS_ERROR_MSG, locale))
+                    .withRequired(false)
+                    .build();
+            customFields.add(selectField);
+
             // Build the payment form
-            final CustomForm form = BankTransferForm.builder()
-                    .withBanks(banks)
+            final CustomForm form = CustomForm.builder()
                     .withDescription(i18n.getMessage("paymentForm.description", locale))
                     .withDisplayButton(true)
                     .withButtonText(i18n.getMessage("paymentForm.buttonText", locale))
-                    .withCustomFields(new ArrayList<>())
+                    .withCustomFields(customFields)
                     .build();
 
             pfcResponse = PaymentFormConfigurationResponseSpecific.PaymentFormConfigurationResponseSpecificBuilder
@@ -127,14 +159,12 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
 
     private SelectOption addAspspOption(Aspsp aspsp) {
         // add the aspsp name if exists
-        StringBuilder valuesBuilder = new StringBuilder(aspsp.getBic());
-        if (aspsp.getName() != null && !aspsp.getName().isEmpty()) {
-            valuesBuilder.append(" - ")
-                    .append(aspsp.getName().get(0));
-        }
+
+        final String name = aspsp.getName() != null
+                && !aspsp.getName().isEmpty() ? aspsp.getName().get(0) : "";
         return SelectOption.SelectOptionBuilder.aSelectOption()
-                .withKey(aspsp.getBic())
-                .withValue(valuesBuilder.toString())
+                .withKey(aspsp.getAspspId())
+                .withValue(name)
                 .build();
     }
 

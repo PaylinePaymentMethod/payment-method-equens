@@ -132,7 +132,6 @@ class GenericPaymentServiceTest {
         PaymentInitiationRequest request = service.buildPaymentInitiationRequest(genericPaymentRequest, newPsu, paymentData);
 
         String chaine = jsonService.toJson(request);
-
         assertFalse(chaine.contains("CreditorAccount"));
 
     }
