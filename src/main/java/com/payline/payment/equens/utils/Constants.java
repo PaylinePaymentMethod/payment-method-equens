@@ -21,6 +21,7 @@ public class Constants {
         public static final String COUNTRIES = "countries";
         public static final String PISP_CONTRACT = "pisp";
         public static final String PAYMENT_PRODUCT = "paymentProduct";
+        public static final String INITIATING_PARTY_SUBID = "initiatingPartySubId";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private ContractConfigurationKeys() {

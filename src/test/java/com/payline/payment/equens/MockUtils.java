@@ -165,6 +165,7 @@ public class MockUtils {
         contractProperties.put(Constants.ContractConfigurationKeys.PISP_CONTRACT,
                 new ContractProperty("123456789012"));
         contractProperties.put(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT, new ContractProperty("Instant"));
+        contractProperties.put(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID, new ContractProperty("12"));
 
         return new ContractConfiguration("INST EquensWorldline", contractProperties);
     }
@@ -404,8 +405,9 @@ public class MockUtils {
                 .addPreferredScaMethod(ConfigurationServiceImpl.ScaMethod.REDIRECT)
                 .withChargeBearer(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer())
                 .withPsuId("1")
-                .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct())
-                .withDebtorName("Durand");
+                .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode())
+                .withDebtorName("Durand")
+                .withInitiatingPartySubId("12");
     }
 
     /**

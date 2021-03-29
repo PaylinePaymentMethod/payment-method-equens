@@ -10,7 +10,6 @@ import com.payline.payment.equens.utils.http.PisHttpClient;
 import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.payment.equens.utils.i18n.I18nService;
 import com.payline.payment.equens.utils.properties.ReleaseProperties;
-import com.payline.payment.equens.utils.security.RSAUtils;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
@@ -68,16 +67,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public enum PaymentProduct {
         NORMAL("Normal", true), INSTANT("Instant", false);
 
-        private final String product;
+        private final String paymentProductCode;
         private final Boolean supportedByDefault;
-
-        PaymentProduct(final String product, final Boolean supportedByDefault) {
-            this.product = product;
+        PaymentProduct(String paymentProductCode, Boolean supportedByDefault) {
+            this.paymentProductCode = paymentProductCode;
             this.supportedByDefault = supportedByDefault;
         }
 
-        public String getProduct() {
-            return product;
+        public String getPaymentProductCode() {
+            return paymentProductCode;
         }
 
         public Boolean getSupportedByDefault() {
@@ -134,9 +132,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         //Choix du paiement mode (Normal/Instant).
         final Map<String, String> paymentProduct = new HashMap<>();
-        paymentProduct.put(PaymentProduct.NORMAL.getProduct(), PaymentProduct.NORMAL.getProduct());
-        paymentProduct.put(PaymentProduct.INSTANT.getProduct(), PaymentProduct.INSTANT.getProduct());
-        parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT, paymentProduct, PaymentProduct.NORMAL.getProduct(), true, locale));
+        paymentProduct.put(PaymentProduct.NORMAL.getPaymentProductCode(), PaymentProduct.NORMAL.getPaymentProductCode());
+        paymentProduct.put(PaymentProduct.INSTANT.getPaymentProductCode(), PaymentProduct.INSTANT.getPaymentProductCode());
+        parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT, paymentProduct, PaymentProduct.NORMAL.getPaymentProductCode(), true, locale));
 
         // channel type
         final Map<String, String> channelTypes = new HashMap<>();
@@ -173,6 +171,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         // PISP contract
         parameters.add(this.newInputParameter(Constants.ContractConfigurationKeys.PISP_CONTRACT, true, locale));
 
+        //InitiatingPartySubId
+        parameters.add(this.newInputParameter(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID, false, locale));
+
         return parameters;
     }
 
@@ -196,6 +197,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         if (PluginUtils.isEmpty(pispContract) || pispContract.length() > 12 || !PluginUtils.isNumeric(pispContract)) {
             final String message = i18n.getMessage(I18N_CONTRACT_PREFIX + Constants.ContractConfigurationKeys.PISP_CONTRACT + ".badFormat", locale);
             errors.put(Constants.ContractConfigurationKeys.PISP_CONTRACT, message);
+        }
+
+        String initiatingPartySubId = accountInfo.get(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID);
+        //check InitiatingPartySubId length
+        if (!PluginUtils.isEmpty(initiatingPartySubId) && initiatingPartySubId.length() > 50) {
+            String message = i18n.getMessage(I18N_CONTRACT_PREFIX + Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID + ".badFormat", locale);
+            errors.put(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID, message);
         }
 
         // Check the clientName and onboarding ID
@@ -239,10 +247,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             We create here a fake ContractConfiguration, containing specific onboardingId and a clientName from the
             PartnerConfiguration. This way, there is no need to duplicate ay of the code in the HTTP client.
              */
-            /*
-            PAYLAPMEXT-199: add a keyPair in pluginConfiguration to encrypt and decrypt wallet.
-            pluginConfigurationIs now formated as: { banks }&&&privateKey
-             */
             final PartnerConfiguration partnerConfiguration = retrievePluginConfigurationRequest.getPartnerConfiguration();
             if (partnerConfiguration.getProperty(Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME) == null) {
                 throw new PluginException("Missing Payline clientName from partner configuration");
@@ -269,9 +273,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             final GetAspspsResponse apspsps = pisHttpClient.getAspsps(requestConfiguration);
 
             // Serialize the list (as JSON)
-
             return jsonService.toJson(apspsps);
-        } catch (final RuntimeException e) {
+
+        } catch (RuntimeException e) {
             LOGGER.error("Could not retrieve plugin configuration due to a plugin error", e);
             return retrievePluginConfigurationRequest.getPluginConfiguration();
         }

@@ -305,35 +305,37 @@ class GenericPaymentServiceTest {
 
     @Test
     void buildPaymentInitiationRequest() {
-        Psu psu = MockUtils.aPsu();
-        PaymentData paymentData = MockUtils.aPaymentdata();
-        GenericPaymentRequest genericPaymentRequest = new GenericPaymentRequest(MockUtils.aPaylinePaymentRequest());
+        final Psu psu = MockUtils.aPsu();
+        final PaymentData paymentData = MockUtils.aPaymentdata();
+        final GenericPaymentRequest genericPaymentRequest = new GenericPaymentRequest(MockUtils.aPaylinePaymentRequest());
+        final String ibanFR = MockUtils.getIbanFR();
+        PaymentInitiationRequest exepcted = MockUtils.aPaymentInitiationRequest(ibanFR);
 
-        PaymentInitiationRequest paymentInitiationRequest = service.buildPaymentInitiationRequest(genericPaymentRequest, psu, paymentData);
-        String ibanFR = MockUtils.getIbanFR();
-        PaymentInitiationRequest request = MockUtils.aPaymentInitiationRequest(ibanFR);
-        Assertions.assertEquals(request.getAspspId(), paymentInitiationRequest.getAspspId());
-        Assertions.assertEquals(request.getChargeBearer(), paymentInitiationRequest.getChargeBearer());
-        Assertions.assertEquals(request.getCreditorAccount().getIdentification(), paymentInitiationRequest.getCreditorAccount().getIdentification());
-        Assertions.assertEquals(request.getDebtorAccount().getIdentification(), paymentInitiationRequest.getDebtorAccount().getIdentification());
-        Assertions.assertEquals(request.getCreditorName(), paymentInitiationRequest.getCreditorName());
-        Assertions.assertEquals(request.getEndToEndId(), paymentInitiationRequest.getEndToEndId());
-        Assertions.assertEquals(request.getInitiatingPartyReferenceId(), paymentInitiationRequest.getInitiatingPartyReferenceId());
-        Assertions.assertEquals(request.getInitiatingPartyReturnUrl(), paymentInitiationRequest.getInitiatingPartyReturnUrl());
-        Assertions.assertEquals(request.getPaymentAmount(), paymentInitiationRequest.getPaymentAmount());
-        Assertions.assertEquals(request.getPaymentCurrency(), paymentInitiationRequest.getPaymentCurrency());
-        Assertions.assertEquals(request.getPaymentProduct(), paymentInitiationRequest.getPaymentProduct());
-        Assertions.assertEquals(request.getPreferredScaMethod(), paymentInitiationRequest.getPreferredScaMethod());
-        Assertions.assertEquals(request.getPsuId(), paymentInitiationRequest.getPsuId());
-        Assertions.assertEquals(request.getPsuSessionInformation().getHeaderUserAgent(), paymentInitiationRequest.getPsuSessionInformation().getHeaderUserAgent());
-        Assertions.assertEquals(request.getPsuSessionInformation().getIpAddress(), paymentInitiationRequest.getPsuSessionInformation().getIpAddress());
-        Assertions.assertEquals(request.getPurposeCode(), paymentInitiationRequest.getPurposeCode());
-        Assertions.assertEquals(request.getRemittanceInformation(), paymentInitiationRequest.getRemittanceInformation());
-        Assertions.assertEquals(request.getRemittanceInformationStructured().getReference(), paymentInitiationRequest.getRemittanceInformationStructured().getReference());
-        Assertions.assertEquals(request.getRiskInformation().getChannelType(), paymentInitiationRequest.getRiskInformation().getChannelType());
-        Assertions.assertEquals(request.getRiskInformation().getMerchantCategoryCode(), paymentInitiationRequest.getRiskInformation().getMerchantCategoryCode());
-        Assertions.assertEquals(request.getRiskInformation().getMerchantCustomerId(), paymentInitiationRequest.getRiskInformation().getMerchantCustomerId());
-        Assertions.assertEquals(request.getDebtorName(), paymentInitiationRequest.getDebtorName());
+        PaymentInitiationRequest result = service.buildPaymentInitiationRequest(genericPaymentRequest, psu, paymentData);
+        assertEquals(result.getAspspId(), exepcted.getAspspId());
+        assertEquals(result.getChargeBearer(), exepcted.getChargeBearer());
+        assertEquals(result.getCreditorAccount().getIdentification(), exepcted.getCreditorAccount().getIdentification());
+        assertEquals(result.getDebtorAccount().getIdentification(), exepcted.getDebtorAccount().getIdentification());
+        assertEquals(result.getCreditorName(), exepcted.getCreditorName());
+        assertEquals(result.getEndToEndId(), exepcted.getEndToEndId());
+        assertEquals(result.getInitiatingPartyReferenceId(), exepcted.getInitiatingPartyReferenceId());
+        assertEquals(result.getInitiatingPartyReturnUrl(), exepcted.getInitiatingPartyReturnUrl());
+        assertEquals(result.getPaymentAmount(), exepcted.getPaymentAmount());
+        assertEquals(result.getPaymentCurrency(), exepcted.getPaymentCurrency());
+        assertEquals(result.getPaymentProduct(), exepcted.getPaymentProduct());
+        assertEquals(result.getPreferredScaMethod(), exepcted.getPreferredScaMethod());
+        assertEquals(result.getPsuId(), exepcted.getPsuId());
+        assertEquals(result.getPsuSessionInformation().getHeaderUserAgent(), exepcted.getPsuSessionInformation().getHeaderUserAgent());
+        assertEquals(result.getPsuSessionInformation().getIpAddress(), exepcted.getPsuSessionInformation().getIpAddress());
+        assertEquals(result.getPurposeCode(), exepcted.getPurposeCode());
+        assertEquals(result.getRemittanceInformation(), exepcted.getRemittanceInformation());
+        assertEquals(result.getRemittanceInformationStructured().getReference(), exepcted.getRemittanceInformationStructured().getReference());
+        assertEquals(result.getRiskInformation().getChannelType(), exepcted.getRiskInformation().getChannelType());
+        assertEquals(result.getRiskInformation().getMerchantCategoryCode(), exepcted.getRiskInformation().getMerchantCategoryCode());
+        assertEquals(result.getRiskInformation().getMerchantCustomerId(), exepcted.getRiskInformation().getMerchantCustomerId());
+        assertEquals(result.getDebtorName(), exepcted.getDebtorName());
+        assertEquals(result.getInitiatingPartySubId(), exepcted.getInitiatingPartySubId());
+
     }
 
     @Test
