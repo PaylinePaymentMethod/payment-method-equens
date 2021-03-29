@@ -107,7 +107,7 @@ public class WalletServiceImpl implements WalletService {
             final PaymentData paymentData = gson.fromJson(data, PaymentData.class);
             final String aspspId = paymentData.getAspspId();
             String aspspLabel = "";
-            if (aspspId != null) {
+            if (!PluginUtils.isEmpty(aspspId)) {
                 final Aspsp aspsp = bankService.fetchAspsp(walletDisplayRequest.getPluginConfiguration(), aspspId);
                 if (aspsp != null) {
                     //getLabel de l'ASPSPID.
@@ -115,7 +115,7 @@ public class WalletServiceImpl implements WalletService {
                 }
                 walletFields.add(WalletDisplayFieldText.builder().content(aspspLabel).build());
             }
-            if (paymentData.getIban() != null) {
+            if (!PluginUtils.isEmpty(paymentData.getIban())) {
                 walletFields.add(WalletDisplayFieldText.builder().content(
                         PluginUtils.hideIban(paymentData.getIban())).build());
             }

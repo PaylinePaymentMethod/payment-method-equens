@@ -178,7 +178,7 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
     public boolean isCompatibleBank(final List<Detail> details, final String paymentMode) {
         final Map<String, Boolean> compatibilityMap = new HashMap<>();
         for (ConfigurationServiceImpl.PaymentProduct product : ConfigurationServiceImpl.PaymentProduct.values()) {
-            compatibilityMap.put(product.getPaymentProduct(), product.getSupportedByDefault());
+            compatibilityMap.put(product.getPaymentProductCode(), product.getSupportedByDefault());
         }
 
         if (details != null) {
@@ -187,7 +187,7 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
                    && SUPPORTED_TYPE.equals(detail.getType())
                    && POST_PAYMENTS_API.equals(detail.getApi())) {
                     for (ConfigurationServiceImpl.PaymentProduct product : ConfigurationServiceImpl.PaymentProduct.values()) {
-                        compatibilityMap.put(product.getPaymentProduct(), detail.getValue().contains(product.getPaymentProduct()));
+                        compatibilityMap.put(product.getPaymentProductCode(), detail.getValue().contains(product.getPaymentProductCode()));
                     }
                 }
             }
