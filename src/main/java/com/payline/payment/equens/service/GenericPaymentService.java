@@ -18,6 +18,7 @@ import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.pmapi.bean.common.Amount;
 import com.payline.pmapi.bean.common.Buyer;
 import com.payline.pmapi.bean.common.FailureCause;
+import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.bean.payment.RequestContext;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
@@ -234,8 +235,8 @@ public class GenericPaymentService {
     protected PaymentInitiationRequest buildPaymentInitiationRequest(GenericPaymentRequest paymentRequest, Psu newPsu, PaymentData paymentData) {
 
         // extract BIC and IBAN
-        String bic = paymentData.getBic();
-        String iban = paymentData.getIban();
+        final String bic = paymentData.getBic();
+        final String iban = paymentData.getIban();
         String aspspId = paymentData.getAspspId();
 
         // Control on the input data (to avoid NullPointerExceptions)
@@ -252,15 +253,18 @@ public class GenericPaymentService {
         if (paymentRequest.getBuyer().getAddresses() != null) {
             deliveryAddress = buildAddress(paymentRequest.getBuyer().getAddressForType(Buyer.AddressType.DELIVERY));
         }
-        String merchantName = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_NAME).getValue();
-        String creditorName =  PluginUtils.isEmpty(merchantName) ? null : merchantName;
-        String creditorAccountIdentification = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_IBAN).getValue();
-        Account creditorAccount =  PluginUtils.isEmpty(creditorAccountIdentification) ?  null : new Account.AccountBuilder().withIdentification(creditorAccountIdentification).build();
+        final String merchantName = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_NAME).getValue();
+        final String creditorName =  PluginUtils.isEmpty(merchantName) ? null : merchantName;
+        final String creditorAccountIdentification = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_IBAN).getValue();
+        final Account creditorAccount =  PluginUtils.isEmpty(creditorAccountIdentification) ?  null : new Account.AccountBuilder().withIdentification(creditorAccountIdentification).build();
 
-        String softDescriptor = paymentRequest.getSoftDescriptor();
-        String pispContract = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PISP_CONTRACT).getValue();
+        final String softDescriptor = paymentRequest.getSoftDescriptor();
+        final String pispContract = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PISP_CONTRACT).getValue();
 
-        PaymentInitiationRequest.PaymentInitiationRequestBuilder paymentInitiationRequestBuilder = new PaymentInitiationRequest.PaymentInitiationRequestBuilder()
+        final ContractProperty subIdContractProperty =  paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID);
+        final String initiatingPartySubId = subIdContractProperty != null ? subIdContractProperty.getValue() : null;
+
+        final PaymentInitiationRequest.PaymentInitiationRequestBuilder paymentInitiationRequestBuilder = new PaymentInitiationRequest.PaymentInitiationRequestBuilder()
                 .withAspspId(aspspId)
                 .withEndToEndId(paymentRequest.getOrder().getReference())
                 .withInitiatingPartyReferenceId(paymentRequest.getTransactionId())
@@ -317,6 +321,9 @@ public class GenericPaymentService {
                             .withIdentification(iban)
                             .build()
             );
+        }
+        if (!PluginUtils.isEmpty(initiatingPartySubId)) {
+            paymentInitiationRequestBuilder.withInitiatingPartySubId(initiatingPartySubId);
         }
         return paymentInitiationRequestBuilder.build();
     }
