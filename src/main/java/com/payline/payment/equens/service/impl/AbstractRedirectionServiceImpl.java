@@ -9,12 +9,10 @@ import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.http.PisHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
-import com.payline.pmapi.bean.common.OnHoldCause;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.BankAccount;
 import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.BankTransfer;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
-import com.payline.pmapi.bean.payment.response.impl.PaymentResponseOnHold;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
 import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,12 +58,6 @@ public abstract class AbstractRedirectionServiceImpl {
                 case OPEN:
                 case AUTHORISED:
                 case PENDING:
-                    paymentResponse = PaymentResponseOnHold.PaymentResponseOnHoldBuilder.aPaymentResponseOnHold()
-                            .withPartnerTransactionId(paymentId)
-                            .withOnHoldCause(OnHoldCause.SCORING_ASYNC)
-                            .withStatusCode(status.name())
-                            .build();
-                    break;
                 case SETTLEMENT_IN_PROCESS:
                 case SETTLEMENT_COMPLETED:
                     paymentResponse = PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
