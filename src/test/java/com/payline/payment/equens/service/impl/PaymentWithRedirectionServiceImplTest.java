@@ -74,10 +74,10 @@ class PaymentWithRedirectionServiceImplTest {
     }
     static Stream<Arguments> statusMappingSet(){
         return Stream.of(
-                Arguments.of( PaymentStatus.OPEN, PaymentResponseOnHold.class ),
-                Arguments.of( PaymentStatus.AUTHORISED, PaymentResponseOnHold.class ),
+                Arguments.of( PaymentStatus.OPEN, PaymentResponseSuccess.class ),
+                Arguments.of( PaymentStatus.AUTHORISED, PaymentResponseSuccess.class ),
                 Arguments.of( PaymentStatus.SETTLEMENT_IN_PROCESS, PaymentResponseSuccess.class ),
-                Arguments.of( PaymentStatus.PENDING, PaymentResponseOnHold.class ),
+                Arguments.of( PaymentStatus.PENDING, PaymentResponseSuccess.class ),
                 Arguments.of( PaymentStatus.SETTLEMENT_COMPLETED, PaymentResponseSuccess.class ),
                 Arguments.of( PaymentStatus.CANCELLED, PaymentResponseFailure.class ),
                 Arguments.of( PaymentStatus.EXPIRED, PaymentResponseFailure.class ),

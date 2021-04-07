@@ -21,6 +21,7 @@ public class Constants {
         public static final String COUNTRIES = "countries";
         public static final String PISP_CONTRACT = "pisp";
         public static final String PAYMENT_PRODUCT = "paymentProduct";
+        public static final String INITIATING_PARTY_SUBID = "initiatingPartySubId";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private ContractConfigurationKeys() {
@@ -56,6 +57,28 @@ public class Constants {
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private RequestContextKeys() {
+        }
+    }
+
+    /**
+     * Keys for Equens form.
+     */
+    public static class FormKeys {
+
+        public static final String ASPSP_ID = "aspspId";
+
+        public static final String FIELD_IBAN_LABEL = "paymentForm.input.field.iban.label";
+
+        public static final String FIELD_OR_LABEL = "paymentForm.input.field.or";
+
+        public static final String FIELD_BANKS_LABEL = "paymentForm.input.field.banks.label";
+
+        public static final String FIELD_PLACEHOLDER_LABEL = "paymentForm.input.field.banks.placeholder";
+
+        public static final String FIELD_BANKS_ERROR_MSG = "paymentForm.input.field.banks.error.message";
+
+        /* Static utility class : no need to instantiate it (Sonar bug fix) */
+        private FormKeys() {
         }
     }
 

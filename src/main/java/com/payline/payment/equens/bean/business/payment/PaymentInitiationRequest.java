@@ -115,6 +115,9 @@ public class PaymentInitiationRequest extends EquensApiMessage {
     @SerializedName("PaymentProduct")
     private String paymentProduct;
 
+    @SerializedName("InitiatingPartySubId")
+    private String initiatingPartySubId;
+
 
     PaymentInitiationRequest(PaymentInitiationRequestBuilder builder) {
         super(builder);
@@ -137,6 +140,7 @@ public class PaymentInitiationRequest extends EquensApiMessage {
         this.chargeBearer = builder.chargeBearer;
         this.psuId = builder.psuId;
         this.paymentProduct = builder.paymentProduct;
+        this.initiatingPartySubId = builder.initiatingPartySubId;
     }
 
     public static class PaymentInitiationRequestBuilder extends EquensApiMessageBuilder {
@@ -160,6 +164,7 @@ public class PaymentInitiationRequest extends EquensApiMessage {
         private String chargeBearer;
         private String psuId;
         private String paymentProduct;
+        private String initiatingPartySubId;
 
         public PaymentInitiationRequestBuilder withAspspId(String aspspId) {
             this.aspspId = aspspId;
@@ -259,6 +264,11 @@ public class PaymentInitiationRequest extends EquensApiMessage {
             return this;
         }
 
+        public PaymentInitiationRequestBuilder withInitiatingPartySubId(String initiatingPartySubId) {
+            this.initiatingPartySubId = initiatingPartySubId;
+            return this;
+        }
+
         public PaymentInitiationRequest build() {
             return new PaymentInitiationRequest(this);
         }
@@ -340,4 +350,9 @@ public class PaymentInitiationRequest extends EquensApiMessage {
     public String getPaymentProduct() {
         return paymentProduct;
     }
+
+    public String getInitiatingPartySubId() {
+        return initiatingPartySubId;
+    }
+
 }

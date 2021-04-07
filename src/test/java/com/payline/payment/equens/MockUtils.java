@@ -4,6 +4,7 @@ import com.payline.payment.equens.bean.business.fraud.PsuSessionInformation;
 import com.payline.payment.equens.bean.business.payment.*;
 import com.payline.payment.equens.bean.business.psu.Psu;
 import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
+import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.service.impl.ConfigurationServiceImpl;
@@ -164,6 +165,7 @@ public class MockUtils {
         contractProperties.put(Constants.ContractConfigurationKeys.PISP_CONTRACT,
                 new ContractProperty("123456789012"));
         contractProperties.put(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT, new ContractProperty("Instant"));
+        contractProperties.put(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID, new ContractProperty("12"));
 
         return new ContractConfiguration("INST EquensWorldline", contractProperties);
     }
@@ -359,8 +361,8 @@ public class MockUtils {
     public static PaymentInitiationRequest.PaymentInitiationRequestBuilder aPaymentInitiationRequestBuilder(String debtorAccount){
         return new PaymentInitiationRequest.PaymentInitiationRequestBuilder()
                 .withAspspId("1410")
-                .withEndToEndId( "PAYLINE" + timestamp )
-                .withInitiatingPartyReferenceId( "REF" + timestamp )
+                .withEndToEndId("REF" + timestamp)
+                .withInitiatingPartyReferenceId( "PAYLINE" + timestamp )
                 .withInitiatingPartyReturnUrl( "http://redirectionURL.com" )
                 .withRemittanceInformation( "softDescriptor123456789012" )
                 .withRemittanceInformationStructured(
@@ -403,8 +405,9 @@ public class MockUtils {
                 .addPreferredScaMethod(ConfigurationServiceImpl.ScaMethod.REDIRECT)
                 .withChargeBearer(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer())
                 .withPsuId("1")
-                .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getProduct())
-                .withDebtorName("Durand");
+                .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode())
+                .withDebtorName("Durand")
+                .withInitiatingPartySubId("12");
     }
 
     /**
@@ -677,5 +680,14 @@ public class MockUtils {
         return new PaymentData.PaymentDataBuilder()
                 .withIban("anIbanWithMoreThan8Charactere")
                 .build();
+    }
+
+    public static Aspsp anAspsp() {
+        return jsonService.fromJson("{\n" +
+                "    \"AspspId\": \"10\",\n" +
+                "    \"BIC\": \"PSSTFRPP\",\n" +
+                "    \"CountryCode\": \"FR\",\n" +
+                "    \"Name\": [\"La banque Postale\"\n]\n" +
+                "}", Aspsp.class);
     }
 }
