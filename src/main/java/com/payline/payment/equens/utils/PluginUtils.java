@@ -272,4 +272,15 @@ public class PluginUtils {
         return sb.toString();
     }
 
+    /**
+     * Methode utilitaire permettant de vérifier si une liste est vide.
+     * @param list
+     *      La liste à vérifier.
+     * @return
+     *      true si vide ou null false sinon.
+     */
+    public static boolean isEmptyList(final List<?> list) {
+        return list == null || list.isEmpty();
+    }
+
 }
