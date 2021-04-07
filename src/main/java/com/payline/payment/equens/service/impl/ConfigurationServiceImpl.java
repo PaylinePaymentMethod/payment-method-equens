@@ -1,8 +1,10 @@
 package com.payline.payment.equens.service.impl;
 
+import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
 import com.payline.payment.equens.bean.business.reachdirectory.GetAspspsResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.PluginException;
+import com.payline.payment.equens.service.BankService;
 import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
@@ -34,6 +36,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private static final String I18N_CONTRACT_PREFIX = "contract.";
 
     private final JsonService jsonService = JsonService.getInstance();
+
 
     public enum ChannelType {
         ECOMMERCE("Ecommerce");
@@ -112,6 +115,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private PisHttpClient pisHttpClient = PisHttpClient.getInstance();
     private PsuHttpClient psuHttpClient = PsuHttpClient.getInstance();
     private ReleaseProperties releaseProperties = ReleaseProperties.getInstance();
+    private BankService bankService = BankService.getInstance();
 
 
     @Override
@@ -271,10 +275,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             // Retrieve account service providers list
             final GetAspspsResponse apspsps = pisHttpClient.getAspsps(requestConfiguration);
-
+            final List<Aspsp> banksAspsps = bankService.buildBanksWithAffiliation(apspsps.getAspsps());
             // Serialize the list (as JSON)
+            apspsps.setAspsps(banksAspsps);
             return jsonService.toJson(apspsps);
-
         } catch (RuntimeException e) {
             LOGGER.error("Could not retrieve plugin configuration due to a plugin error", e);
             return retrievePluginConfigurationRequest.getPluginConfiguration();
