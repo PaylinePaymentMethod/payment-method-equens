@@ -1,8 +1,9 @@
 package com.payline.payment.equens.service.impl;
 
-import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.payline.payment.equens.MockUtils;
-import com.payline.payment.equens.bean.business.reachdirectory.Detail;
+import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
+import com.payline.payment.equens.service.BankService;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.i18n.I18nService;
 import com.payline.pmapi.bean.common.FailureCause;
@@ -18,29 +19,36 @@ import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationReques
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseFailure;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseSpecific;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 class PaymentFormConfigurationServiceImplTest {
 
-    @InjectMocks
-    private PaymentFormConfigurationServiceImpl service;
+    @Mock
+    private BankService bankService;
 
     @Mock
     private I18nService i18n;
+
+    @InjectMocks
+    private PaymentFormConfigurationServiceImpl underTest;
 
     private final String aspspsJson = "{\"Application\":\"PIS\",\"ASPSP\":[" +
             // FR - Normal|Instant
@@ -61,7 +69,7 @@ class PaymentFormConfigurationServiceImplTest {
 
     @BeforeEach
     void setup() {
-        service = new PaymentFormConfigurationServiceImpl();
+        underTest = new PaymentFormConfigurationServiceImpl();
         MockitoAnnotations.initMocks(this);
 
         // We consider by default that i18n behaves normally
@@ -72,6 +80,8 @@ class PaymentFormConfigurationServiceImplTest {
 
     @Test
     void getPaymentFormConfiguration_nominal() {
+        doReturn(Arrays.asList(MockUtils.anAspsp(), MockUtils.anAspsp()))
+                .when(bankService).fetchBanks(eq(aspspsJson), any(), any());
         // given: the plugin configuration contains 3 french banks and the locale is FRANCE
         final PaymentFormConfigurationRequest request = MockUtils.aPaymentFormConfigurationRequestBuilder()
                                                                  .withLocale(Locale.FRANCE)
@@ -79,7 +89,7 @@ class PaymentFormConfigurationServiceImplTest {
                                                                  .build();
 
         // when: calling getPaymentFormConfiguration method
-        final PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(request);
+        final PaymentFormConfigurationResponse response = underTest.getPaymentFormConfiguration(request);
 
         // then: response is a success, the form is a BankTransferForm and the number of banks is correct
         assertEquals(PaymentFormConfigurationResponseSpecific.class, response.getClass());
@@ -87,29 +97,40 @@ class PaymentFormConfigurationServiceImplTest {
         assertNotNull(form.getButtonText());
         assertNotNull(form.getDescription());
         assertEquals(CustomForm.class, form.getClass());
+
         final CustomForm customForm = (CustomForm) form;
         final List<PaymentFormField> customFields = customForm.getCustomFields();
-        assertEquals(3, customFields.size());
+        assertEquals(4, customFields.size());
         assertTrue(customFields.get(0) instanceof PaymentFormInputFieldIban);
+
         final PaymentFormInputFieldIban ibanField = (PaymentFormInputFieldIban)customFields.get(0);
         assertEquals(BankTransferForm.IBAN_KEY, ibanField.getKey());
         assertTrue(customFields.get(1) instanceof PaymentFormDisplayFieldText);
         assertTrue(customFields.get(2) instanceof PaymentFormInputFieldSelect);
+
         final PaymentFormInputFieldSelect selectFields = (PaymentFormInputFieldSelect)customFields.get(2);
         assertEquals(Constants.FormKeys.ASPSP_ID, selectFields.getKey());
         assertNotNull(selectFields.getSelectOptions());
         assertEquals(2, selectFields.getSelectOptions().size());
+
+        final PaymentFormInputFieldSelect selectSubsidiariesFields = (PaymentFormInputFieldSelect)customFields.get(3);
+        assertEquals(Constants.FormKeys.SUB_ASPSP_ID, selectSubsidiariesFields.getKey());
+        assertNotNull(selectSubsidiariesFields.getSelectOptions());
+        assertEquals(0, selectSubsidiariesFields.getSelectOptions().size());
+
     }
 
     @Test
     void getPaymentFormConfiguration_invalidPluginConfiguration() {
+        doThrow(JsonSyntaxException.class)
+                .when(bankService).fetchBanks(any(), any(), any());
         // given: the plugin configuration is invalid
         final PaymentFormConfigurationRequest request = MockUtils.aPaymentFormConfigurationRequestBuilder()
                                                                  .withPluginConfiguration("{not valid")
                                                                  .build();
 
         // when: calling getPaymentFormConfiguration method
-        final PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(request);
+        final PaymentFormConfigurationResponse response = underTest.getPaymentFormConfiguration(request);
 
         // then: response is a failure
         assertEquals(PaymentFormConfigurationResponseFailure.class, response.getClass());
@@ -125,7 +146,7 @@ class PaymentFormConfigurationServiceImplTest {
                                                                  .build();
 
         // when: calling getPaymentFormConfiguration method
-        final PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(request);
+        final PaymentFormConfigurationResponse response = underTest.getPaymentFormConfiguration(request);
 
         // then: response is a failure
         assertEquals(PaymentFormConfigurationResponseFailure.class, response.getClass());
@@ -135,167 +156,89 @@ class PaymentFormConfigurationServiceImplTest {
         assertEquals(FailureCause.INVALID_DATA, ((PaymentFormConfigurationResponseFailure) response).getFailureCause());
     }
 
-    @Test
-    void getBanks_aspspWithoutBic() {
-        // @see https://payline.atlassian.net/browse/PAYLAPMEXT-204
-        // @see https://payline.atlassian.net/browse/PAYLAPMEXT-219
+    @Nested
+    class bankScript {
 
-        // when: calling getBanks method
-        final List<String> listCountry = new ArrayList<>();
-        listCountry.add(Locale.GERMANY.getCountry());
-        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode());
+        @Test
+        void withEmptyBankList() {
+            String result = underTest.buildBankScript(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            assertEquals("", result);
+        }
 
-        // then: the aspsp is ignered because there is no BIC
-        assertTrue(result.isEmpty());
-    }
+        @Test
+        void buildBankWithoutSubsidiary() {
+            final Aspsp bank1 = new Aspsp();
+            bank1.setCountryCode("FR");
+            bank1.setName(Collections.singletonList("Axa Banque"));
+            bank1.setAspspId("1");
 
-    @Test
-    void getBanks_filterAspspByCountryCode() {
-        // @see: https://payline.atlassian.net/browse/PAYLAPMEXT-203
+            final Aspsp bank2 = new Aspsp();
+            bank2.setCountryCode("FR");
+            bank2.setName(Collections.singletonList("La Banque Postale"));
+            bank2.setAspspId("2");
 
-        // when: calling getBanks method
-        final List<String> listCountry = new ArrayList<>();
-        listCountry.add(Locale.FRANCE.getCountry());
-        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry, ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode());
+            final List<Aspsp> aspspList = Arrays.asList(bank1, bank2);
+            final List<SelectOption> primaryList = new ArrayList<>();
+            final List<SelectOption> subsidiaryList = new ArrayList<>();
+            final String result = underTest.buildBankScript(aspspList, primaryList, subsidiaryList);
+            assertTrue(subsidiaryList.isEmpty());
+            assertEquals("", result);
 
-        // then: there is only 1 bank choice at the end
-        assertEquals(2, result.size());
-    }
+            final SelectOption bank1Option = primaryList.get(0);
+            final SelectOption bank2Option = primaryList.get(1);
 
-    @Test
-    void getBanks_filterAspspByMultipleCountryCode() {
-        // @see: https://payline.atlassian.net/browse/PAYLAPMEXT-203
+            assertEquals("Axa Banque", bank1Option.getValue());
+            assertEquals("La Banque Postale", bank2Option.getValue());
+            assertEquals("1", bank1Option.getKey());
+            assertEquals("2", bank2Option.getKey());
+        }
 
-        // when: calling getBanks method
-        final List<String> listCountry = new ArrayList<>();
-        listCountry.add(Locale.FRANCE.getCountry());
-        listCountry.add("ES");
-        final List<SelectOption> result = service.getBanks(aspspsJson, listCountry,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode());
+        @Test
+        void buildBankWithSubsidiary() {
+            final String expectedResult = "{ id : 'Crédit Agricole',\n" +
+                    "  subList : [{aspspId : '123', label : 'Crédit Agricole PACA'},{aspspId : '456', label : 'Crédit Agricole Paris'}]}";
+            final Aspsp bank1 = new Aspsp();
+            bank1.setCountryCode("FR");
+            bank1.setName(Collections.singletonList("Axa Banque"));
+            bank1.setAspspId("1");
 
-        // then: there is 2 banks choice at the end
-        assertEquals(4, result.size());
-    }
+            final Aspsp subAspsp = new Aspsp();
+            subAspsp.setName(Collections.singletonList("Crédit Agricole PACA"));
+            subAspsp.setAspspId("123");
 
-    @Test
-    void isCompatibleNormalWithNullDetail() {
-        Assertions.assertTrue(service.isCompatibleBank(null,
-                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProductCode()));
-    }
+            final Aspsp subAspsp2 = new Aspsp();
+            subAspsp2.setName(Collections.singletonList("Crédit Agricole Paris"));
+            subAspsp2.setAspspId("456");
 
-    @Test
-    void shouldBeCompatibleNormalWithOneDetailsWithValueNormal() {
-        final List<Detail> details = new ArrayList<>();
-        details.add(detailWithPostPaymentNormal());
+            final Aspsp bank2 = new Aspsp();
+            bank2.setCountryCode("FR");
+            bank2.setName(Collections.singletonList("Crédit Agricole"));
+            bank2.setAspspId("");
+            bank2.setSubsidiariesList(Arrays.asList(subAspsp, subAspsp2));
 
-        Assertions.assertTrue(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProductCode()));
-    }
+            final List<Aspsp> aspspList = Arrays.asList(bank1, bank2);
+            final List<SelectOption> primaryList = new ArrayList<>();
+            final List<SelectOption> subsidiaryList = new ArrayList<>();
+            final String result = underTest.buildBankScript(aspspList, primaryList, subsidiaryList);
+            assertFalse(subsidiaryList.isEmpty());
+            assertEquals(expectedResult, result);
 
-    @Test
-    void shouldBeCompatibleNormalWithOneDetailsWithValueNormalAndInstant() {
-        final List<Detail> details = new ArrayList<>();
-        details.add(detailWithPostPaymentInstantAndNormal());
+            final SelectOption bank1Option = primaryList.get(0);
+            final SelectOption bank2Option = primaryList.get(1);
 
-        Assertions.assertTrue(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProductCode()));
-    }
+            assertEquals("Axa Banque", bank1Option.getValue());
+            assertEquals("Crédit Agricole", bank2Option.getValue());
+            assertEquals("1", bank1Option.getKey());
+            assertEquals("", bank2Option.getKey());
 
-    @Test
-    void shouldNotBeCompatibleNormalWithOneDetailsWithValueInstant() {
-        final List<Detail> details = new ArrayList<>();
-        details.add(detailWithPostPaymentInstant());
+            final SelectOption subsidiary1Option = subsidiaryList.get(0);
+            final SelectOption subsidiary2Option = subsidiaryList.get(1);
 
-        Assertions.assertFalse(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProductCode()));
-    }
-
-    @Test
-    void shouldNotBeCompatibleInstantWithNullDetail() {
-        Assertions.assertFalse(service.isCompatibleBank(null,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode()));
-    }
-
-    @Test
-    void shouldBeCompatibleInstantWithOneDetailsWithValueNormalAndInstant() {
-        final List<Detail> details = new ArrayList<>();
-        details.add(detailWithPostPaymentInstantAndNormal());
-
-        Assertions.assertTrue(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode()));
-    }
-
-    @Test
-    void shouldBeCompatibleInstantWithOneDetailsWithValueInstant() {
-        final List<Detail> details = new ArrayList<>();
-        details.add(detailWithPostPaymentInstant());
-
-        Assertions.assertTrue(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode()));
-    }
-
-    @Test
-    void shouldNotBeCompatibleWithTwoDetailsWithValuesButNoInstant() {
-        final List<Detail> details = new ArrayList<>();
-        details.add(detailWithPostPaymentRandomValue());
-        details.add(detailWithPostPaymentRandomValue());
-
-        Assertions.assertFalse(service.isCompatibleBank(details,
-                ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode()));
-    }
-
-    private Detail detailWithNoPostPayment() {
-        return detailFromJSON("{\n" +
-                "          \"Api\": \"POST autreapi\",\n" +
-                "          \"Fieldname\" : \"PaymentProduct\",\n" +
-                "          \"Type\": \"SUPPORTED\",\n" +
-                "          \"Value\": \"Normal|Instant\",\n" +
-                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
-                "        }");
-    }
-
-    private Detail detailWithPostPaymentInstantAndNormal() {
-        return detailFromJSON("{\n" +
-                "          \"Api\": \"POST /payments\",\n" +
-                "          \"Fieldname\" : \"PaymentProduct\",\n" +
-                "          \"Type\": \"SUPPORTED\",\n" +
-                "          \"Value\": \"Normal|Instant\",\n" +
-                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
-                "        }");
-    }
-
-    private Detail detailWithPostPaymentInstant() {
-        return detailFromJSON("{\n" +
-                "          \"Api\": \"POST /payments\",\n" +
-                "          \"Fieldname\" : \"PaymentProduct\",\n" +
-                "          \"Type\": \"SUPPORTED\",\n" +
-                "          \"Value\": \"Instant\",\n" +
-                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
-                "        }");
-    }
-
-    private Detail detailWithPostPaymentNormal() {
-        return detailFromJSON("{\n" +
-                "          \"Api\": \"POST /payments\",\n" +
-                "          \"Fieldname\" : \"PaymentProduct\",\n" +
-                "          \"Type\": \"SUPPORTED\",\n" +
-                "          \"Value\": \"Normal\",\n" +
-                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
-                "        }");
-    }
-
-    private Detail detailWithPostPaymentRandomValue() {
-        return detailFromJSON("{\n" +
-                "          \"Api\": \"POST /payments\",\n" +
-                "          \"Fieldname\" : \"PaymentProduct\",\n" +
-                "          \"Type\": \"SUPPORTED\",\n" +
-                "          \"Value\": \"Random\",\n" +
-                "          \"ProtocolVersion\": \"STET_V_1_4_0_47\"\n" +
-                "        }");
-    }
-
-    private Detail detailFromJSON(final String json) {
-        final Gson gson = new Gson();
-        return gson.fromJson(json, Detail.class);
+            assertEquals("Crédit Agricole PACA", subsidiary1Option.getValue());
+            assertEquals("Crédit Agricole Paris", subsidiary2Option.getValue());
+            assertEquals("123", subsidiary1Option.getKey());
+            assertEquals("456", subsidiary2Option.getKey());
+        }
     }
 }
+

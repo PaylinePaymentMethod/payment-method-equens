@@ -5,6 +5,7 @@ import com.payline.payment.equens.bean.business.payment.PaymentData;
 import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.service.GenericPaymentService;
 import com.payline.payment.equens.utils.Constants;
+import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
@@ -14,6 +15,8 @@ import com.payline.pmapi.logger.LogManager;
 import com.payline.pmapi.service.PaymentService;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Map;
+
 public class PaymentServiceImpl implements PaymentService {
     private GenericPaymentService genericPaymentService = GenericPaymentService.getInstance();
     private static final Logger LOGGER = LogManager.getLogger(PaymentServiceImpl.class);
@@ -21,11 +24,13 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponse paymentRequest(PaymentRequest paymentRequest) {
         try {
+            final Map<String, String> paymentFormParameter = paymentRequest.getPaymentFormContext().getPaymentFormParameter();
             final GenericPaymentRequest genericPaymentRequest = new GenericPaymentRequest(paymentRequest);
+            final String aspspId = PluginUtils.isEmpty(paymentFormParameter.get(Constants.FormKeys.ASPSP_ID)) ? paymentFormParameter.get(Constants.FormKeys.SUB_ASPSP_ID) : paymentFormParameter.get(Constants.FormKeys.ASPSP_ID);
             final PaymentData paymentData = new PaymentData.PaymentDataBuilder()
-                    .withBic(paymentRequest.getPaymentFormContext().getPaymentFormParameter().get(BankTransferForm.BANK_KEY))
+                    .withBic(paymentFormParameter.get(BankTransferForm.BANK_KEY))
                     .withIban(paymentRequest.getPaymentFormContext().getSensitivePaymentFormParameter().get(BankTransferForm.IBAN_KEY))
-                    .withAspspId(paymentRequest.getPaymentFormContext().getPaymentFormParameter().get(Constants.FormKeys.ASPSP_ID))
+                    .withAspspId(aspspId)
                     .build();
 
             // execute the payment Request

@@ -210,7 +210,7 @@ public class GenericPaymentService {
                     , paymentData.getBic());
         }
         if (paymentData.getAspspId() != null){
-            final Aspsp aspsp = bankService.fetchAspsp(paymentRequest.getPluginConfiguration(), paymentData.getAspspId());
+            final Aspsp aspsp = bankService.getAspsp(paymentRequest.getPluginConfiguration(), paymentData.getAspspId());
             if (aspsp != null) {
                 countryCode = aspsp.getCountryCode();
             }
