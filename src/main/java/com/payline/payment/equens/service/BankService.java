@@ -139,6 +139,14 @@ public class BankService {
         return aspspList;
     }
 
+    public boolean isIbanRequired(Aspsp aspsp) {
+        return bankBusiness.isIbanRequired(aspsp);
+    }
+
+    public boolean isCompatibleBank(Aspsp aspsp, final String paymentMode) {
+        return bankBusiness.isCompatibleBank(aspsp.getDetails(), paymentMode);
+    }
+
     protected Map<String, BankAffiliation> fetchMotherBanks(String motherBankPath) {
         try (InputStream input = this.getClass().getClassLoader().getResourceAsStream(motherBankPath)) {
             if (input == null) {

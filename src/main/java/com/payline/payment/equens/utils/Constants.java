@@ -89,6 +89,7 @@ public class Constants {
         public static final String FIELD_SUBSIDIARY_ERROR_MSG = "paymentForm.input.field.subsidiary.error.message";
 
         public static final String FIELD_SUBSIDIARY_REQUIRED_MSG = "paymentForm.input.field.subsidiary.required.message";
+        public static final String FIELD_IBAN_REQUIRED_MSG = "paymentForm.input.field.iban.required.message";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private FormKeys() {

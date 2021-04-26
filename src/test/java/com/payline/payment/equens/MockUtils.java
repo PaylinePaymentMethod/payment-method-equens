@@ -146,7 +146,7 @@ public class MockUtils {
     /**
      * Generate a valid {@link ContractConfiguration}.
      */
-    public static ContractConfiguration aContractConfiguration(String exampleCountry) {
+    public static ContractConfiguration aContractConfiguration(String exampleCountry, final String paymentMode) {
         Map<String, ContractProperty> contractProperties = new HashMap<>();
         contractProperties.put(Constants.ContractConfigurationKeys.CHANNEL_TYPE,
                 new ContractProperty(ConfigurationServiceImpl.ChannelType.ECOMMERCE.getType()));
@@ -164,11 +164,19 @@ public class MockUtils {
                 new ContractProperty(exampleCountry));
         contractProperties.put(Constants.ContractConfigurationKeys.PISP_CONTRACT,
                 new ContractProperty("123456789012"));
-        contractProperties.put(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT, new ContractProperty("Instant"));
+        contractProperties.put(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT, new ContractProperty(paymentMode));
         contractProperties.put(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID, new ContractProperty("12"));
 
         return new ContractConfiguration("INST EquensWorldline", contractProperties);
     }
+
+    /**
+     * Generate a valid {@link ContractConfiguration}.
+     */
+    public static ContractConfiguration aContractConfiguration(String exampleCountry) {
+        return aContractConfiguration(exampleCountry, "Instant");
+    }
+
 
     /**
      * Generate a valid {@link ContractParametersCheckRequest}.
@@ -449,10 +457,11 @@ public class MockUtils {
     public static String aPluginConfiguration() {
         return "{\"Application\":\"PIS\",\"ASPSP\":[" +
                     "{\"AspspId\":\"1409\",\"Name\":[\"La Banque Postale\"],\"CountryCode\":\"FR\",\"BIC\":\"PSSTFRPP\"}," +
-                    "{\"AspspId\":\"1410\",\"Name\":[\"La Banque\"],\"CountryCode\":\"ES\",\"BIC\":\"PSSTFRPT\"}," +
-                    "{\"AspspId\":\"1601\",\"Name\":[\"BBVA\"],\"CountryCode\":\"ES\",\"BIC\":\"BBVAESMM\"}" +
-                "],\"MessageCreateDateTime\":\"2019-11-15T16:52:37.092+0100\",\"MessageId\":\"6f31954f-7ad6-4a63-950c-a2a363488e\"}";
+                    "{\"AspspId\":\"1601\",\"Name\":[\"BBVA\"],\"CountryCode\":\"ES\",\"BIC\":\"BBVAESMM\"}," +
+                    "{\"AspspId\":\"1410\", \"BIC\":\"PSSTFRPT\", \"CountryCode\":\"FR\", \"Name\":[ \"La Banque\"], \"Details\":[ { \"Api\":\"POST /payments\", \"Fieldname\":\"DebtorAccount\", \"Type\":\"MANDATORY\", \"ProtocolVersion\":\"BG_V_1_3_0\" }, { \"Api\":\"POST /payments\", \"Fieldname\":\"PaymentProduct\", \"Type\":\"SUPPORTED\", \"Value\":\"Instant\", \"ProtocolVersion\":\"BG_V_1_3_0\" } ] }"+
+                    "],\"MessageCreateDateTime\":\"2019-11-15T16:52:37.092+0100\",\"MessageId\":\"6f31954f-7ad6-4a63-950c-a2a363488e\"}";
     }
+
 
     /**
      * @return A fake private key, for test purpose.
@@ -639,7 +648,8 @@ public class MockUtils {
     public static PaymentData.PaymentDataBuilder aPaymentDataBuilder() {
         return new PaymentData.PaymentDataBuilder()
                 .withBic("PSSTFRPT")
-                .withIban(ibanFR);
+                .withIban(ibanFR)
+                .withAspspId("1410");
     }
 
     public static String getExampleCountry() {

@@ -52,7 +52,6 @@ public class WalletServiceImpl implements WalletService {
     public WalletCreateResponse createWallet(WalletCreateRequest walletCreateRequest) {
         try {
             // get wallet data
-
             final Map<String, String> paymentFormParameter = walletCreateRequest.getPaymentFormContext().getPaymentFormParameter();
 
             String bic = paymentFormParameter.get(BankTransferForm.BANK_KEY);
