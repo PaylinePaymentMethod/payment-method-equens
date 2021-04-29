@@ -67,6 +67,9 @@ public class Constants {
 
         public static final String ASPSP_ID = "aspspId";
 
+        public static final String SUB_ASPSP_ID = "subAspspId";
+
+
         public static final String FIELD_IBAN_LABEL = "paymentForm.input.field.iban.label";
 
         public static final String FIELD_OR_LABEL = "paymentForm.input.field.or";
@@ -76,6 +79,16 @@ public class Constants {
         public static final String FIELD_PLACEHOLDER_LABEL = "paymentForm.input.field.banks.placeholder";
 
         public static final String FIELD_BANKS_ERROR_MSG = "paymentForm.input.field.banks.error.message";
+
+        public static final String FIELD_BANKS_REQUIRED_MSG = "paymentForm.input.field.banks.required.message";
+
+        public static final String FIELD_SUBSIDIARY_LABEL = "paymentForm.input.field.subsidiary.label";
+
+        public static final String FIELD_SUBSIDIARY_PLACEHOLDER = "paymentForm.input.field.subsidiary.placeholder";
+
+        public static final String FIELD_SUBSIDIARY_ERROR_MSG = "paymentForm.input.field.subsidiary.error.message";
+
+        public static final String FIELD_SUBSIDIARY_REQUIRED_MSG = "paymentForm.input.field.subsidiary.required.message";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private FormKeys() {

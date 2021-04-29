@@ -28,6 +28,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class WalletServiceImpl implements WalletService {
     private static final Logger LOGGER = LogManager.getLogger(WalletServiceImpl.class);
@@ -51,9 +52,12 @@ public class WalletServiceImpl implements WalletService {
     public WalletCreateResponse createWallet(WalletCreateRequest walletCreateRequest) {
         try {
             // get wallet data
-            String bic = walletCreateRequest.getPaymentFormContext().getPaymentFormParameter().get(BankTransferForm.BANK_KEY);
+
+            final Map<String, String> paymentFormParameter = walletCreateRequest.getPaymentFormContext().getPaymentFormParameter();
+
+            String bic = paymentFormParameter.get(BankTransferForm.BANK_KEY);
             String iban = walletCreateRequest.getPaymentFormContext().getSensitivePaymentFormParameter().get(BankTransferForm.IBAN_KEY);
-            String aspspId = walletCreateRequest.getPaymentFormContext().getPaymentFormParameter().get(Constants.FormKeys.ASPSP_ID);
+            final String aspspId = PluginUtils.isEmpty(paymentFormParameter.get(Constants.FormKeys.ASPSP_ID)) ? paymentFormParameter.get(Constants.FormKeys.SUB_ASPSP_ID) : paymentFormParameter.get(Constants.FormKeys.ASPSP_ID);
 
             final PaymentData walletPaymentData = new PaymentData.PaymentDataBuilder()
                     .withBic(bic)
@@ -108,10 +112,10 @@ public class WalletServiceImpl implements WalletService {
             final String aspspId = paymentData.getAspspId();
             String aspspLabel = "";
             if (!PluginUtils.isEmpty(aspspId)) {
-                final Aspsp aspsp = bankService.fetchAspsp(walletDisplayRequest.getPluginConfiguration(), aspspId);
+                final Aspsp aspsp = bankService.getAspsp(walletDisplayRequest.getPluginConfiguration(), aspspId);
                 if (aspsp != null) {
                     //getLabel de l'ASPSPID.
-                    aspspLabel = aspsp.getName() != null && !aspsp.getName().isEmpty() ? aspsp.getName().get(0) : "";
+                    aspspLabel = PluginUtils.isEmptyList(aspsp.getName()) ? "" : aspsp.getName().get(0);
                 }
                 walletFields.add(WalletDisplayFieldText.builder().content(aspspLabel).build());
             }

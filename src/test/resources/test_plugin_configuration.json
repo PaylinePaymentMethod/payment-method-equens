@@ -1,0 +1,2479 @@
+{
+  "ASPSP":[
+    {
+      "AspspId":"1410",
+      "BIC":"AXABFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "AXA Banque"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"BG_V_1_3_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal",
+          "ProtocolVersion":"BG_V_1_3_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"BG_V_1_3_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"6504",
+      "BIC":"AGFBFRCCXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Allianz Banque"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1617",
+      "BIC":"BACAESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Andbank"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"6502",
+      "BIC":"CMBRFR2BPBS",
+      "CountryCode":"FR",
+      "Name":[
+        "Arkéa Banking Services"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1413",
+      "BIC":"CMBRFR2BPBS",
+      "CountryCode":"FR",
+      "Name":[
+        "Arkéa Banque Entreprises et Institutionnels"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1425",
+      "BIC":"FEFIFR21XXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Arkéa Banque Privee"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1611",
+      "BIC":"CASDESBB",
+      "CountryCode":"ES",
+      "Name":[
+        "Arquia Banca Espanol"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1601",
+      "BIC":"BBVAESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "BBVA"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "BIC":"BNPAFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "BNP Paribas"
+      ],
+      "subsidiariesList":[
+        {
+          "AspspId":"1400",
+          "BIC":"BNPAFRPP",
+          "CountryCode":"FR",
+          "Name":[
+            "BNP Paribas Ma Banque"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal|Instant",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"1405",
+          "BIC":"BNPAFRPP",
+          "CountryCode":"FR",
+          "Name":[
+            "BNP Paribas Ma Banque Enterprise"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "AspspId":"6503",
+      "BIC":"PREUFRP1XXX",
+      "CountryCode":"FR",
+      "Name":[
+        "BPE Banque Privée"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1603",
+      "BIC":"BSABESBB",
+      "CountryCode":"ES",
+      "Name":[
+        "BancSabadell"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1620",
+      "BIC":"BFIVESBB",
+      "CountryCode":"ES",
+      "Name":[
+        "Banca Mediolanum Espanol"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1615",
+      "BIC":"INVLESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Banco Inversis"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1629",
+      "BIC":"BMARES2M",
+      "CountryCode":"ES",
+      "Name":[
+        "Banco March Espanol"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1623",
+      "BIC":"PICHESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Banco Pichincha"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1600",
+      "BIC":"BSCHESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Banco Santander"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1604",
+      "BIC":"CAHMESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Bankia"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1606",
+      "BIC":"BKBKESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Bankinter"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1614",
+      "BIC":"BKOAES22",
+      "CountryCode":"ES",
+      "Name":[
+        "Bankoa"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"6513",
+      "BIC":"BCHAFR21XXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Banque Chalus"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"6511",
+      "BIC":"COURFR2TXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Banque Courtois (groupe Crédit du Nord)"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "AspspId":"6505",
+      "BIC":"KOLBFR21XXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Banque Kolb (groupe Crédit du Nord)"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "AspspId":"6506",
+      "BIC":"LAYDFR2WXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Banque Laydernier (groupe Crédit du Nord)"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "AspspId":"6509",
+      "BIC":"BNUGFR21XXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Banque Nuger (groupe Crédit du Nord)"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "BIC":"CCBPFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "Banque Populaire"
+      ],
+      "subsidiariesList":[
+        {
+          "AspspId":"1428",
+          "BIC":"CCBPFRPPNAN",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque BCP"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal|Instant",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6563",
+          "BIC":"CCBPFRPPMTZ",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire Alsace Lorraine Champagne"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6561",
+          "BIC":"CCBPFRPPBDX",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire Aquitaine Centre Atlantique"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6556",
+          "BIC":"CCBPFRPPGRE",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire Auvergne Rhone-Alpes"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6555",
+          "BIC":"CCBPFRPPDJN",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire Bourgogne Franche-Comte"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"1406",
+          "BIC":"CCBPFRPPNAN",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire Grand Ouest"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6567",
+          "BIC":"CCBPFRPPMAR",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire Méditerranée"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6564",
+          "BIC":"CCBPFRPPTLS",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire Occitane"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6557",
+          "BIC":"CCBPFRPPMTG",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire Rives de Paris"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6558",
+          "BIC":"CCBPFRPPVER",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire Val de France"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6559",
+          "BIC":"CCBPFRPPLIL",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire du Nord"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6560",
+          "BIC":"CCBPFRPPPPG",
+          "CountryCode":"FR",
+          "Name":[
+            "Banque Populaire du Sud"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "AspspId":"6512",
+      "BIC":"RALPFR2GXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Banque Rhône-Alpes (groupe Crédit du Nord)"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "AspspId":"6510",
+      "BIC":"TARNFR2LXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Banque Tarneaud (groupe Crédit du Nord)"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "AspspId":"6568",
+      "BIC":"BSAVFR2CXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Banque de Savoie"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "BIC":"CMCIFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "CIC (Crédit Industriel et Commercial)"
+      ],
+      "subsidiariesList":[
+        {
+          "AspspId":"1403",
+          "BIC":"CMCIFRPPXXX",
+          "CountryCode":"FR",
+          "Name":[
+            "CIC (Crédit Industriel et Commercial)"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal|Instant",
+              "ProtocolVersion":"CREDMUT_V_0_8_0"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"CREDMUT_V_0_8_0"
+            }
+          ]
+        },
+        {
+          "AspspId":"1434",
+          "BIC":"CMCIFRPPXXX",
+          "CountryCode":"FR",
+          "Name":[
+            "CIC Banque Privée"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal|Instant",
+              "ProtocolVersion":"CREDMUT_V_0_8_0"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"CREDMUT_V_0_8_0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "BIC":"CEPAFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "Caisse d\u0027Epargne"
+      ],
+      "subsidiariesList":[
+        {
+          "AspspId":"6574",
+          "BIC":"CEPAFRPP333",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Aquitaine Poitou-Charentes"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6581",
+          "BIC":"CEPAFRPP871",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Auvergne et Limousin"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6572",
+          "BIC":"CEPAFRPP444",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Bretagne Pays De Loire"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6576",
+          "BIC":"CEPAFRPP131",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne CEPAC (Provence, Alpes, Corse, outre-mer)"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6580",
+          "BIC":"CEPAFRPP831",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Côte d\u0027Azur"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6582",
+          "BIC":"CEPAFRPP513",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Grand-Est Europe"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6583",
+          "BIC":"CEPAFRPP627",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Hauts de France"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6579",
+          "BIC":"CEPAFRPP751",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Ile-de-France"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6575",
+          "BIC":"CEPAFRPP348",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Languedoc-Roussillon"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6577",
+          "BIC":"CEPAFRPP426",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Loire Drôme Ardéche"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6578",
+          "BIC":"CEPAFRPP450",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Loire-Centre"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6570",
+          "BIC":"CEPAFRPP142",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Normandie"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"1436",
+          "BIC":"CEPAFRPP382",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne Rhône-Alpes"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal|Instant",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6571",
+          "BIC":"CEPAFRPP213",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne de Bourgogne Franche-Comte"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6573",
+          "BIC":"CEPAFRPP313",
+          "CountryCode":"FR",
+          "Name":[
+            "Caisse d\u0027Epargne de Midi-Pyrénées"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "AspspId":"1602",
+      "BIC":"CAIXESBB",
+      "CountryCode":"ES",
+      "Name":[
+        "CaixaBank"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1608",
+      "BIC":"BCOEESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Caja Rural Group"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1622",
+      "BIC":"CSURES2C",
+      "CountryCode":"ES",
+      "Name":[
+        "Caja Sur"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1626",
+      "BIC":"CECAESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Colonya Caixa Pollenca Espanol"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "BIC":"AGRIFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "Crédit Agricole"
+      ],
+      "subsidiariesList":[
+        {
+          "AspspId":"6514",
+          "BIC":"AGRIFRPP813",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Alpes-Provence"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6515",
+          "BIC":"AGRIFRPP872",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Alsace-Vosges"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6516",
+          "BIC":"AGRIFRPP879",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Anjou-Maine"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6517",
+          "BIC":"AGRIFRPP833",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Aquitaine"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6518",
+          "BIC":"AGRIFRPP847",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Atlantique Vendée"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6519",
+          "BIC":"AGRIFRPP887",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Brie Picardie"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6524",
+          "BIC":"AGRIFRPP878",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Centre-Est"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6521",
+          "BIC":"AGRIFRPP868",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Centre-France"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6522",
+          "BIC":"AGRIFRPP848",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Centre-Loire"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6523",
+          "BIC":"AGRIFRPP895",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Centre-Ouest"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6520",
+          "BIC":"AGRIFRPP810",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Champagne Bourgogne"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6526",
+          "BIC":"AGRIFRPP817",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Charente Maritime Deux-Sévres"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6525",
+          "BIC":"AGRIFRPP824",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Charente Périgord"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6527",
+          "BIC":"AGRIFRPP820",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Corse"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6528",
+          "BIC":"AGRIFRPP822",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Cotes d\u0027Armor"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6529",
+          "BIC":"AGRIFRPP881",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Des Savoie"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6530",
+          "BIC":"AGRIFRPP829",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Finistére"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6531",
+          "BIC":"AGRIFRPP825",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Franche-Comté"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"1427",
+          "BIC":"AGRIFRPP882",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Ile-de-France"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6533",
+          "BIC":"AGRIFRPP836",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Ille-et-Vilaine"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6534",
+          "BIC":"AGRIFRPP835",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Languedoc"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6535",
+          "BIC":"AGRIFRPP845",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Loire Haute-Loire"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6536",
+          "BIC":"AGRIFRPP861",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Lorraine"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6538",
+          "BIC":"AGRIFRPP860",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Morbihan"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6539",
+          "BIC":"AGRIFRPP812",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Nord Midi-Pyrénées"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6541",
+          "BIC":"AGRIFRPP802",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Nord-Est"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6540",
+          "BIC":"AGRIFRPP867",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Nord-de-France"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6542",
+          "BIC":"AGRIFRPP866",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Normandie"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6543",
+          "BIC":"AGRIFRPP883",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Normandie-Seine"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6553",
+          "BIC":"AGRIFRPP891",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Provence Côte d\u0027Azur"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6546",
+          "BIC":"AGRIFRPP869",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Pyrénées Gascogne"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6548",
+          "BIC":"AGRIFRPP871",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Sud Méditerranée"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6549",
+          "BIC":"AGRIFRPP839",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Sud Rhône-Alpes"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6550",
+          "BIC":"AGRIFRPP831",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Toulouse"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6551",
+          "BIC":"AGRIFRPP894",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Touraine Poitou"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        },
+        {
+          "AspspId":"6552",
+          "BIC":"AGRIFRPP844",
+          "CountryCode":"FR",
+          "Name":[
+            "Crédit Agricole Val de France"
+          ],
+          "Details":[
+            {
+              "ProtocolVersion":"STET_V_1_4_0_47"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "AspspId":"6532",
+      "BIC":"AGRIGPGXXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Crédit Agricole Guadeloupe"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"6537",
+      "BIC":"AGRIMQMXXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Crédit Agricole Martinique Guyane"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"6547",
+      "BIC":"AGRIRERXXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Crédit Agricole Réunion"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1412",
+      "BIC":"CCOPFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "Crédit Cooperatif"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal|Instant",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1402",
+      "BIC":"CMCIFRPA",
+      "CountryCode":"FR",
+      "Name":[
+        "Crédit Mutuel (sauf Arkéa, Bretagne, Sud-Ouest)"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal|Instant",
+          "ProtocolVersion":"CREDMUT_V_0_8_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"CREDMUT_V_0_8_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1416",
+      "BIC":"CMBRFR2BXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Crédit Mutuel de Bretagne Arkéa"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal|Instant",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1418",
+      "BIC":"CMBRFR2BXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Crédit Mutuel du Sud-Ouest Arkéa"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal|Instant",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1411",
+      "BIC":"NORDFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "Crédit du Nord"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal",
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "AspspId":"1613",
+      "BIC":"BCOEESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Eurocaja Rural"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1625",
+      "BIC":"EVOBESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Evobanco"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1624",
+      "BIC":"ETICES21",
+      "CountryCode":"ES",
+      "Name":[
+        "Fiare Banca"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1424",
+      "BIC":"FTNOFRP1XXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Fortuneo"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1628",
+      "BIC":"CCRIES2A",
+      "CountryCode":"ES",
+      "Name":[
+        "Grupo Cooperativo Cajamar"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1421",
+      "BIC":"GEBABEBB",
+      "CountryCode":"FR",
+      "Name":[
+        "Hello Bank"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal|Instant",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1610",
+      "BIC":"CAZRES2Z",
+      "CountryCode":"ES",
+      "Name":[
+        "Ibercaja"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1607",
+      "BIC":"BASKES2B",
+      "CountryCode":"ES",
+      "Name":[
+        "KutxaBank"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1419",
+      "BIC":"CRLYFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "LCL (ex-Crédit Lyonnais)"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal",
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"RemittanceInformation",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "AspspId":"1409",
+      "BIC":"PSSTFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "La Banque Postale"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"requestedExecutionDate",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal|Instant",
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "AspspId":"1612",
+      "BIC":"CLPEES2M",
+      "CountryCode":"ES",
+      "Name":[
+        "Laboral Kutxa"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"6501",
+      "BIC":"NOVUFR21",
+      "CountryCode":"FR",
+      "Name":[
+        "Max"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1435",
+      "BIC":"CMCIFRP1MON",
+      "CountryCode":"FR",
+      "Name":[
+        "Monabanq"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal|Instant",
+          "ProtocolVersion":"CREDMUT_V_0_8_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"CREDMUT_V_0_8_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1408",
+      "BIC":"NATXFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "Natixis"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"PaymentProduct",
+          "Type":"SUPPORTED",
+          "Value":"Normal",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"STET_V_1_4_0_47"
+        }
+      ]
+    },
+    {
+      "AspspId":"1619",
+      "BIC":"OPENESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "OpenBank"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"809",
+      "BIC":"BNPADEFE",
+      "CountryCode":"DE",
+      "Name":[
+        "POLISHBank"
+      ],
+      "Details":[
+        {
+          "Api":"POST /payments",
+          "Fieldname":"RemittanceInformation",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"POLISH_V_3_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"POLISH_V_3_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1621",
+      "BIC":"RENBESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Renta4Banco"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1618",
+      "BIC":"SELFESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Self Bank"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"6508",
+      "BIC":"SMCTFR2AXXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Societe Marseillaise de Crédit (groupe Crédit du Nord)"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "AspspId":"6507",
+      "BIC":"SDBMMCM2XXX",
+      "CountryCode":"FR",
+      "Name":[
+        "Societe de Banque Monaco (groupe Crédit du Nord)"
+      ],
+      "Details":[
+        {
+          "ProtocolVersion":"STET_V_1_4_2_1_7"
+        }
+      ]
+    },
+    {
+      "BIC":"SOGEFRPP",
+      "CountryCode":"FR",
+      "Name":[
+        "Société Générale"
+      ],
+      "subsidiariesList":[
+        {
+          "AspspId":"1422",
+          "BIC":"SOGEFRPP",
+          "CountryCode":"FR",
+          "Name":[
+            "Société Générale Entreprise"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal|Instant",
+              "ProtocolVersion":"STET_V_1_4_2_1_7"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"STET_V_1_4_2_1_7"
+            }
+          ]
+        },
+        {
+          "AspspId":"1404",
+          "BIC":"SOGEFRPP",
+          "CountryCode":"FR",
+          "Name":[
+            "Société Générale Particuliers"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal|Instant",
+              "ProtocolVersion":"STET_V_1_4_2_1_7"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"STET_V_1_4_2_1_7"
+            }
+          ]
+        },
+        {
+          "AspspId":"1423",
+          "BIC":"SOGEFRPP",
+          "CountryCode":"FR",
+          "Name":[
+            "Société Générale Professionnels"
+          ],
+          "Details":[
+            {
+              "Api":"POST /payments",
+              "Fieldname":"PaymentProduct",
+              "Type":"SUPPORTED",
+              "Value":"Normal|Instant",
+              "ProtocolVersion":"STET_V_1_4_2_1_7"
+            },
+            {
+              "Api":"POST /payments/{paymentId}/identification",
+              "Fieldname":"preferredScaMethod",
+              "Type":"SUPPORTED",
+              "Value":"REDIRECT",
+              "ProtocolVersion":"STET_V_1_4_2_1_7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "AspspId":"1609",
+      "BIC":"UCJAES2M",
+      "CountryCode":"ES",
+      "Name":[
+        "Unicaja Banco"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    },
+    {
+      "AspspId":"1616",
+      "BIC":"POPLESMM",
+      "CountryCode":"ES",
+      "Name":[
+        "Wizink"
+      ],
+      "Details":[
+        {
+          "Api":"POST /v1/psus/{psuId}/aspsps/{aspspId}/pre-authentication",
+          "Type":"SUPPORTED",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments",
+          "Fieldname":"DebtorAccount",
+          "Type":"MANDATORY",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        },
+        {
+          "Api":"POST /payments/{paymentId}/identification",
+          "Fieldname":"preferredScaMethod",
+          "Type":"SUPPORTED",
+          "Value":"REDIRECT",
+          "ProtocolVersion":"REDSYS_V_1_6_0"
+        }
+      ]
+    }
+  ],
+  "MessageCreateDateTime":"2021-04-07T14:55:03.652+0200",
+  "MessageId":"90f5c8e4-73b9-4e73-8542-0c254d90c417"
+}

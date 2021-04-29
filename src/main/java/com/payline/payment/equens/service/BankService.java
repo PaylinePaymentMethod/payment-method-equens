@@ -3,6 +3,8 @@ package com.payline.payment.equens.service;
 import com.payline.payment.equens.bean.business.banks.BankAffiliation;
 import com.payline.payment.equens.bean.business.banks.BanksAffiliation;
 import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
+import com.payline.payment.equens.business.BankBusiness;
+import com.payline.payment.equens.business.impl.BankBusinessImpl;
 import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.pmapi.logger.LogManager;
@@ -16,7 +18,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -41,21 +42,40 @@ public class BankService {
 
     private JsonService jsonService = JsonService.getInstance();
 
+    private BankBusiness bankBusiness = new BankBusinessImpl();
+
     /**
-     * Méthode permettant de récupérer un AspspId selon les plugins configurations passés en paramètre.
+     * Retrieve Aspsp with aspspId given in parameter.
      * @param pluginConfiguration
-     *      La liste des plugin configurations.
+     *      Plugin configuration.
      * @param aspspId
-     *      L'identifiant Aspsp recherché.
+     *      aspsp identifier.
      * @return
-     *      Aspsp l'ASPSP si trouvé null sinon.
+     *      Aspsp object if found.
      */
-    public Aspsp fetchAspsp(final String pluginConfiguration, final String aspspId) {
+    public Aspsp getAspsp(final String pluginConfiguration, final String aspspId) {
         final List<Aspsp> aspspList = jsonService.fromJson(pluginConfiguration, GetAspspsResponse.class).getAspsps();
-        final List<Aspsp> resultList = aspspList.stream().filter(e -> e.getAspspId().equals(aspspId)).collect(Collectors.toList());
+        final List<Aspsp> resultList = new ArrayList<>();
+
+        for (Aspsp aspsp: aspspList) {
+            if (aspspId.equals(aspsp.getAspspId())) {
+                resultList.add(aspsp);
+            } else if (aspsp.getSubsidiariesList() != null) {
+                resultList.addAll(aspsp.getSubsidiariesList()
+                        .stream().filter(e -> e.getAspspId().equals(aspspId)).collect(Collectors.toList()));
+            }
+        }
         return resultList.isEmpty() ? null : resultList.get(0);
     }
 
+    /**
+     * Method used to build Banks with subsidiariesList.
+     * @param aspspsList
+     *      List of Aspsps with subsidiairies.
+     * @return
+     *      Aspsp list wi
+     *
+     */
     public List<Aspsp> buildBanksWithAffiliation(List<Aspsp> aspspsList) {
         final Map<String, BankAffiliation> primaryBankList = fetchMotherBanks(BANK_AFFILIATION_PATH);
         final List<Aspsp> resultList = new ArrayList<>();
@@ -63,7 +83,7 @@ public class BankService {
 
         // On transforme les banques primaires en AspspId
         primaryBankList.forEach((k, v) -> {
-            final Aspsp temp = convertToAspsp(k, v);
+            final Aspsp temp = bankBusiness.convertToAspsp(k, v);
             primaryList.put(temp.getBic(), temp);
         });
 
@@ -71,7 +91,7 @@ public class BankService {
         //alors on l'ajoute à la liste des subsidiaries sinon on considère que c'est une banque primaire
         for (Aspsp aspsp : aspspsList) {
             if (!PluginUtils.isEmpty(aspsp.getBic()) && !PluginUtils.isEmptyList(aspsp.getName())) {
-                final Aspsp motherBank = primaryList.get(getPrefixBic(aspsp.getBic()));
+                final Aspsp motherBank = primaryList.get(bankBusiness.getPrefixBic(aspsp.getBic()));
                 if (motherBank == null) {
                     resultList.add(aspsp);
                 } else {
@@ -97,6 +117,28 @@ public class BankService {
         return resultList;
     }
 
+    /**
+     * This method parses the PluginConfiguration string to read the list of ASPSPs and convert it to a list of choices
+     * for a select list. The key of each option is the AspspId and the value is "BIC - name".
+     * PAYLAPMEXT-204: if BIC is null, the selection option's value will just be the name of the bank.
+     * PAYLAPMEXT-203: filter the list using the countryCode (if provided) to keep only the banks which country code matches.
+     *
+     * @param pluginConfiguration The PluginConfiguration string
+     * @param listCountryCode     List of 2-letters country code
+     * @return The list of banks, as select options.
+     */
+    public List<Aspsp> fetchBanks(String pluginConfiguration, List<String> listCountryCode, String paymentMode) {
+        final List<Aspsp> aspspList = new ArrayList<>();
+        if (pluginConfiguration == null) {
+            LOGGER.warn("pluginConfiguration is null");
+        } else {
+            final List<Aspsp> aspsps = jsonService.fromJson(pluginConfiguration, GetAspspsResponse.class).getAspsps();
+            final List<Aspsp> validAspsps = fetchValidAspsp(aspsps, listCountryCode, paymentMode);
+            aspspList.addAll(validAspsps);
+        }
+        return aspspList;
+    }
+
     protected Map<String, BankAffiliation> fetchMotherBanks(String motherBankPath) {
         try (InputStream input = this.getClass().getClassLoader().getResourceAsStream(motherBankPath)) {
             if (input == null) {
@@ -104,28 +146,54 @@ public class BankService {
                 throw new PluginException("Plugin error: unable to load bank affiliation file");
             }
 
-            String bankContent = new BufferedReader(
+            final String bankContent = new BufferedReader(
                     new InputStreamReader(input, StandardCharsets.UTF_8)).lines()
                     .collect(Collectors.joining("\n"));
 
             BanksAffiliation banksAffiliation = jsonService.fromJson(bankContent, BanksAffiliation.class);
             return banksAffiliation.getBanksOrganizationList();
         } catch (final IOException e) {
-            throw new PluginException("Plugin error: unable to read the logo", e);
+            throw new PluginException("Plugin error: unable to read the bank affiliation file", e);
         }
     }
 
-    private String getPrefixBic(String bic) {
-        return bic.length() >= 8 ? bic.substring(0,8) : bic;
+    protected List<Aspsp> fetchValidAspsp(List<Aspsp> aspsps, List<String> listCountryCode, String paymentMode) {
+        final List<Aspsp> validAspsp = aspsps.stream()
+                .filter(e -> e.getCountryCode() != null)
+                .filter(e -> listCountryCode.isEmpty() || listCountryCode.contains(e.getCountryCode()))
+                .filter(e -> !PluginUtils.isEmpty(e.getBic()))
+                .collect(Collectors.toList());
+
+        final List<Aspsp> resultList = new ArrayList<>();
+        for (final Aspsp aspsp : validAspsp) {
+            if (PluginUtils.isEmptyList(aspsp.getSubsidiariesList()) && bankBusiness.isCompatibleBank(aspsp.getDetails(), paymentMode)) {
+                resultList.add(aspsp);
+            }
+            if (!PluginUtils.isEmptyList(aspsp.getSubsidiariesList())) {
+                final List<Aspsp> validSubsidiaires = fetchValidSubsidiaries(aspsp, paymentMode);
+                if (!PluginUtils.isEmptyList(validSubsidiaires)) {
+                    aspsp.setSubsidiariesList(validSubsidiaires);
+                    resultList.add(aspsp);
+                }
+            }
+        }
+        return resultList;
     }
 
-    private Aspsp convertToAspsp(final String label, final BankAffiliation bankAffiliation) {
-        final Aspsp aspsp = new Aspsp();
-        aspsp.setBic(bankAffiliation.getPrefixBIC());
-        aspsp.setCountryCode(bankAffiliation.getCountry());
-        aspsp.setName(Collections.singletonList(label));
-        return aspsp;
+    /**
+     * Return subsidiaires list availables for paymentMode and aspsp.
+     * @param aspsp
+     * @param paymentMode
+     * @return
+     */
+    protected List<Aspsp> fetchValidSubsidiaries(final Aspsp aspsp, final String paymentMode) {
+        final List<Aspsp> validSubsidiaires = new ArrayList<>();
+        for (final Aspsp sub : aspsp.getSubsidiariesList()) {
+            if (bankBusiness.isCompatibleBank(sub.getDetails(), paymentMode)) {
+                validSubsidiaires.add(sub);
+            }
+        }
+        return validSubsidiaires;
     }
-
 
 }

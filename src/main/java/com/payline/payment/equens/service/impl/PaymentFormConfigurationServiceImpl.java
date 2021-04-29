@@ -1,11 +1,9 @@
 package com.payline.payment.equens.service.impl;
 
 import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
-import com.payline.payment.equens.bean.business.reachdirectory.Detail;
-import com.payline.payment.equens.bean.business.reachdirectory.GetAspspsResponse;
 import com.payline.payment.equens.exception.InvalidDataException;
 import com.payline.payment.equens.exception.PluginException;
-import com.payline.payment.equens.service.JsonService;
+import com.payline.payment.equens.service.BankService;
 import com.payline.payment.equens.service.LogoPaymentFormConfigurationService;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
@@ -25,6 +23,11 @@ import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFor
 import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,11 +36,10 @@ import static com.payline.payment.equens.utils.Constants.FormKeys.*;
 public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigurationService {
 
     private static final Logger LOGGER = LogManager.getLogger(PaymentFormConfigurationServiceImpl.class);
-    private static final String PAYMENT_PRODUCT_FIELD_NAME = "PaymentProduct";
-    private static final String SUPPORTED_TYPE = "SUPPORTED";
-    private static final String POST_PAYMENTS_API = "POST /payments";
 
-    JsonService jsonService = JsonService.getInstance();
+    private static final String EQUENS_FILE_SCRIPT = "equensForm.js";
+
+    private BankService bankService = BankService.getInstance();
 
     @Override
     public PaymentFormConfigurationResponse getPaymentFormConfiguration(PaymentFormConfigurationRequest paymentFormConfigurationRequest) {
@@ -66,7 +68,16 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
                 throw new InvalidDataException("Payment product must not be empty");
             }
 
-            final List<SelectOption> banks = this.getBanks(paymentFormConfigurationRequest.getPluginConfiguration(), listCountryCode, paymentModeProperty.getValue());
+            final List<Aspsp> banksList = bankService.fetchBanks(paymentFormConfigurationRequest.getPluginConfiguration(), listCountryCode, paymentModeProperty.getValue());
+
+            final List<SelectOption> bankOptionsList = new ArrayList<>();
+            final List<SelectOption> bankSubsidiairesList = new ArrayList<>();
+            final String bankJSScript = buildBankScript(banksList, bankOptionsList, bankSubsidiairesList);
+            final String errorSubidiariesMsg = i18n.getMessage(FIELD_SUBSIDIARY_REQUIRED_MSG, locale);
+
+            final Map<String,String> arguments = new HashMap<>();
+            arguments.put("$BANKS_TO_REPLACE$", bankJSScript);
+            arguments.put("$ASPSP_MSG$", escapeJSVar(errorSubidiariesMsg));
 
             final List<PaymentFormField> customFields = new ArrayList<>();
 
@@ -87,15 +98,27 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
 
             // Champ de selection de banque
             final PaymentFormInputFieldSelect selectField = PaymentFormInputFieldSelect.PaymentFormFieldSelectBuilder.aPaymentFormInputFieldSelect()
-                    .withSelectOptions(banks)
+                    .withSelectOptions(bankOptionsList)
                     .withIsFilterable(true)
                     .withKey(Constants.FormKeys.ASPSP_ID)
                     .withLabel(i18n.getMessage(FIELD_BANKS_LABEL, locale))
                     .withPlaceholder(i18n.getMessage(FIELD_PLACEHOLDER_LABEL, locale))
                     .withValidationErrorMessage(i18n.getMessage(FIELD_BANKS_ERROR_MSG, locale))
-                    .withRequired(false)
+                    .withRequired(true)
+                    .withRequiredErrorMessage(i18n.getMessage(FIELD_BANKS_REQUIRED_MSG, locale))
                     .build();
             customFields.add(selectField);
+
+            final PaymentFormInputFieldSelect selectSubsidiaries = PaymentFormInputFieldSelect.PaymentFormFieldSelectBuilder.aPaymentFormInputFieldSelect()
+                    .withSelectOptions(bankSubsidiairesList)
+                    .withIsFilterable(true)
+                    .withKey(Constants.FormKeys.SUB_ASPSP_ID)
+                    .withLabel(i18n.getMessage(FIELD_SUBSIDIARY_LABEL, locale))
+                    .withPlaceholder(i18n.getMessage(FIELD_SUBSIDIARY_PLACEHOLDER, locale))
+                    .withValidationErrorMessage(i18n.getMessage(FIELD_SUBSIDIARY_ERROR_MSG, locale))
+                    .withRequired(false).build();
+
+            customFields.add(selectSubsidiaries);
 
             // Build the payment form
             final CustomForm form = CustomForm.builder()
@@ -103,6 +126,7 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
                     .withDisplayButton(true)
                     .withButtonText(i18n.getMessage("paymentForm.buttonText", locale))
                     .withCustomFields(customFields)
+                    .withFormScript(loadScript(arguments))
                     .build();
 
             pfcResponse = PaymentFormConfigurationResponseSpecific.PaymentFormConfigurationResponseSpecificBuilder
@@ -124,74 +148,85 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
     }
 
     /**
-     * This method parses the PluginConfiguration string to read the list of ASPSPs and convert it to a list of choices
-     * for a select list. The key of each option is the AspspId and the value is "BIC - name".
-     * PAYLAPMEXT-204: if BIC is null, the selection option's value will just be the name of the bank.
-     * PAYLAPMEXT-203: filter the list using the countryCode (if provided) to keep only the banks which country code matches.
-     *
-     * @param pluginConfiguration The PluginConfiguration string
-     * @param listCountryCode     List of 2-letters country code
-     * @return The list of banks, as select options.
+     * Method used to load JQuery script for Equens form.
+     * @param arguments list of arguments to inject to script.
+     * @return script with arguments.
      */
-    List<SelectOption> getBanks(String pluginConfiguration, List<String> listCountryCode, String paymentMode) {
-        final List<SelectOption> options = new ArrayList<>();
-        if (pluginConfiguration == null) {
-            LOGGER.warn("pluginConfiguration is null");
-        } else {
-            List<Aspsp> aspsps = jsonService.fromJson(pluginConfiguration, GetAspspsResponse.class).getAspsps();
-            List<Aspsp> validAspsps = filter(aspsps, listCountryCode, paymentMode);
+    protected String loadScript(Map<String, String> arguments) {
 
-            for (Aspsp aspsp : validAspsps) {
-                options.add(addAspspOption(aspsp));
+        try (InputStream input = this.getClass().getClassLoader().getResourceAsStream(EQUENS_FILE_SCRIPT)) {
+            if (input == null) {
+                LOGGER.error("Unable to load file {}", EQUENS_FILE_SCRIPT);
+                throw new PluginException("Plugin error: unable to load equens js file");
             }
+
+             String script = new BufferedReader(
+                    new InputStreamReader(input, StandardCharsets.UTF_8)).lines()
+                    .collect(Collectors.joining("\n"));
+
+            for (Map.Entry<String, String> entry : arguments.entrySet()) {
+                script = script.replace(entry.getKey(), entry.getValue());
+            }
+
+            return script;
+        } catch (final IOException e) {
+            throw new PluginException("Plugin error: unable to read the logo", e);
         }
-        return options;
     }
 
-    private List<Aspsp> filter(List<Aspsp> aspsps, List<String> listCountryCode, String paymentMode) {
-        return aspsps.stream()
-                .filter(e -> e.getCountryCode() != null)
-                .filter(e -> listCountryCode.isEmpty() || listCountryCode.contains(e.getCountryCode()))
-                .filter(e -> !PluginUtils.isEmpty(e.getBic()))
-                .filter(e -> isCompatibleBank(e.getDetails(), paymentMode))
-                .collect(Collectors.toList());
+
+    protected String buildBankScript(final List<Aspsp> banksList, final List<SelectOption> bankOptionsList, final List<SelectOption> bankSubsidiairesList) {
+        List<String> bankJSList = new ArrayList<>();
+        banksList.forEach(e -> {
+                bankOptionsList.add(buildAspspOption(e));
+
+                if (!PluginUtils.isEmptyList(e.getSubsidiariesList())) {
+                    String temp = "{ id : '" + escapeJSVar(e.getName().get(0))+ "',\n" +
+                            "  subList : [";
+                    List<String> subsidiariesJSScript = new ArrayList<>();
+                    e.getSubsidiariesList().forEach(sub -> {
+                        bankSubsidiairesList.add(buildAspspOption(sub));
+                        subsidiariesJSScript.add(buildSubsidiariesJS(sub));
+                    });
+                    temp += String.join(",", subsidiariesJSScript ) + "]}";
+                    bankJSList.add(temp);
+                }
+            });
+        return String.join(",", bankJSList);
     }
 
-    private SelectOption addAspspOption(Aspsp aspsp) {
+    /**
+     * Method used to build subsidiaries information for JS file.
+     * @param sub
+     *          Aspsp subsidiary
+     * @return
+     *          Subsidiary info for JS Script.
+     */
+    protected String buildSubsidiariesJS(final Aspsp sub) {
+        final String name = PluginUtils.isEmptyList(sub.getName()) ? "" : sub.getName().get(0);
+        return "{aspspId : '" + sub.getAspspId() + "'" +
+                ", label : '" + escapeJSVar(name) + "'}";
+    }
+
+
+
+    /**
+     * Build a SelectOption object from aspsp information
+     * @param aspsp
+     *          Aspsp object which contains information.
+     * @return
+     *        selectOption build.
+     */
+    protected SelectOption buildAspspOption(Aspsp aspsp) {
         // add the aspsp name if exists
-
-        final String name = aspsp.getName() != null
-                && !aspsp.getName().isEmpty() ? aspsp.getName().get(0) : "";
+        final String name = PluginUtils.isEmptyList(aspsp.getName()) ? "" : aspsp.getName().get(0);
         return SelectOption.SelectOptionBuilder.aSelectOption()
                 .withKey(aspsp.getAspspId())
                 .withValue(name)
                 .build();
     }
 
-    /**
-     * Check if a bank is compatible with the Instant paymentMode
-     * see PAYLAPMEXT-294
-     *
-     * @param details
-     * @return true if compatible or no info
-     */
-    public boolean isCompatibleBank(final List<Detail> details, final String paymentMode) {
-        final Map<String, Boolean> compatibilityMap = new HashMap<>();
-        for (ConfigurationServiceImpl.PaymentProduct product : ConfigurationServiceImpl.PaymentProduct.values()) {
-            compatibilityMap.put(product.getPaymentProductCode(), product.getSupportedByDefault());
-        }
-
-        if (details != null) {
-            for (Detail detail : details) {
-                if (PAYMENT_PRODUCT_FIELD_NAME.equals(detail.getFieldName())
-                   && SUPPORTED_TYPE.equals(detail.getType())
-                   && POST_PAYMENTS_API.equals(detail.getApi())) {
-                    for (ConfigurationServiceImpl.PaymentProduct product : ConfigurationServiceImpl.PaymentProduct.values()) {
-                        compatibilityMap.put(product.getPaymentProductCode(), detail.getValue().contains(product.getPaymentProductCode()));
-                    }
-                }
-            }
-        }
-        return compatibilityMap.get(paymentMode);
+    protected String escapeJSVar(String varToEscape){
+        return varToEscape.replace("'", "\\'");
     }
 }
