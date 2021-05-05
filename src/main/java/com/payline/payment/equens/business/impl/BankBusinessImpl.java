@@ -14,6 +14,8 @@ import java.util.Map;
 public class BankBusinessImpl implements BankBusiness {
 
     private static final String PAYMENT_PRODUCT_FIELD_NAME = "PaymentProduct";
+    private static final String DEBTOR_ACCOUNT_FIELD_NAME = "DebtorAccount";
+    private static final String MANDATORY = "MANDATORY";
     private static final String SUPPORTED_TYPE = "SUPPORTED";
     private static final String POST_PAYMENTS_API = "POST /payments";
 
@@ -44,6 +46,28 @@ public class BankBusinessImpl implements BankBusiness {
             }
         }
         return compatibilityMap.get(paymentMode);
+    }
+
+    /**
+     * Methode permettant de determiner si la banque demande un iban pour le paiement ou non.
+     * @param aspsp
+     *      Les informations de la banque
+     * @return
+     *      true si l'iban est obligatoire false sinon.
+     */
+    public boolean isIbanRequired(final Aspsp aspsp) {
+        boolean isRequired = false;
+        if (aspsp.getDetails() != null) {
+            for (Detail detail : aspsp.getDetails()) {
+                if (DEBTOR_ACCOUNT_FIELD_NAME.equals(detail.getFieldName())
+                        && POST_PAYMENTS_API.equals(detail.getApi())
+                        && MANDATORY.equals(detail.getType())) {
+                    isRequired = true;
+                    break;
+                }
+            }
+        }
+        return isRequired;
     }
 
     @Override

@@ -13,4 +13,6 @@ public interface BankBusiness {
     String getPrefixBic(String bic);
 
     Aspsp convertToAspsp(String label, BankAffiliation bankAffiliation);
+
+    boolean isIbanRequired(Aspsp aspsp);
 }

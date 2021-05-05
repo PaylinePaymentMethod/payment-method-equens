@@ -1,70 +1,86 @@
 const $ = Payline.jQuery;
 const aspspsList = [$BANKS_TO_REPLACE$];
-const errorSubAspsp = "$ASPSP_MSG$";
 
-function fillSubAspspId(subList) {
-    subList.forEach(function(item) {
-        $("[id$='subAspspId-options']").append($('<option>').val(item.label));
+// Selection d'un ASPSP par rapport à son identifiant.
+function getAspspById(aspspId) {
+    let aspsp =  aspspsList.filter(function (elem) {
+        return (elem.id === aspspId);
     });
+    if (aspsp.length > 0 ) {
+        return aspsp[0];
+    }
 }
 
-function updateAspspOption(bank) {
-    $("[id$='subAspspId-options']").empty();
-    $("[id$='subAspspId-container']").hide();
-    aspspsList.forEach(function(item) {
-        if (bank === item.id) {
-            $("[id$='subAspspId-container']").show();
-            fillSubAspspId(item.subList);
-        }
-    });
-}
-
-function validatePaymentMethodForm() {
-    let validation = true;
-    let $subAspspSelect = $("[id$='subAspspId']");
-    let $subAspspSelectContainer = $("[id$='subAspspId-container']");
-
-    removeSubAspspMessage();
-    let subAspspValue = $subAspspSelect.val();
-    if ($($subAspspSelectContainer).is(":visible")) {
-        let match = $("[id$='subAspspId-options'] option").filter(function() {
-            return ($(this).val() === subAspspValue);
+//Selection de la valeur actuelle d'un SubAspsp
+function getSubAspsp() {
+    let aspspValue = $("[id$='aspspId']").val();
+    let subAspspValue = $("[id$='subAspspId']").val();
+    let result;
+    let aspsp = getAspspById(aspspValue)
+    if (!Payline.u.isUndefined(aspsp) && !Payline.u.isUndefined(aspsp.subList)&& aspsp.subList.length > 0) {
+        result = aspsp.subList.filter(function (elem) {
+            return (elem.label === subAspspValue);
         });
-        if (match.length === 0 ) {
-            //afficher message d'erreur.
-            addSubAspspErrorMessage();
-            validation = false;
-        }
     }
-    return validation;
-}
-
-function addSubAspspErrorMessage() {
-    let $subAspspContainer = $("[id$='subAspspId-container']");
-    $subAspspContainer.prepend('<p id="subAspspId-message" class="pl-message pl-message-error">' + errorSubAspsp + '</p>');
-    $subAspspContainer.removeClass('pl-has-no-error');
-    $subAspspContainer.addClass('pl-has-error');
-
-}
-
-function removeSubAspspMessage() {
-    let $subAspspMessage = $("#subAspspId-message");
-    if ($subAspspMessage.length) {
-        $subAspspMessage.remove();
+    if (result.length > 0 ) {
+        return result[0];
     }
 }
+
+//Mettre à jour la liste des aspspOption.
+function updateAspspOption(bank) {
+   let $subAspspContainer = $("[id$='subAspspId-container']");
+    let aspsp = getAspspById(bank);
+    $("[id$='subAspspId-options']").empty();
+    $subAspspContainer.hide();
+
+    if (!Payline.u.isUndefined(aspsp) && !Payline.u.isUndefined(aspsp.subList) && aspsp.subList.length > 0) {
+        $subAspspContainer.show();
+        aspsp.subList.forEach(function (item) {
+            $("[id$='subAspspId-options']").append($('<option>').val(item.label));
+        });
+    }
+    displayIbanContainer(aspsp);
+}
+
+//Affichage ou non du container Iban selon la banque passé en paramètre
+function displayIbanContainer(bank) {
+    if (!Payline.u.isUndefined(bank) && bank.iban) {
+        $("[id$='iban-container']").show();
+    } else {
+        $("[id$='iban-container']").hide();
+    }
+}
+
+function PMAPIEventUpdateDynamicFields() {
+    let result = [];
+    let subAspspField = {};
+    let ibanField = {};
+    let $subAspspSelectContainer = $("[id$='subAspspId-container']");
+    let $ibanContainer = $("[id$='iban-container']");
+    subAspspField.key = "subAspspId"
+    ibanField.key="iban";
+    subAspspField.required = !!$($subAspspSelectContainer).is(":visible");
+    ibanField.required = !!$($ibanContainer).is(":visible");
+
+    result[0] = subAspspField;
+    result[1] = ibanField;
+
+    return result;
+}
+
 
 $(document).ready(function() {
     let $aspspSelect = $("[id$='aspspId']");
-    let $subAspsp = $("[id$='subAspspId']");
+    let $subAspspSelect = $("[id$='subAspspId']");
     updateAspspOption($aspspSelect.val());
+
     $aspspSelect.change(function() {
         $("[id$='subAspspId']").val('');
-        removeSubAspspMessage();
         let bank = $( this ).val();
         updateAspspOption(bank);
     });
-    $subAspsp.change(function() {
-        removeSubAspspMessage();
+    $subAspspSelect.change(function() {
+        displayIbanContainer(getSubAspsp());
     })
 });

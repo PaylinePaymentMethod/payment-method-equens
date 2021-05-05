@@ -9,7 +9,6 @@ import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.ContractProperty;
-import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormDisplayFieldText;
 import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormField;
 import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormInputFieldSelect;
 import com.payline.pmapi.bean.paymentform.bean.field.SelectOption;
@@ -74,27 +73,15 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
             final List<SelectOption> bankSubsidiairesList = new ArrayList<>();
             final String bankJSScript = buildBankScript(banksList, bankOptionsList, bankSubsidiairesList);
             final String errorSubidiariesMsg = i18n.getMessage(FIELD_SUBSIDIARY_REQUIRED_MSG, locale);
+            final String errorIbanMsg = i18n.getMessage(FIELD_IBAN_REQUIRED_MSG, locale);
+
 
             final Map<String,String> arguments = new HashMap<>();
             arguments.put("$BANKS_TO_REPLACE$", bankJSScript);
             arguments.put("$ASPSP_MSG$", escapeJSVar(errorSubidiariesMsg));
+            arguments.put("$IBAN_MSG$", escapeJSVar(errorIbanMsg));
 
             final List<PaymentFormField> customFields = new ArrayList<>();
-
-            // Champ IBAN
-            final PaymentFormInputFieldIban ibanField = PaymentFormInputFieldIban.IbanFieldBuilder.anIbanField()
-                    .withKey(BankTransferForm.IBAN_KEY)
-                    .withLabel(i18n.getMessage(FIELD_IBAN_LABEL, locale))
-                    .withRequired(false)
-                    .build();
-            customFields.add(ibanField);
-
-            // Champ OU
-            final PaymentFormDisplayFieldText separatorField = PaymentFormDisplayFieldText.PaymentFormDisplayFieldTextBuilder
-                    .aPaymentFormDisplayFieldText()
-                    .withContent(i18n.getMessage(FIELD_OR_LABEL, locale))
-                    .build();
-            customFields.add(separatorField);
 
             // Champ de selection de banque
             final PaymentFormInputFieldSelect selectField = PaymentFormInputFieldSelect.PaymentFormFieldSelectBuilder.aPaymentFormInputFieldSelect()
@@ -116,9 +103,19 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
                     .withLabel(i18n.getMessage(FIELD_SUBSIDIARY_LABEL, locale))
                     .withPlaceholder(i18n.getMessage(FIELD_SUBSIDIARY_PLACEHOLDER, locale))
                     .withValidationErrorMessage(i18n.getMessage(FIELD_SUBSIDIARY_ERROR_MSG, locale))
-                    .withRequired(false).build();
+                    .withRequired(false)
+                    .withRequiredErrorMessage(i18n.getMessage(FIELD_SUBSIDIARY_REQUIRED_MSG, locale)).build();
 
             customFields.add(selectSubsidiaries);
+
+            // Champ IBAN
+            final PaymentFormInputFieldIban ibanField = PaymentFormInputFieldIban.IbanFieldBuilder.anIbanField()
+                    .withKey(BankTransferForm.IBAN_KEY)
+                    .withLabel(i18n.getMessage(FIELD_IBAN_LABEL, locale))
+                    .withRequired(false)
+                    .withRequiredErrorMessage(i18n.getMessage(FIELD_IBAN_REQUIRED_MSG, locale))
+                    .build();
+            customFields.add(ibanField);
 
             // Build the payment form
             final CustomForm form = CustomForm.builder()
@@ -174,24 +171,24 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
         }
     }
 
-
     protected String buildBankScript(final List<Aspsp> banksList, final List<SelectOption> bankOptionsList, final List<SelectOption> bankSubsidiairesList) {
         List<String> bankJSList = new ArrayList<>();
         banksList.forEach(e -> {
                 bankOptionsList.add(buildAspspOption(e));
-
+                String temp = "{ id : '" + escapeJSVar(e.getName().get(0))+ "',\n" +
+                        " iban : " + bankService.isIbanRequired(e) + ", " +
+                        " subList : [";
+                final List<String> subsidiariesJSScript = new ArrayList<>();
                 if (!PluginUtils.isEmptyList(e.getSubsidiariesList())) {
-                    String temp = "{ id : '" + escapeJSVar(e.getName().get(0))+ "',\n" +
-                            "  subList : [";
-                    List<String> subsidiariesJSScript = new ArrayList<>();
                     e.getSubsidiariesList().forEach(sub -> {
                         bankSubsidiairesList.add(buildAspspOption(sub));
                         subsidiariesJSScript.add(buildSubsidiariesJS(sub));
                     });
-                    temp += String.join(",", subsidiariesJSScript ) + "]}";
-                    bankJSList.add(temp);
                 }
-            });
+            temp += String.join(",", subsidiariesJSScript ) + "]}";
+            bankJSList.add(temp);
+
+        });
         return String.join(",", bankJSList);
     }
 
@@ -205,7 +202,8 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
     protected String buildSubsidiariesJS(final Aspsp sub) {
         final String name = PluginUtils.isEmptyList(sub.getName()) ? "" : sub.getName().get(0);
         return "{aspspId : '" + sub.getAspspId() + "'" +
-                ", label : '" + escapeJSVar(name) + "'}";
+                ", label : '" + escapeJSVar(name) + "'," +
+                "  iban : " +  bankService.isIbanRequired(sub) + "}";
     }
 
 

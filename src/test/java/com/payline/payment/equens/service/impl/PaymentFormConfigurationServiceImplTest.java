@@ -100,24 +100,23 @@ class PaymentFormConfigurationServiceImplTest {
 
         final CustomForm customForm = (CustomForm) form;
         final List<PaymentFormField> customFields = customForm.getCustomFields();
-        assertEquals(4, customFields.size());
-        assertTrue(customFields.get(0) instanceof PaymentFormInputFieldIban);
+        assertEquals(3, customFields.size());
+        assertTrue(customFields.get(0) instanceof PaymentFormInputFieldSelect);
+        assertTrue(customFields.get(1) instanceof PaymentFormInputFieldSelect);
+        assertTrue(customFields.get(2) instanceof PaymentFormInputFieldIban);
 
-        final PaymentFormInputFieldIban ibanField = (PaymentFormInputFieldIban)customFields.get(0);
-        assertEquals(BankTransferForm.IBAN_KEY, ibanField.getKey());
-        assertTrue(customFields.get(1) instanceof PaymentFormDisplayFieldText);
-        assertTrue(customFields.get(2) instanceof PaymentFormInputFieldSelect);
-
-        final PaymentFormInputFieldSelect selectFields = (PaymentFormInputFieldSelect)customFields.get(2);
+        final PaymentFormInputFieldSelect selectFields = (PaymentFormInputFieldSelect)customFields.get(0);
         assertEquals(Constants.FormKeys.ASPSP_ID, selectFields.getKey());
         assertNotNull(selectFields.getSelectOptions());
         assertEquals(2, selectFields.getSelectOptions().size());
 
-        final PaymentFormInputFieldSelect selectSubsidiariesFields = (PaymentFormInputFieldSelect)customFields.get(3);
+        final PaymentFormInputFieldSelect selectSubsidiariesFields = (PaymentFormInputFieldSelect)customFields.get(1);
         assertEquals(Constants.FormKeys.SUB_ASPSP_ID, selectSubsidiariesFields.getKey());
         assertNotNull(selectSubsidiariesFields.getSelectOptions());
         assertEquals(0, selectSubsidiariesFields.getSelectOptions().size());
 
+        final PaymentFormInputFieldIban ibanField = (PaymentFormInputFieldIban)customFields.get(2);
+        assertEquals(BankTransferForm.IBAN_KEY, ibanField.getKey());
     }
 
     @Test
@@ -167,6 +166,9 @@ class PaymentFormConfigurationServiceImplTest {
 
         @Test
         void buildBankWithoutSubsidiary() {
+            final String expectedResult = "{ id : 'Axa Banque',\n" +
+                    " iban : false,  subList : []},{ id : 'La Banque Postale',\n" +
+                    " iban : false,  subList : []}";
             final Aspsp bank1 = new Aspsp();
             bank1.setCountryCode("FR");
             bank1.setName(Collections.singletonList("Axa Banque"));
@@ -182,7 +184,7 @@ class PaymentFormConfigurationServiceImplTest {
             final List<SelectOption> subsidiaryList = new ArrayList<>();
             final String result = underTest.buildBankScript(aspspList, primaryList, subsidiaryList);
             assertTrue(subsidiaryList.isEmpty());
-            assertEquals("", result);
+            assertEquals(expectedResult, result);
 
             final SelectOption bank1Option = primaryList.get(0);
             final SelectOption bank2Option = primaryList.get(1);
@@ -195,8 +197,10 @@ class PaymentFormConfigurationServiceImplTest {
 
         @Test
         void buildBankWithSubsidiary() {
-            final String expectedResult = "{ id : 'Crédit Agricole',\n" +
-                    "  subList : [{aspspId : '123', label : 'Crédit Agricole PACA'},{aspspId : '456', label : 'Crédit Agricole Paris'}]}";
+            final String expectedResult = "{ id : 'Axa Banque',\n" +
+                    " iban : false,  subList : []},{ id : 'Crédit Agricole',\n" +
+                    " iban : false,  subList : [{aspspId : '123', label : 'Crédit Agricole PACA',  iban : false}," +
+                    "{aspspId : '456', label : 'Crédit Agricole Paris',  iban : false}]}";
             final Aspsp bank1 = new Aspsp();
             bank1.setCountryCode("FR");
             bank1.setName(Collections.singletonList("Axa Banque"));
