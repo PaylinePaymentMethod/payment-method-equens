@@ -69,6 +69,8 @@ public class Constants {
 
         public static final String SUB_ASPSP_ID = "subAspspId";
 
+        public static final String GTC_KEY="gtc";
+
 
         public static final String FIELD_IBAN_LABEL = "paymentForm.input.field.iban.label";
 
@@ -90,6 +92,15 @@ public class Constants {
 
         public static final String FIELD_SUBSIDIARY_REQUIRED_MSG = "paymentForm.input.field.subsidiary.required.message";
         public static final String FIELD_IBAN_REQUIRED_MSG = "paymentForm.input.field.iban.required.message";
+        public static final String FIELD_GTC_REQUIRED_MSG = "paymentForm.input.field.gtc.required.message";
+
+
+        public static final String FIELD_GTC_LABEL_1 = "paymentForm.input.field.gtc.label1";
+        public static final String FIELD_GTC_LINK_1 = "paymentForm.input.field.gtc.link1";
+        public static final String FIELD_GTC_LABEL_2 = "paymentForm.input.field.gtc.label2";
+        public static final String FIELD_GTC_LINK_2 = "paymentForm.input.field.gtc.link2";
+
+        public static final String EQUENS_FORM_DESCRIPTION = "paymentForm.label.description";
 
         /* Static utility class : no need to instantiate it (Sonar bug fix) */
         private FormKeys() {

@@ -11,7 +11,11 @@ import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormDisplayFieldText
 import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormField;
 import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormInputFieldSelect;
 import com.payline.pmapi.bean.paymentform.bean.field.SelectOption;
+import com.payline.pmapi.bean.paymentform.bean.field.specific.PaymentFormInputFieldGTC;
 import com.payline.pmapi.bean.paymentform.bean.field.specific.PaymentFormInputFieldIban;
+import com.payline.pmapi.bean.paymentform.bean.field.specific.gtc.AbstractGTCField;
+import com.payline.pmapi.bean.paymentform.bean.field.specific.gtc.GTCFieldLink;
+import com.payline.pmapi.bean.paymentform.bean.field.specific.gtc.GTCFieldText;
 import com.payline.pmapi.bean.paymentform.bean.form.AbstractPaymentForm;
 import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
 import com.payline.pmapi.bean.paymentform.bean.form.CustomForm;
@@ -100,10 +104,13 @@ class PaymentFormConfigurationServiceImplTest {
 
         final CustomForm customForm = (CustomForm) form;
         final List<PaymentFormField> customFields = customForm.getCustomFields();
-        assertEquals(3, customFields.size());
+        assertEquals(4, customFields.size());
+
         assertTrue(customFields.get(0) instanceof PaymentFormInputFieldSelect);
         assertTrue(customFields.get(1) instanceof PaymentFormInputFieldSelect);
         assertTrue(customFields.get(2) instanceof PaymentFormInputFieldIban);
+        assertTrue(customFields.get(3) instanceof PaymentFormInputFieldGTC);
+
 
         final PaymentFormInputFieldSelect selectFields = (PaymentFormInputFieldSelect)customFields.get(0);
         assertEquals(Constants.FormKeys.ASPSP_ID, selectFields.getKey());
@@ -117,6 +124,24 @@ class PaymentFormConfigurationServiceImplTest {
 
         final PaymentFormInputFieldIban ibanField = (PaymentFormInputFieldIban)customFields.get(2);
         assertEquals(BankTransferForm.IBAN_KEY, ibanField.getKey());
+
+        final PaymentFormInputFieldGTC paymentFormInputFieldGTC = (PaymentFormInputFieldGTC) customFields.get(3);
+        assertEquals(Constants.FormKeys.GTC_KEY, paymentFormInputFieldGTC.getKey());
+        assertTrue(paymentFormInputFieldGTC.isRequired());
+        assertFalse(paymentFormInputFieldGTC.isPrechecked());
+        assertEquals("message", paymentFormInputFieldGTC.getRequiredErrorMessage());
+        assertNotNull(paymentFormInputFieldGTC.getGtcFields());
+
+
+        final List<AbstractGTCField> gtcFields = paymentFormInputFieldGTC.getGtcFields();
+        assertTrue(gtcFields.get(0) instanceof GTCFieldText);
+        assertEquals("message", gtcFields.get(0).getText());
+        assertTrue(gtcFields.get(1) instanceof GTCFieldLink);
+        assertEquals("message", gtcFields.get(1).getText());
+        assertTrue(gtcFields.get(2) instanceof GTCFieldText);
+        assertEquals("message", gtcFields.get(2).getText());
+        assertTrue(gtcFields.get(3) instanceof GTCFieldLink);
+        assertEquals("message", gtcFields.get(3).getText());
     }
 
     @Test

@@ -273,9 +273,9 @@ public class PluginUtils {
     }
 
     /**
-     * Methode utilitaire permettant de vérifier si une liste est vide.
+     * Methode utilitaire permettant de verifier si une liste est vide.
      * @param list
-     *      La liste à vérifier.
+     *      La liste a verifier.
      * @return
      *      true si vide ou null false sinon.
      */
