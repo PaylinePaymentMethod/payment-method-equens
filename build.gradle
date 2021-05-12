@@ -1,4 +1,5 @@
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.gradle.api.tasks.compile.JavaCompile
 
 plugins {
     id "com.github.johnrengelman.shadow" version "4.0.3"
@@ -14,8 +15,10 @@ apply plugin: 'jacoco'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-compileJava.options.encoding = 'UTF-8'
-
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.incremental = true  // Pour accélerer la compilation
+}
 
 def externalFileName = "$projectDir/.external"
 if (file(externalFileName).exists()) {
@@ -36,6 +39,10 @@ dependencies {
     testImplementation group: 'org.mockito', name: 'mockito-core', version: mockitoVersion
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: jupiterVersion
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: jupiterVersion
+
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+
 }
 
 jar {

@@ -198,7 +198,7 @@ class WalletServiceImplTest {
         @Test
         void displayWalletWithIBANAndAspspID() {
             final String pluginPaymentData = "{\"bic\":\"PSSTFRPP\",\"iban\":\"anIbanWithMoreThan8Charactere\",\"aspspId\":\"10\"}";;
-            doReturn(MockUtils.anAspsp()).when(bankService).fetchAspsp(any(), eq("10"));
+            doReturn(MockUtils.anAspsp()).when(bankService).getAspsp(any(), eq("10"));
             doReturn(pluginPaymentData).when(rsaUtils).decrypt(anyString(), anyString());
             final Wallet wallet = Wallet.builder()
                     .pluginPaymentData(pluginPaymentData)
@@ -241,7 +241,7 @@ class WalletServiceImplTest {
         void displayWalletOnlyAspsp(){
             final String pluginPaymentData = "{\"aspspId\":\"10\"}";;
             doReturn(pluginPaymentData).when(rsaUtils).decrypt(anyString(), anyString());
-            doReturn(MockUtils.anAspsp()).when(bankService).fetchAspsp(any(), eq("10"));
+            doReturn(MockUtils.anAspsp()).when(bankService).getAspsp(any(), eq("10"));
 
             Wallet wallet = Wallet.builder()
                     .pluginPaymentData(pluginPaymentData)
