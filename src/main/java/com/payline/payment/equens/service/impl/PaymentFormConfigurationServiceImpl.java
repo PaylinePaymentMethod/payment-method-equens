@@ -7,12 +7,16 @@ import com.payline.payment.equens.service.BankService;
 import com.payline.payment.equens.service.LogoPaymentFormConfigurationService;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
+import com.payline.payment.equens.utils.properties.ConfigProperties;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormField;
 import com.payline.pmapi.bean.paymentform.bean.field.PaymentFormInputFieldSelect;
 import com.payline.pmapi.bean.paymentform.bean.field.SelectOption;
+import com.payline.pmapi.bean.paymentform.bean.field.specific.PaymentFormInputFieldGTC;
 import com.payline.pmapi.bean.paymentform.bean.field.specific.PaymentFormInputFieldIban;
+import com.payline.pmapi.bean.paymentform.bean.field.specific.gtc.GTCFieldLink;
+import com.payline.pmapi.bean.paymentform.bean.field.specific.gtc.GTCFieldText;
 import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
 import com.payline.pmapi.bean.paymentform.bean.form.CustomForm;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
@@ -37,6 +41,8 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
     private static final Logger LOGGER = LogManager.getLogger(PaymentFormConfigurationServiceImpl.class);
 
     private static final String EQUENS_FILE_SCRIPT = "equensForm.js";
+
+    protected ConfigProperties config = ConfigProperties.getInstance();
 
     private BankService bankService = BankService.getInstance();
 
@@ -72,14 +78,9 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
             final List<SelectOption> bankOptionsList = new ArrayList<>();
             final List<SelectOption> bankSubsidiairesList = new ArrayList<>();
             final String bankJSScript = buildBankScript(banksList, bankOptionsList, bankSubsidiairesList);
-            final String errorSubidiariesMsg = i18n.getMessage(FIELD_SUBSIDIARY_REQUIRED_MSG, locale);
-            final String errorIbanMsg = i18n.getMessage(FIELD_IBAN_REQUIRED_MSG, locale);
-
 
             final Map<String,String> arguments = new HashMap<>();
             arguments.put("$BANKS_TO_REPLACE$", bankJSScript);
-            arguments.put("$ASPSP_MSG$", escapeJSVar(errorSubidiariesMsg));
-            arguments.put("$IBAN_MSG$", escapeJSVar(errorIbanMsg));
 
             final List<PaymentFormField> customFields = new ArrayList<>();
 
@@ -116,6 +117,34 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
                     .withRequiredErrorMessage(i18n.getMessage(FIELD_IBAN_REQUIRED_MSG, locale))
                     .build();
             customFields.add(ibanField);
+
+            final GTCFieldText gtcFieldText = GTCFieldText.builder()
+                    .text(i18n.getMessage(FIELD_GTC_LABEL_1, locale))
+                    .build();
+
+            final GTCFieldLink gtcFieldLink = GTCFieldLink.builder()
+                    .text(i18n.getMessage(FIELD_GTC_LINK_1, locale))
+                    .url(i18n.getMessage("gtc.link.userCondition", locale))
+                    .build();
+
+            final GTCFieldText gtcFieldText2 = GTCFieldText.builder()
+                    .text(i18n.getMessage(FIELD_GTC_LABEL_2, locale))
+                    .build();
+
+            final GTCFieldLink gtcFieldLink2 = GTCFieldLink.builder()
+                    .text(i18n.getMessage(FIELD_GTC_LINK_2, locale))
+                    .url(i18n.getMessage("gtc.link.authorityControl", locale))
+                    .build();
+
+            final PaymentFormInputFieldGTC paymentFormInputFieldGTC = PaymentFormInputFieldGTC.
+                    PaymentFormInputFieldGTCBuilder.aPaymentFormInputFieldGTC()
+                    .withGtcFields(Arrays.asList(gtcFieldText, gtcFieldLink, gtcFieldText2, gtcFieldLink2))
+                    .withKey(GTC_KEY)
+                    .withRequired(true)
+                    .withRequiredErrorMessage(i18n.getMessage(FIELD_GTC_REQUIRED_MSG, locale))
+                    .build();
+
+            customFields.add(paymentFormInputFieldGTC);
 
             // Build the payment form
             final CustomForm form = CustomForm.builder()

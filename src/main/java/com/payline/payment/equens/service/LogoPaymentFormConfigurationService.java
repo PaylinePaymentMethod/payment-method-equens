@@ -23,7 +23,7 @@ public abstract class LogoPaymentFormConfigurationService implements PaymentForm
     private static final Logger LOGGER = LogManager.getLogger(LogoPaymentFormConfigurationService.class);
 
     protected I18nService i18n = I18nService.getInstance();
-    protected ConfigProperties config = ConfigProperties.getInstance();
+    protected ConfigProperties configProperties = ConfigProperties.getInstance();
 
     @Override
     public PaymentFormLogoResponse getPaymentFormLogo(final PaymentFormLogoRequest paymentFormLogoRequest) {
@@ -31,8 +31,8 @@ public abstract class LogoPaymentFormConfigurationService implements PaymentForm
         int height;
         int width;
         try {
-            height = Integer.parseInt(config.get("logo.height"));
-            width = Integer.parseInt(config.get("logo.width"));
+            height = Integer.parseInt(configProperties.get("logo.height"));
+            width = Integer.parseInt(configProperties.get("logo.width"));
         } catch (NumberFormatException e) {
             throw new PluginException("Plugin config error: logo height and width must be integers", e);
         }
@@ -47,17 +47,17 @@ public abstract class LogoPaymentFormConfigurationService implements PaymentForm
 
     @Override
     public PaymentFormLogo getLogo(final String paymentMethodIdentifier, final Locale locale) {
-        final String filename = config.get("logo.filename");
-        final String format = config.get("logo.format");
-        final String contentType = config.get("logo.contentType");
+        final String filename = configProperties.get("logo.filename");
+        final String format = configProperties.get("logo.format");
+        final String contentType = configProperties.get("logo.contentType");
         return getLogoByFilename(filename, format, contentType);
     }
 
     @Override
     public PaymentFormLogo getWalletLogo(final String paymentMethodIdentifier, final Locale locale) {
-        final String filename = config.get("logoWallet.filename");
-        final String format = config.get("logoWallet.format");
-        final String contentType = config.get("logoWallet.contentType");
+        final String filename = configProperties.get("logoWallet.filename");
+        final String format = configProperties.get("logoWallet.format");
+        final String contentType = configProperties.get("logoWallet.contentType");
         return getLogoByFilename(filename, format, contentType);
     }
 
