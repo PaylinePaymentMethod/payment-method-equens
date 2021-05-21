@@ -4,6 +4,7 @@ import com.payline.payment.equens.bean.business.fraud.PsuSessionInformation;
 import com.payline.payment.equens.bean.business.payment.*;
 import com.payline.payment.equens.bean.business.psu.Psu;
 import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
+import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.service.impl.ConfigurationServiceImpl;
@@ -145,7 +146,7 @@ public class MockUtils {
     /**
      * Generate a valid {@link ContractConfiguration}.
      */
-    public static ContractConfiguration aContractConfiguration(String exampleCountry) {
+    public static ContractConfiguration aContractConfiguration(String exampleCountry, final String paymentMode) {
         Map<String, ContractProperty> contractProperties = new HashMap<>();
         contractProperties.put(Constants.ContractConfigurationKeys.CHANNEL_TYPE,
                 new ContractProperty(ConfigurationServiceImpl.ChannelType.ECOMMERCE.getType()));
@@ -163,9 +164,19 @@ public class MockUtils {
                 new ContractProperty(exampleCountry));
         contractProperties.put(Constants.ContractConfigurationKeys.PISP_CONTRACT,
                 new ContractProperty("123456789012"));
+        contractProperties.put(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT, new ContractProperty(paymentMode));
+        contractProperties.put(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID, new ContractProperty("12"));
 
         return new ContractConfiguration("INST EquensWorldline", contractProperties);
     }
+
+    /**
+     * Generate a valid {@link ContractConfiguration}.
+     */
+    public static ContractConfiguration aContractConfiguration(String exampleCountry) {
+        return aContractConfiguration(exampleCountry, "Instant");
+    }
+
 
     /**
      * Generate a valid {@link ContractParametersCheckRequest}.
@@ -225,7 +236,6 @@ public class MockUtils {
 
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME, "MarketPay");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID, "XXXXXX");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT, "Instant");
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
         sensitiveConfigurationMap.put(Constants.PartnerConfigurationKeys.CLIENT_CERTIFICATE, aClientCertificatePem());
@@ -359,8 +369,8 @@ public class MockUtils {
     public static PaymentInitiationRequest.PaymentInitiationRequestBuilder aPaymentInitiationRequestBuilder(String debtorAccount){
         return new PaymentInitiationRequest.PaymentInitiationRequestBuilder()
                 .withAspspId("1410")
-                .withEndToEndId( "PAYLINE" + timestamp )
-                .withInitiatingPartyReferenceId( "REF" + timestamp )
+                .withEndToEndId("REF" + timestamp)
+                .withInitiatingPartyReferenceId( "PAYLINE" + timestamp )
                 .withInitiatingPartyReturnUrl( "http://redirectionURL.com" )
                 .withRemittanceInformation( "softDescriptor123456789012" )
                 .withRemittanceInformationStructured(
@@ -403,8 +413,9 @@ public class MockUtils {
                 .addPreferredScaMethod(ConfigurationServiceImpl.ScaMethod.REDIRECT)
                 .withChargeBearer(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer())
                 .withPsuId("1")
-                .withPaymentProduct(MockUtils.aPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT))
-                .withDebtorName("Durand");
+                .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode())
+                .withDebtorName("Durand")
+                .withInitiatingPartySubId("12");
     }
 
     /**
@@ -446,10 +457,11 @@ public class MockUtils {
     public static String aPluginConfiguration() {
         return "{\"Application\":\"PIS\",\"ASPSP\":[" +
                     "{\"AspspId\":\"1409\",\"Name\":[\"La Banque Postale\"],\"CountryCode\":\"FR\",\"BIC\":\"PSSTFRPP\"}," +
-                    "{\"AspspId\":\"1410\",\"Name\":[\"La Banque\"],\"CountryCode\":\"ES\",\"BIC\":\"PSSTFRPT\"}," +
-                    "{\"AspspId\":\"1601\",\"Name\":[\"BBVA\"],\"CountryCode\":\"ES\",\"BIC\":\"BBVAESMM\"}" +
-                "],\"MessageCreateDateTime\":\"2019-11-15T16:52:37.092+0100\",\"MessageId\":\"6f31954f-7ad6-4a63-950c-a2a363488e\"}";
+                    "{\"AspspId\":\"1601\",\"Name\":[\"BBVA\"],\"CountryCode\":\"ES\",\"BIC\":\"BBVAESMM\"}," +
+                    "{\"AspspId\":\"1410\", \"BIC\":\"PSSTFRPT\", \"CountryCode\":\"FR\", \"Name\":[ \"La Banque\"], \"Details\":[ { \"Api\":\"POST /payments\", \"Fieldname\":\"DebtorAccount\", \"Type\":\"MANDATORY\", \"ProtocolVersion\":\"BG_V_1_3_0\" }, { \"Api\":\"POST /payments\", \"Fieldname\":\"PaymentProduct\", \"Type\":\"SUPPORTED\", \"Value\":\"Instant\", \"ProtocolVersion\":\"BG_V_1_3_0\" } ] }"+
+                    "],\"MessageCreateDateTime\":\"2019-11-15T16:52:37.092+0100\",\"MessageId\":\"6f31954f-7ad6-4a63-950c-a2a363488e\"}";
     }
+
 
     /**
      * @return A fake private key, for test purpose.
@@ -636,7 +648,8 @@ public class MockUtils {
     public static PaymentData.PaymentDataBuilder aPaymentDataBuilder() {
         return new PaymentData.PaymentDataBuilder()
                 .withBic("PSSTFRPT")
-                .withIban(ibanFR);
+                .withIban(ibanFR)
+                .withAspspId("1410");
     }
 
     public static String getExampleCountry() {
@@ -677,5 +690,14 @@ public class MockUtils {
         return new PaymentData.PaymentDataBuilder()
                 .withIban("anIbanWithMoreThan8Charactere")
                 .build();
+    }
+
+    public static Aspsp anAspsp() {
+        return jsonService.fromJson("{\n" +
+                "    \"AspspId\": \"10\",\n" +
+                "    \"BIC\": \"PSSTFRPP\",\n" +
+                "    \"CountryCode\": \"FR\",\n" +
+                "    \"Name\": [\"La banque Postale\"\n]\n" +
+                "}", Aspsp.class);
     }
 }

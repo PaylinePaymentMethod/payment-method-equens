@@ -1,4 +1,4 @@
-rootProject.name = 'payment-method-scti-equens'
+rootProject.name = 'payment-method-equens'
 
 if (file('../payline-payment-method-api').exists()) {
     includeBuild '../payline-payment-method-api'

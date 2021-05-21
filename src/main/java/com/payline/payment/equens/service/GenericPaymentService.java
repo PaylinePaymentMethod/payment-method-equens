@@ -5,11 +5,11 @@ import com.payline.payment.equens.bean.business.fraud.PsuSessionInformation;
 import com.payline.payment.equens.bean.business.payment.*;
 import com.payline.payment.equens.bean.business.psu.Psu;
 import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
+import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
 import com.payline.payment.equens.bean.business.reachdirectory.GetAspspsResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.InvalidDataException;
 import com.payline.payment.equens.exception.PluginException;
-import com.payline.payment.equens.service.impl.ConfigurationServiceImpl;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.payment.equens.utils.http.PisHttpClient;
@@ -17,6 +17,7 @@ import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.pmapi.bean.common.Amount;
 import com.payline.pmapi.bean.common.Buyer;
 import com.payline.pmapi.bean.common.FailureCause;
+import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.bean.payment.RequestContext;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
@@ -33,6 +34,7 @@ public class GenericPaymentService {
     private PisHttpClient pisHttpClient = PisHttpClient.getInstance();
     private PsuHttpClient psuHttpclient = PsuHttpClient.getInstance();
     private static JsonService jsonService = JsonService.getInstance();
+    private BankService bankService = BankService.getInstance();
 
     private GenericPaymentService() {
     }
@@ -138,7 +140,7 @@ public class GenericPaymentService {
      * @param paylineAddress the Payline address
      * @return The corresponding Equens address.
      */
-    static Address buildAddress(Buyer.Address paylineAddress) {
+    Address buildAddress(Buyer.Address paylineAddress) {
         if (paylineAddress == null) {
             return null;
         }
@@ -193,62 +195,92 @@ public class GenericPaymentService {
         }
     }
 
-    void validateIban(GenericPaymentRequest paymentRequest, String bic, String iban) {
-        List<String> listCountryCode;
-
-
+    void validPaymentData(final PaymentData paymentData, final String pluginConfiguration, final GenericPaymentRequest paymentRequest) {
         // get the list of countryCode available by the merchant
-        listCountryCode = PluginUtils.createListCountry(paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.COUNTRIES).getValue());
+        final List<String> listCountryCode = PluginUtils.createListCountry(
+                paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.COUNTRIES).getValue());
+        final String paymentMode = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT).getValue();
+        final String aspspId = paymentData.getAspspId();
 
-        // get the countryCode from the BIC
-        String countryCode = PluginUtils.getCountryCodeFromBIC(
-                jsonService.fromJson(paymentRequest.getPluginConfiguration(), GetAspspsResponse.class).getAspsps()
-                , bic);
+        if (PluginUtils.isEmpty(aspspId)) {
+            throw new InvalidDataException("AspspId is required");
+        }
 
-        // if the buyer choose a bank from Spain, IBAN is required
-        if (countryCode.equalsIgnoreCase(ConfigurationServiceImpl.CountryCode.ES.name()) && PluginUtils.isEmpty(iban)) {
-            throw new InvalidDataException("IBAN is required for Spain");
+        final Aspsp aspsp = bankService.getAspsp(pluginConfiguration, aspspId);
+        if (aspsp == null) {
+            throw new InvalidDataException("Aspsp not found");
+        }
+
+        if (!listCountryCode.isEmpty() && !listCountryCode.contains(aspsp.getCountryCode())) {
+            throw new InvalidDataException("Aspsp not available for this country");
+        }
+
+        if (!bankService.isCompatibleBank(aspsp, paymentMode)) {
+            throw new InvalidDataException("Aspsp not compatible with this payment mode");
+        }
+        if (bankService.isIbanRequired(aspsp)) {
+            validateIban(paymentRequest, paymentData, aspsp, listCountryCode);
+        }
+
+    }
+
+    void validateIban(GenericPaymentRequest paymentRequest, PaymentData paymentData, Aspsp aspsp, final List<String> listCountryCode) {
+
+        if (PluginUtils.isEmpty(paymentData.getIban())) {
+            throw new InvalidDataException("Iban is required");
+        }
+
+        String countryCode = "";
+        // get the countryCode from the BIC or ASPSP id
+        if (paymentData.getBic() != null) {
+            countryCode = PluginUtils.getCountryCodeFromBIC(
+                    jsonService.fromJson(paymentRequest.getPluginConfiguration(), GetAspspsResponse.class).getAspsps()
+                    , paymentData.getBic());
+        }
+        else {
+            countryCode = aspsp.getCountryCode();
+        }
+
+        if (PluginUtils.isEmpty(countryCode)) {
+            throw new InvalidDataException("Unable to determine country code for this transaction");
         }
 
         // if the buyer want to use his IBAN, it should be an IBAN from a country available by the merchant
-        if (!PluginUtils.isEmpty(iban) && !PluginUtils.correctIban(listCountryCode, iban)) {
+        if (!PluginUtils.isEmpty(paymentData.getIban()) && !PluginUtils.correctIban(listCountryCode, paymentData.getIban())) {
             throw new InvalidDataException("IBAN should be from a country available by the merchant " + listCountryCode.toString());
         }
     }
 
     // Build PaymentInitiationRequest (Equens) from PaymentRequest (Payline)
-    PaymentInitiationRequest buildPaymentInitiationRequest(GenericPaymentRequest paymentRequest, Psu newPsu, PaymentData paymentData) {
-
-        // extract BIC and IBAN
-        String bic = paymentData.getBic();
-        String iban = paymentData.getIban();
+    protected PaymentInitiationRequest buildPaymentInitiationRequest(GenericPaymentRequest paymentRequest, Psu newPsu, PaymentData paymentData) {
 
         // Control on the input data (to avoid NullPointerExceptions)
         validateRequest(paymentRequest);
-        validateIban(paymentRequest, bic, iban);
-
-        // get the aspspId from the BIC
-        String aspspId = PluginUtils.getAspspIdFromBIC(
-                jsonService.fromJson(paymentRequest.getPluginConfiguration(), GetAspspsResponse.class).getAspsps()
-                , bic);
+        validPaymentData(paymentData, paymentRequest.getPluginConfiguration(), paymentRequest);
 
         // Extract delivery address
         Address deliveryAddress = null;
         if (paymentRequest.getBuyer().getAddresses() != null) {
             deliveryAddress = buildAddress(paymentRequest.getBuyer().getAddressForType(Buyer.AddressType.DELIVERY));
         }
-        String merchantName = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_NAME).getValue();
-        String creditorName =  PluginUtils.isEmpty(merchantName) ? null : merchantName;
-        String creditorAccountIdentification = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_IBAN).getValue();
-        Account creditorAccount =  PluginUtils.isEmpty(creditorAccountIdentification) ?  null : new Account.AccountBuilder().withIdentification(creditorAccountIdentification).build();
 
-        String softDescriptor = paymentRequest.getSoftDescriptor();
-        String pispContract = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PISP_CONTRACT).getValue();
+        final String iban = paymentData.getIban();
+        final String aspspId = paymentData.getAspspId();
+        final String merchantName = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_NAME).getValue();
+        final String creditorName =  PluginUtils.isEmpty(merchantName) ? null : merchantName;
+        final String creditorAccountIdentification = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_IBAN).getValue();
+        final Account creditorAccount =  PluginUtils.isEmpty(creditorAccountIdentification) ?  null : new Account.AccountBuilder().withIdentification(creditorAccountIdentification).build();
 
-        PaymentInitiationRequest.PaymentInitiationRequestBuilder paymentInitiationRequestBuilder = new PaymentInitiationRequest.PaymentInitiationRequestBuilder()
+        final String softDescriptor = paymentRequest.getSoftDescriptor();
+        final String pispContract = paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PISP_CONTRACT).getValue();
+
+        final ContractProperty subIdContractProperty =  paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID);
+        final String initiatingPartySubId = subIdContractProperty != null ? subIdContractProperty.getValue() : null;
+
+        final PaymentInitiationRequest.PaymentInitiationRequestBuilder paymentInitiationRequestBuilder = new PaymentInitiationRequest.PaymentInitiationRequestBuilder()
                 .withAspspId(aspspId)
-                .withEndToEndId(paymentRequest.getTransactionId())
-                .withInitiatingPartyReferenceId(paymentRequest.getOrder().getReference())
+                .withEndToEndId(paymentRequest.getOrder().getReference())
+                .withInitiatingPartyReferenceId(paymentRequest.getTransactionId())
                 .withInitiatingPartyReturnUrl(paymentRequest.getEnvironment().getRedirectionReturnURL())
                 .withRemittanceInformation(softDescriptor + pispContract)
                 .withRemittanceInformationStructured(
@@ -256,12 +288,8 @@ public class GenericPaymentService {
                                 .withReference(paymentRequest.getOrder().getReference())
                                 .build()
                 )
-                .withCreditorAccount(
-                        creditorAccount
-                )
-                .withCreditorName(
-                       creditorName
-                )
+                .withCreditorAccount(creditorAccount)
+                .withCreditorName(creditorName)
                 .withPaymentAmount(convertAmount(paymentRequest.getAmount()))
                 .withPaymentCurrency(paymentRequest.getAmount().getCurrency().getCurrencyCode())
                 .withPurposeCode(
@@ -278,9 +306,7 @@ public class GenericPaymentService {
                                 .withMerchantCategoryCode(paymentRequest.getSubMerchant() != null ? paymentRequest.getSubMerchant().getSubMerchantMCC() : null)
                                 .withMerchantCustomerId(paymentRequest.getBuyer().getCustomerIdentifier())
                                 .withDeliveryAddress(deliveryAddress)
-                                .withChannelType(
-                                        paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.CHANNEL_TYPE).getValue()
-                                )
+                                .withChannelType(paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.CHANNEL_TYPE).getValue())
                                 .build()
                 )
                 .addPreferredScaMethod(
@@ -291,7 +317,8 @@ public class GenericPaymentService {
                 )
                 .withPsuId(newPsu.getPsuId())
                 .withPaymentProduct(
-                        paymentRequest.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT)
+                        paymentRequest.getContractConfiguration()
+                                .getProperty(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT).getValue()
                 ).withDebtorName(paymentRequest.getBuyer().getFullName().getLastName());
 
         // add the debtor account only if he gives his IBAN, to avoid an empty object
@@ -301,6 +328,9 @@ public class GenericPaymentService {
                             .withIdentification(iban)
                             .build()
             );
+        }
+        if (!PluginUtils.isEmpty(initiatingPartySubId)) {
+            paymentInitiationRequestBuilder.withInitiatingPartySubId(initiatingPartySubId);
         }
         return paymentInitiationRequestBuilder.build();
     }

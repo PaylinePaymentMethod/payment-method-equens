@@ -1,0 +1,27 @@
+{
+    "BankOrganizationsList" : {
+        "BNP Paribas" : {
+            "prefixBIC": "BNPAFRPP",
+            "country": "FR"
+        },
+        "CIC (Crédit Industriel et Commercial)" : {
+            "prefixBIC": "CMCIFRPP",
+            "country": "FR"
+        },
+        "Société Générale" : {
+            "prefixBIC": "SOGEFRPP",
+            "country": "FR"
+        },
+        "Crédit Agricole" : {
+            "prefixBIC": "AGRIFRPP",
+            "country": "FR"
+        },
+        "Banque Populaire" : {
+            "prefixBIC": "CCBPFRPP",
+            "country": "FR"
+        },
+        "Caisse d'Epargne" : {
+            "prefixBIC": "CEPAFRPP",
+            "country": "FR"
+        }}
+}

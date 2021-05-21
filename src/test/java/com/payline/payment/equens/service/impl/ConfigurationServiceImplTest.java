@@ -40,115 +40,137 @@ class ConfigurationServiceImplTest {
 
     /* I18nService is not mocked here on purpose, to validate the existence of all
     the messages related to this class, at least in the default locale */
-    @Mock private PisHttpClient pisHttpClient;
-    @Mock private PsuHttpClient psuHttpClient;
-    @Mock private ReleaseProperties releaseProperties;
+    @Mock
+    private PisHttpClient pisHttpClient;
+    @Mock
+    private PsuHttpClient psuHttpClient;
+    @Mock
+    private ReleaseProperties releaseProperties;
 
     @InjectMocks
     private ConfigurationServiceImpl service;
 
     @BeforeAll
-    static void before(){
+    static void before() {
         // This allows to test the default messages.properties file (no locale suffix)
-        Locale.setDefault( Locale.CHINESE );
+        Locale.setDefault(Locale.CHINESE);
     }
 
     @BeforeEach
-    void setup(){
+    void setup() {
         MockitoAnnotations.initMocks(this);
     }
 
     @AfterAll
-    static void after(){
+    static void after() {
         // Back to standard default locale
-        Locale.setDefault( Locale.ENGLISH );
+        Locale.setDefault(Locale.ENGLISH);
     }
 
-    @Test
-    void check_nominal(){
-        // given: a valid configuration, including client ID / secret
-        ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
-        doReturn( MockUtils.anAuthorization() ).when( pisHttpClient ).authorize( any(RequestConfiguration.class) );
-        doReturn( MockUtils.anAuthorization() ).when( psuHttpClient ).authorize( any(RequestConfiguration.class) );
+    @Nested
+    class testCheckMethod {
+        @Test
+        void check_nominal() {
+            // given: a valid configuration, including client ID / secret
+            ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
+            doReturn(MockUtils.anAuthorization()).when(pisHttpClient).authorize(any(RequestConfiguration.class));
+            doReturn(MockUtils.anAuthorization()).when(psuHttpClient).authorize(any(RequestConfiguration.class));
 
-        // when: checking the configuration
-        Map<String, String> errors = service.check( checkRequest );
+            // when: checking the configuration
+            Map<String, String> errors = service.check(checkRequest);
 
-        // then: error map is empty
-        assertTrue( errors.isEmpty() );
-    }
-
-    @Test
-    void check_emptyAccountInfo(){
-        // given: an empty accountInfo
-        ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequestBuilder()
-                .withAccountInfo(new HashMap<>())
-                .build();
-
-        // when: checking the configuration
-        Map<String, String> errors = service.check( checkRequest );
-
-        // then: there is an error for each parameter, each error has a valid message and authorize methods are never called
-        assertEquals(8, errors.size() );
-        for( Map.Entry<String, String> error : errors.entrySet() ){
-            assertNotNull( error.getValue() );
-            assertFalse( error.getValue().contains("???") );
+            // then: error map is empty
+            assertTrue(errors.isEmpty());
         }
-        verify( pisHttpClient, never() ).authorize( any( RequestConfiguration.class ) );
-        verify( psuHttpClient, never() ).authorize( any( RequestConfiguration.class ) );
-    }
 
-    @Test
-    void check_wrongPisAuthorization(){
-        // given: the client ID or secret is wrong. The PIS authorization API returns an error.
-        ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
-        doThrow( PluginException.class ).when( pisHttpClient ).authorize( any(RequestConfiguration.class) );
+        @Test
+        void check_emptyAccountInfo() {
+            // given: an empty accountInfo
+            ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequestBuilder()
+                    .withAccountInfo(new HashMap<>())
+                    .build();
 
-        // when: checking the configuration
-        Map<String, String> errors = service.check( checkRequest );
+            // when: checking the configuration
+            Map<String, String> errors = service.check(checkRequest);
 
-        // then: no exception is thrown, but there are some errors
-        assertTrue( errors.size() > 0 );
-    }
+            // then: there is an error for each parameter, each error has a valid message and authorize methods are never called
+            assertEquals(9, errors.size());
+            for (Map.Entry<String, String> error : errors.entrySet()) {
+                assertNotNull(error.getValue());
+                assertFalse(error.getValue().contains("???"));
+            }
+            verify(pisHttpClient, never()).authorize(any(RequestConfiguration.class));
+            verify(psuHttpClient, never()).authorize(any(RequestConfiguration.class));
+        }
 
-    @Test
-    void check_wrongPsuAuthorization(){
-        // given: the client does not a a subscription to PSU Management (account problem on the partner's side). The PSU authorization API returns an error.
-        ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
-        doReturn( MockUtils.anAuthorization() ).when( pisHttpClient ).authorize( any(RequestConfiguration.class) );
-        doThrow( PluginException.class ).when( psuHttpClient ).authorize( any(RequestConfiguration.class) );
+        @Test
+        void checkInvalidPartySubId() {
+            final ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
 
-        // when: checking the configuration
-        Map<String, String> errors = service.check( checkRequest );
+            checkRequest.getAccountInfo().put(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID,
+                    "123456789012345678901234567890123456789012345678901");
+            // when: checking the configuration
+            final Map<String, String> errors = service.check(checkRequest);
 
-        // then: no exception is thrown, but there are some errors
-        assertTrue( errors.size() > 0 );
-    }
+            // then: no exception is thrown, but there are some errors
+            assertEquals(1, errors.size());
+            assertTrue(errors.containsKey(Constants.ContractConfigurationKeys.INITIATING_PARTY_SUBID));
+        }
 
-    @ParameterizedTest(name = "[{index}] pispContract: {0}")
-    @ValueSource(strings = {"", "1234567891023", "azertyuiopqs"})
-    void check_PisContract(String pispContract) {
-        // given: a valid configuration
-        ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration("FR");
 
-        Map<String, ContractProperty> contractProperties = contractConfiguration.getContractProperties();
-        contractProperties.remove(Constants.ContractConfigurationKeys.PISP_CONTRACT);
+        @Test
+        void check_wrongPisAuthorization() {
+            // given: the client ID or secret is wrong. The PIS authorization API returns an error.
+            ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
+            doThrow(PluginException.class).when(pisHttpClient).authorize(any(RequestConfiguration.class));
 
-        contractProperties.put(Constants.ContractConfigurationKeys.PISP_CONTRACT,
-                new ContractProperty(pispContract));
+            // when: checking the configuration
+            Map<String, String> errors = service.check(checkRequest);
 
-        ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequestBuilder()
-                .withAccountInfo(MockUtils.anAccountInfo( new ContractConfiguration("INST EquensWorldline", contractProperties)))
-                .build();
+            // then: no exception is thrown, but there are some errors
+            assertTrue(errors.size() > 0);
+        }
 
-        doReturn(MockUtils.anAuthorization()).when(pisHttpClient).authorize(any(RequestConfiguration.class));
-        doReturn(MockUtils.anAuthorization()).when(psuHttpClient).authorize(any(RequestConfiguration.class));
+        @Test
+        void check_wrongPsuAuthorization() {
+            // given: the client does not a a subscription to PSU Management (account problem on the partner's side). The PSU authorization API returns an error.
+            ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
+            doReturn(MockUtils.anAuthorization()).when(pisHttpClient).authorize(any(RequestConfiguration.class));
+            doThrow(PluginException.class).when(psuHttpClient).authorize(any(RequestConfiguration.class));
 
-        // when: checking the configuration
-        Map<String, String> errors = service.check(checkRequest);
+            // when: checking the configuration
+            Map<String, String> errors = service.check(checkRequest);
 
-        // then: error map contain PISP_CONTRACT
-        assertTrue(errors.containsKey(Constants.ContractConfigurationKeys.PISP_CONTRACT));
+            // then: no exception is thrown, but there are some errors
+            assertTrue(errors.size() > 0);
+        }
+
+        @ParameterizedTest(name = "[{index}] pispContract: {0}")
+        @ValueSource(strings = {"", "1234567891023", "azertyuiopqs"})
+        void check_PisContract(String pispContract) {
+            // given: a valid configuration
+            ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration("FR");
+
+            Map<String, ContractProperty> contractProperties = contractConfiguration.getContractProperties();
+            contractProperties.remove(Constants.ContractConfigurationKeys.PISP_CONTRACT);
+
+            contractProperties.put(Constants.ContractConfigurationKeys.PISP_CONTRACT,
+                    new ContractProperty(pispContract));
+
+            ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequestBuilder()
+                    .withAccountInfo(MockUtils.anAccountInfo(new ContractConfiguration("INST EquensWorldline", contractProperties)))
+                    .build();
+
+            doReturn(MockUtils.anAuthorization()).when(pisHttpClient).authorize(any(RequestConfiguration.class));
+            doReturn(MockUtils.anAuthorization()).when(psuHttpClient).authorize(any(RequestConfiguration.class));
+
+            // when: checking the configuration
+            Map<String, String> errors = service.check(checkRequest);
+
+            // then: error map contain PISP_CONTRACT
+            assertTrue(errors.containsKey(Constants.ContractConfigurationKeys.PISP_CONTRACT));
+        }
+
     }
 
     @Test
@@ -265,7 +287,6 @@ class ConfigurationServiceImplTest {
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments/{paymentId}/status");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PSU_PSUS, "https://xs2a.awltest.de/xs2a/routingservice/services/psumgmt/v1/psus");
         partnerConfigurationMap.put( Constants.PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID, "XXXXXX" );
-        partnerConfigurationMap.put( Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT, "Instant" );
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
         sensitiveConfigurationMap.put( Constants.PartnerConfigurationKeys.CLIENT_CERTIFICATE, MockUtils.aClientCertificatePem() );
@@ -297,7 +318,6 @@ class ConfigurationServiceImplTest {
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments/{paymentId}/status");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PSU_PSUS, "https://xs2a.awltest.de/xs2a/routingservice/services/psumgmt/v1/psus");
         partnerConfigurationMap.put( Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME, "MarketPay" );
-        partnerConfigurationMap.put( Constants.PartnerConfigurationKeys.PAYMENT_PRODUCT, "Instant" );
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
         sensitiveConfigurationMap.put( Constants.PartnerConfigurationKeys.CLIENT_CERTIFICATE, MockUtils.aClientCertificatePem() );

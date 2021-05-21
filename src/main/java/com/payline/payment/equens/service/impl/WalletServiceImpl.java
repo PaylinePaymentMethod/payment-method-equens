@@ -3,7 +3,9 @@ package com.payline.payment.equens.service.impl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.payline.payment.equens.bean.business.payment.PaymentData;
+import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
 import com.payline.payment.equens.exception.PluginException;
+import com.payline.payment.equens.service.BankService;
 import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
@@ -26,12 +28,14 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class WalletServiceImpl implements WalletService {
     private static final Logger LOGGER = LogManager.getLogger(WalletServiceImpl.class);
     private RSAUtils rsaUtils = RSAUtils.getInstance();
     protected ConfigProperties config = ConfigProperties.getInstance();
     private JsonService jsonService = JsonService.getInstance();
+    private BankService bankService = BankService.getInstance();
 
     @Override
     public WalletDeleteResponse deleteWallet(WalletDeleteRequest walletDeleteRequest) {
@@ -48,12 +52,16 @@ public class WalletServiceImpl implements WalletService {
     public WalletCreateResponse createWallet(WalletCreateRequest walletCreateRequest) {
         try {
             // get wallet data
-            String bic = walletCreateRequest.getPaymentFormContext().getPaymentFormParameter().get(BankTransferForm.BANK_KEY);
-            String iban = walletCreateRequest.getPaymentFormContext().getSensitivePaymentFormParameter().get(BankTransferForm.IBAN_KEY);
+            final Map<String, String> paymentFormParameter = walletCreateRequest.getPaymentFormContext().getPaymentFormParameter();
 
-            PaymentData walletPaymentData = new PaymentData.PaymentDataBuilder()
+            String bic = paymentFormParameter.get(BankTransferForm.BANK_KEY);
+            String iban = walletCreateRequest.getPaymentFormContext().getSensitivePaymentFormParameter().get(BankTransferForm.IBAN_KEY);
+            final String aspspId = PluginUtils.isEmpty(paymentFormParameter.get(Constants.FormKeys.ASPSP_ID)) ? paymentFormParameter.get(Constants.FormKeys.SUB_ASPSP_ID) : paymentFormParameter.get(Constants.FormKeys.ASPSP_ID);
+
+            final PaymentData walletPaymentData = new PaymentData.PaymentDataBuilder()
                     .withBic(bic)
                     .withIban(iban)
+                    .withAspspId(aspspId)
                     .build();
 
             // encrypt the Json that contains the BIC and the IBAN
@@ -91,22 +99,28 @@ public class WalletServiceImpl implements WalletService {
         List<WalletField> walletFields = new ArrayList<>();
         try {
             // decrypt the encrypted data (BIC + IBAN)
-            String encryptedData = walletDisplayRequest.getWallet().getPluginPaymentData();
+            final String encryptedData = walletDisplayRequest.getWallet().getPluginPaymentData();
 
-            String key = walletDisplayRequest.getPartnerConfiguration()
+            final String key = walletDisplayRequest.getPartnerConfiguration()
                     .getProperty(Constants.PartnerConfigurationKeys.ENCRYPTION_KEY);
-            String data = rsaUtils.decrypt(encryptedData, key);
+            final String data = rsaUtils.decrypt(encryptedData, key);
 
             //Build wallet display fields (BIC and the masked IBAN)
-            Gson gson = new GsonBuilder().create();
-            PaymentData paymentData = gson.fromJson(data, PaymentData.class);
-            String bic = paymentData.getBic();
-            String iban = paymentData.getIban();
-            if (bic != null) {
-                walletFields.add(WalletDisplayFieldText.builder().content(paymentData.getBic()).build());
+            final Gson gson = new GsonBuilder().create();
+            final PaymentData paymentData = gson.fromJson(data, PaymentData.class);
+            final String aspspId = paymentData.getAspspId();
+            String aspspLabel = "";
+            if (!PluginUtils.isEmpty(aspspId)) {
+                final Aspsp aspsp = bankService.getAspsp(walletDisplayRequest.getPluginConfiguration(), aspspId);
+                if (aspsp != null) {
+                    //getLabel de l'ASPSPID.
+                    aspspLabel = PluginUtils.isEmptyList(aspsp.getName()) ? "" : aspsp.getName().get(0);
+                }
+                walletFields.add(WalletDisplayFieldText.builder().content(aspspLabel).build());
             }
-            if (iban != null) {
-                walletFields.add(WalletDisplayFieldText.builder().content(PluginUtils.hideIban(paymentData.getIban())).build());
+            if (!PluginUtils.isEmpty(paymentData.getIban())) {
+                walletFields.add(WalletDisplayFieldText.builder().content(
+                        PluginUtils.hideIban(paymentData.getIban())).build());
             }
         } catch (PluginException e) {
             LOGGER.warn("Unable to display wallet ", e);
