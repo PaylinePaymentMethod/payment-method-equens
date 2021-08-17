@@ -3,7 +3,7 @@ package com.payline.payment.equens.bean.business.payment;
 import com.google.gson.annotations.SerializedName;
 
 /** Information used for risk scoring by the ASPSP. */
-public class RiskInformation {
+public class PaymentContext {
 
     /**
      * Category code conform to ISO 18245, related to the type of services or goods the merchant provides for the transaction.
@@ -22,42 +22,42 @@ public class RiskInformation {
     @SerializedName("ChannelType")
     private String channelType;
 
-    public RiskInformation( RiskInformationBuilder builder ){
+    public PaymentContext(PaymentContextBuilder builder ){
         this.merchantCategoryCode = builder.merchantCategoryCode;
         this.merchantCustomerId = builder.merchantCustomerId;
         this.deliveryAddress = builder.deliveryAddress;
         this.channelType = builder.channelType;
     }
 
-    public static class RiskInformationBuilder {
+    public static class PaymentContextBuilder {
 
         private String merchantCategoryCode;
         private String merchantCustomerId;
         private Address deliveryAddress;
         private String channelType;
 
-        public RiskInformationBuilder withMerchantCategoryCode(String merchantCategoryCode) {
+        public PaymentContextBuilder withMerchantCategoryCode(String merchantCategoryCode) {
             this.merchantCategoryCode = merchantCategoryCode;
             return this;
         }
 
-        public RiskInformationBuilder withMerchantCustomerId(String merchantCustomerId) {
+        public PaymentContextBuilder withMerchantCustomerId(String merchantCustomerId) {
             this.merchantCustomerId = merchantCustomerId;
             return this;
         }
 
-        public RiskInformationBuilder withDeliveryAddress(Address deliveryAddress) {
+        public PaymentContextBuilder withDeliveryAddress(Address deliveryAddress) {
             this.deliveryAddress = deliveryAddress;
             return this;
         }
 
-        public RiskInformationBuilder withChannelType(String channelType) {
+        public PaymentContextBuilder withChannelType(String channelType) {
             this.channelType = channelType;
             return this;
         }
 
-        public RiskInformation build(){
-            return new RiskInformation( this );
+        public PaymentContext build(){
+            return new PaymentContext( this );
         }
     }
 

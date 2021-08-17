@@ -38,6 +38,7 @@ abstract class EquensHttpClient extends OAuthHttpClient {
     public static final String HEADER_AUTH_DATE = "Date";
     public static final String HEADER_AUTH_ID = "Id";
     static final String HEADER_REQUEST_ID = "X-Request-ID";
+    static final String MESSAGE_CREATE_DATE_TIME = "MessageCreateDateTime";
 
     /**
      * Holder containing the keystore data (keys or certificates).
@@ -291,6 +292,7 @@ abstract class EquensHttpClient extends OAuthHttpClient {
         Authorization auth = this.authorize( requestConfiguration );
         headers.add( new BasicHeader( HttpHeaders.AUTHORIZATION, auth.getHeaderValue() ) );
         headers.add( new BasicHeader( HEADER_REQUEST_ID, UUID.randomUUID().toString() ) );
+        headers.add( new BasicHeader( MESSAGE_CREATE_DATE_TIME,new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date())) );
         return headers;
     }
 

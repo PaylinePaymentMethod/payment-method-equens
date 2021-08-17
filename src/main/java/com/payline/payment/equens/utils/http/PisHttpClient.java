@@ -23,6 +23,7 @@ import java.util.List;
  */
 public class PisHttpClient extends EquensHttpClient {
     private static final Logger LOGGER = LogManager.getLogger(PisHttpClient.class);
+    public static final String INITIATING_PARTY_RETURN_URL = "InitiatingPartyReturnUrl";
 
     // --- Singleton Holder pattern + initialization BEGIN
     PisHttpClient() {
@@ -77,7 +78,7 @@ public class PisHttpClient extends EquensHttpClient {
      * @param requestConfiguration     the request configuration
      * @return The payment initiation response, containing the client approval redirection URL
      */
-    public PaymentInitiationResponse initPayment(PaymentInitiationRequest paymentInitiationRequest, RequestConfiguration requestConfiguration) {
+    public PaymentInitiationResponse initPayment(PaymentInitiationRequest paymentInitiationRequest, RequestConfiguration requestConfiguration, List<Header> headersToAdd) {
         // Service full URL
         String url = requestConfiguration.getPartnerConfiguration().getProperty(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS);
         if (url == null) {
@@ -90,7 +91,8 @@ public class PisHttpClient extends EquensHttpClient {
         // Body
         StringEntity body = new StringEntity(jsonService.toJson(paymentInitiationRequest), StandardCharsets.UTF_8);
         headers.add(new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json"));
-
+        headers.add(new BasicHeader(INITIATING_PARTY_RETURN_URL , requestConfiguration.getEnvironment().getRedirectionReturnURL()));
+        headers.addAll(headersToAdd);
         // Send request
         StringResponse response = this.post(url, headers, body);
 

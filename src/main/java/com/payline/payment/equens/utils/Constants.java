@@ -36,7 +36,6 @@ public class Constants {
         public static final String API_URL_PIS_ASPSPS = "apisUrl.pis.aspsps";
         public static final String API_URL_PIS_PAYMENTS = "apisUrl.pis.payments";
         public static final String API_URL_PIS_PAYMENTS_STATUS = "apisUrl.pis.payments.status";
-        public static final String API_URL_PSU_PSUS = "apisUrl.psu.psus";
         public static final String CLIENT_CERTIFICATE = "clientCertificate";
         public static final String CLIENT_PRIVATE_KEY = "clientPrivateKey";
         public static final String PAYLINE_CLIENT_NAME = "paylineclientName";

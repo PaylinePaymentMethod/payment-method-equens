@@ -6,9 +6,7 @@ import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.utils.Constants;
-import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.payment.equens.utils.http.PisHttpClient;
-import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.payment.equens.utils.properties.ReleaseProperties;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.configuration.ReleaseInformation;
@@ -43,8 +41,6 @@ class ConfigurationServiceImplTest {
     @Mock
     private PisHttpClient pisHttpClient;
     @Mock
-    private PsuHttpClient psuHttpClient;
-    @Mock
     private ReleaseProperties releaseProperties;
 
     @InjectMocks
@@ -74,7 +70,6 @@ class ConfigurationServiceImplTest {
             // given: a valid configuration, including client ID / secret
             ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
             doReturn(MockUtils.anAuthorization()).when(pisHttpClient).authorize(any(RequestConfiguration.class));
-            doReturn(MockUtils.anAuthorization()).when(psuHttpClient).authorize(any(RequestConfiguration.class));
 
             // when: checking the configuration
             Map<String, String> errors = service.check(checkRequest);
@@ -100,7 +95,6 @@ class ConfigurationServiceImplTest {
                 assertFalse(error.getValue().contains("???"));
             }
             verify(pisHttpClient, never()).authorize(any(RequestConfiguration.class));
-            verify(psuHttpClient, never()).authorize(any(RequestConfiguration.class));
         }
 
         @Test
@@ -131,20 +125,6 @@ class ConfigurationServiceImplTest {
             assertTrue(errors.size() > 0);
         }
 
-        @Test
-        void check_wrongPsuAuthorization() {
-            // given: the client does not a a subscription to PSU Management (account problem on the partner's side). The PSU authorization API returns an error.
-            ContractParametersCheckRequest checkRequest = MockUtils.aContractParametersCheckRequest();
-            doReturn(MockUtils.anAuthorization()).when(pisHttpClient).authorize(any(RequestConfiguration.class));
-            doThrow(PluginException.class).when(psuHttpClient).authorize(any(RequestConfiguration.class));
-
-            // when: checking the configuration
-            Map<String, String> errors = service.check(checkRequest);
-
-            // then: no exception is thrown, but there are some errors
-            assertTrue(errors.size() > 0);
-        }
-
         @ParameterizedTest(name = "[{index}] pispContract: {0}")
         @ValueSource(strings = {"", "1234567891023", "azertyuiopqs"})
         void check_PisContract(String pispContract) {
@@ -162,7 +142,6 @@ class ConfigurationServiceImplTest {
                     .build();
 
             doReturn(MockUtils.anAuthorization()).when(pisHttpClient).authorize(any(RequestConfiguration.class));
-            doReturn(MockUtils.anAuthorization()).when(psuHttpClient).authorize(any(RequestConfiguration.class));
 
             // when: checking the configuration
             Map<String, String> errors = service.check(checkRequest);
@@ -285,7 +264,6 @@ class ConfigurationServiceImplTest {
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_ASPSPS, "https://xs2a.awltest.de/xs2a/routingservice/services/directory/v1/aspsps?allDetails=true");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments/{paymentId}/status");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PSU_PSUS, "https://xs2a.awltest.de/xs2a/routingservice/services/psumgmt/v1/psus");
         partnerConfigurationMap.put( Constants.PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID, "XXXXXX" );
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();
@@ -316,7 +294,6 @@ class ConfigurationServiceImplTest {
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_ASPSPS, "https://xs2a.awltest.de/xs2a/routingservice/services/directory/v1/aspsps?allDetails=true");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments/{paymentId}/status");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PSU_PSUS, "https://xs2a.awltest.de/xs2a/routingservice/services/psumgmt/v1/psus");
         partnerConfigurationMap.put( Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME, "MarketPay" );
 
         Map<String, String> sensitiveConfigurationMap = new HashMap<>();

@@ -1,8 +1,6 @@
 package com.payline.payment.equens.bean.business.payment;
 
 import com.google.gson.annotations.SerializedName;
-import com.payline.payment.equens.bean.business.EquensApiMessage;
-import com.payline.payment.equens.bean.business.fraud.PsuSessionInformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +8,7 @@ import java.util.List;
 /**
  * Payment initiation request.
  */
-public class PaymentInitiationRequest extends EquensApiMessage {
+public class PaymentInitiationRequest {
 
     /**
      * Identifies the debtor bank. This ID is taken from the reach directory.
@@ -30,11 +28,6 @@ public class PaymentInitiationRequest extends EquensApiMessage {
      */
     @SerializedName("InitiatingPartyReferenceId")
     private String initiatingPartyReferenceId;
-    /**
-     * Callback URL to be used in case of a successful processing of the payment request. The URL should not be encoded.
-     */
-    @SerializedName("InitiatingPartyReturnUrl")
-    private String initiatingPartyReturnUrl;
 
     /**
      * Information supplied to enable the matching of an entry with the items that the transfer is intended to settle.
@@ -59,6 +52,11 @@ public class PaymentInitiationRequest extends EquensApiMessage {
      */
     @SerializedName("DebtorAccount")
     private Account debtorAccount;
+    /**
+     * Identification of the debtor postal address.
+     */
+    @SerializedName("DebtorPostalAddress")
+    private Address debtorPostalAddress;
     /**
      * The name of the creditor.
      */
@@ -85,15 +83,10 @@ public class PaymentInitiationRequest extends EquensApiMessage {
     @SerializedName("PurposeCode")
     private String purposeCode;
     /**
-     * Data about the PSU session, this information is used for fraud detection by the ASPSP.
-     */
-    @SerializedName("PsuSessionInformation")
-    private PsuSessionInformation psuSessionInformation;
-    /**
      * Information used for risk scoring by the ASPSP.
      */
-    @SerializedName("RiskInformation")
-    private RiskInformation riskInformation;
+    @SerializedName("PaymentContext")
+    private PaymentContext paymentContext;
     /**
      * Payment preferred SCA.
      */
@@ -104,11 +97,7 @@ public class PaymentInitiationRequest extends EquensApiMessage {
      */
     @SerializedName("ChargeBearer")
     private String chargeBearer;
-    /**
-     * Id of the PSU
-     */
-    @SerializedName("PsuId")
-    private String psuId;
+
     /**
      * Indicates the requested payment method.
      */
@@ -120,49 +109,44 @@ public class PaymentInitiationRequest extends EquensApiMessage {
 
 
     PaymentInitiationRequest(PaymentInitiationRequestBuilder builder) {
-        super(builder);
         this.aspspId = builder.aspspId;
         this.endToEndId = builder.endToEndId;
         this.initiatingPartyReferenceId = builder.initiatingPartyReferenceId;
-        this.initiatingPartyReturnUrl = builder.initiatingPartyReturnUrl;
         this.remittanceInformation = builder.remittanceInformation;
         this.remittanceInformationStructured = builder.remittanceInformationStructured;
         this.debtorName = builder.debtorName;
         this.debtorAccount = builder.debtorAccount;
+        this.debtorPostalAddress=builder.debtorPostalAddress;
         this.creditorName = builder.creditorName;
         this.creditorAccount = builder.creditorAccount;
         this.paymentAmount = builder.paymentAmount;
         this.paymentCurrency = builder.paymentCurrency;
         this.purposeCode = builder.purposeCode;
-        this.psuSessionInformation = builder.psuSessionInformation;
-        this.riskInformation = builder.riskInformation;
+        this.paymentContext = builder.paymentContext;
         this.preferredScaMethod = builder.preferredScaMethod;
         this.chargeBearer = builder.chargeBearer;
-        this.psuId = builder.psuId;
         this.paymentProduct = builder.paymentProduct;
         this.initiatingPartySubId = builder.initiatingPartySubId;
     }
 
-    public static class PaymentInitiationRequestBuilder extends EquensApiMessageBuilder {
+    public static class PaymentInitiationRequestBuilder  {
 
         private String aspspId;
         private String endToEndId;
         private String initiatingPartyReferenceId;
-        private String initiatingPartyReturnUrl;
         private String remittanceInformation;
         private RemittanceInformationStructured remittanceInformationStructured;
         private String debtorName;
         private Account debtorAccount;
+        private Address debtorPostalAddress;
         private String creditorName;
         private Account creditorAccount;
         private String paymentAmount;
         private String paymentCurrency;
         private String purposeCode;
-        private PsuSessionInformation psuSessionInformation;
-        private RiskInformation riskInformation;
+        private PaymentContext paymentContext;
         private List<String> preferredScaMethod;
         private String chargeBearer;
-        private String psuId;
         private String paymentProduct;
         private String initiatingPartySubId;
 
@@ -181,10 +165,6 @@ public class PaymentInitiationRequest extends EquensApiMessage {
             return this;
         }
 
-        public PaymentInitiationRequestBuilder withInitiatingPartyReturnUrl(String initiatingPartyReturnUrl) {
-            this.initiatingPartyReturnUrl = initiatingPartyReturnUrl;
-            return this;
-        }
 
         public PaymentInitiationRequestBuilder withRemittanceInformation(String remittanceInformation) {
             this.remittanceInformation = remittanceInformation;
@@ -203,6 +183,11 @@ public class PaymentInitiationRequest extends EquensApiMessage {
 
         public PaymentInitiationRequestBuilder withDebtorAccount(Account debtorAccount) {
             this.debtorAccount = debtorAccount;
+            return this;
+        }
+
+        public PaymentInitiationRequestBuilder withDebtorPostalAddress(Address debtorPostalAddress) {
+            this.debtorPostalAddress = debtorPostalAddress;
             return this;
         }
 
@@ -231,13 +216,8 @@ public class PaymentInitiationRequest extends EquensApiMessage {
             return this;
         }
 
-        public PaymentInitiationRequestBuilder withPsuSessionInformation(PsuSessionInformation psuSessionInformation) {
-            this.psuSessionInformation = psuSessionInformation;
-            return this;
-        }
-
-        public PaymentInitiationRequestBuilder withRiskInformation(RiskInformation riskInformation) {
-            this.riskInformation = riskInformation;
+        public PaymentInitiationRequestBuilder withPaymentContext(PaymentContext paymentContext) {
+            this.paymentContext = paymentContext;
             return this;
         }
 
@@ -251,11 +231,6 @@ public class PaymentInitiationRequest extends EquensApiMessage {
 
         public PaymentInitiationRequestBuilder withChargeBearer(String chargeBearer) {
             this.chargeBearer = chargeBearer;
-            return this;
-        }
-
-        public PaymentInitiationRequestBuilder withPsuId(String psuId) {
-            this.psuId = psuId;
             return this;
         }
 
@@ -287,9 +262,6 @@ public class PaymentInitiationRequest extends EquensApiMessage {
         return initiatingPartyReferenceId;
     }
 
-    public String getInitiatingPartyReturnUrl() {
-        return initiatingPartyReturnUrl;
-    }
 
     public String getRemittanceInformation() {
         return remittanceInformation;
@@ -305,6 +277,10 @@ public class PaymentInitiationRequest extends EquensApiMessage {
 
     public Account getDebtorAccount() {
         return debtorAccount;
+    }
+
+    public Address getDebtorPostalAddress() {
+        return debtorPostalAddress;
     }
 
     public String getCreditorName() {
@@ -327,12 +303,8 @@ public class PaymentInitiationRequest extends EquensApiMessage {
         return purposeCode;
     }
 
-    public PsuSessionInformation getPsuSessionInformation() {
-        return psuSessionInformation;
-    }
-
-    public RiskInformation getRiskInformation() {
-        return riskInformation;
+    public PaymentContext getPaymentContext() {
+        return paymentContext;
     }
 
     public List<String> getPreferredScaMethod() {
@@ -343,9 +315,6 @@ public class PaymentInitiationRequest extends EquensApiMessage {
         return chargeBearer;
     }
 
-    public String getPsuId() {
-        return psuId;
-    }
 
     public String getPaymentProduct() {
         return paymentProduct;
