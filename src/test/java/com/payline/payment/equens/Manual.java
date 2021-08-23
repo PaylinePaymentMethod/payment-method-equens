@@ -11,7 +11,6 @@ import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.service.impl.ConfigurationServiceImpl;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.http.PisHttpClient;
-import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.configuration.request.RetrievePluginConfigurationRequest;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
@@ -38,7 +37,6 @@ public class Manual {
 
     private static final Logger LOGGER = LogManager.getLogger(Manual.class);
     private static PisHttpClient pisHttpClient = PisHttpClient.getInstance();
-    private static PsuHttpClient psuHttpClient = PsuHttpClient.getInstance();
 
     public static void main( String[] args ){
         String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
@@ -56,20 +54,14 @@ public class Manual {
                     initContractConfiguration(), MockUtils.anEnvironment(), initPartnerConfiguration());
 
             pisHttpClient.init( requestConfiguration.getPartnerConfiguration() );
-            psuHttpClient.init( requestConfiguration.getPartnerConfiguration() );
 
             // GET aspsps
             GetAspspsResponse banks = pisHttpClient.getAspsps( requestConfiguration );
 
-            // POST psu
-            Psu psuCreated = psuHttpClient.createPsu( new PsuCreateRequest.PsuCreateRequestBuilder().build(), requestConfiguration );
-
             // POST payment
 
             PaymentInitiationRequest.PaymentInitiationRequestBuilder init = MockUtils.aPaymentInitiationRequestBuilder(MockUtils.getIbanFR());
-            //init.withPsuId( psuCreated.getPsuId() );
-            init.withPsuId( null );
-            PaymentInitiationResponse paymentInitiationResponse = pisHttpClient.initPayment( init.build(), requestConfiguration );
+            PaymentInitiationResponse paymentInitiationResponse = pisHttpClient.initPayment( init.build(), requestConfiguration, MockUtils.aPISHttpClientHeader());
 
             // GET payment
             PaymentStatusResponse paymentStatusResponse = pisHttpClient.paymentStatus( "666666", requestConfiguration, true );
@@ -100,7 +92,6 @@ public class Manual {
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_ASPSPS, "https://xs2a.awltest.de/xs2a/routingservice/services/directory/v1/aspsps?allDetails=true");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments/{paymentId}/status");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PSU_PSUS, "https://xs2a.awltest.de/xs2a/routingservice/services/psumgmt/v1/psus");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME, "MarketPay" );
         //partnerConfigurationMap.put( Constants.PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID, System.getProperty("project.onboardingId") );
 

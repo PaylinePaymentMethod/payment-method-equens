@@ -5,8 +5,6 @@ import com.payline.payment.equens.bean.GenericPaymentRequest;
 import com.payline.payment.equens.bean.business.payment.Address;
 import com.payline.payment.equens.bean.business.payment.PaymentData;
 import com.payline.payment.equens.bean.business.payment.PaymentInitiationRequest;
-import com.payline.payment.equens.bean.business.psu.Psu;
-import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.exception.InvalidDataException;
 import com.payline.payment.equens.exception.PluginException;
@@ -14,7 +12,6 @@ import com.payline.payment.equens.service.impl.ConfigurationServiceImpl;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.TestUtils;
 import com.payline.payment.equens.utils.http.PisHttpClient;
-import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.pmapi.bean.common.Amount;
 import com.payline.pmapi.bean.common.Buyer;
 import com.payline.pmapi.bean.common.FailureCause;
@@ -27,30 +24,35 @@ import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseRedirect;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+
 import java.math.BigInteger;
 import java.util.Currency;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
+
 class GenericPaymentServiceTest {
 
 
     @Mock
     private PisHttpClient pisHttpClient;
-    @Mock
-    private PsuHttpClient psuHttpclient;
+
 
     @InjectMocks
     private GenericPaymentService underTest;
+
+    private JsonService jsonService = JsonService.getInstance();
 
 
     @BeforeEach
@@ -64,8 +66,7 @@ class GenericPaymentServiceTest {
 
         @Test
         void nominalCase() {
-            doReturn(MockUtils.aPsu()).when(psuHttpclient).createPsu(any(), any());
-            doReturn(MockUtils.aPaymentInitiationResponse()).when(pisHttpClient).initPayment(any(), any());
+            doReturn(MockUtils.aPaymentInitiationResponse()).when(pisHttpClient).initPayment(any(), any(), any());
 
             final PaymentData paymentData = MockUtils.aPaymentdata();
             // when: calling paymentRequest() method
@@ -80,7 +81,6 @@ class GenericPaymentServiceTest {
 
         @Test
         void paymentRequest_EmptyMerchantName() {
-            doReturn(MockUtils.aPsu()).when(psuHttpclient).createPsu(any(), any());
             final JsonService jsonService = JsonService.getInstance();
 
             final PaymentData paymentData = MockUtils.aPaymentdata();
@@ -99,11 +99,9 @@ class GenericPaymentServiceTest {
                     , paymentRequest.getPartnerConfiguration()
             );
 
-            // Create a new PSU
-            final Psu newPsu = psuHttpclient.createPsu(new PsuCreateRequest.PsuCreateRequestBuilder().build(), requestConfiguration);
 
             // Build PaymentInitiationRequest (Equens) from PaymentRequest (Payline)
-            final PaymentInitiationRequest request = underTest.buildPaymentInitiationRequest(genericPaymentRequest, newPsu, paymentData);
+            final PaymentInitiationRequest request = underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData);
 
             final String chaine = jsonService.toJson(request);
 
@@ -113,7 +111,6 @@ class GenericPaymentServiceTest {
 
         @Test
         void paymentRequest_EmptyMerchantIban() {
-            doReturn(MockUtils.aPsu()).when(psuHttpclient).createPsu(any(), any());
             final JsonService jsonService = JsonService.getInstance();
 
             final PaymentData paymentData = MockUtils.aPaymentdata();
@@ -132,11 +129,8 @@ class GenericPaymentServiceTest {
                     , paymentRequest.getPartnerConfiguration()
             );
 
-            // Create a new PSU
-            final Psu newPsu = psuHttpclient.createPsu(new PsuCreateRequest.PsuCreateRequestBuilder().build(), requestConfiguration);
-
             // Build PaymentInitiationRequest (Equens) from PaymentRequest (Payline)
-            final PaymentInitiationRequest request = underTest.buildPaymentInitiationRequest(genericPaymentRequest, newPsu, paymentData);
+            final PaymentInitiationRequest request = underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData);
 
             final String chaine = jsonService.toJson(request);
             assertFalse(chaine.contains("CreditorAccount"));
@@ -145,7 +139,6 @@ class GenericPaymentServiceTest {
 
         @Test
         void paymentRequest_check_MerchantName_MerchantIban() {
-            doReturn(MockUtils.aPsu()).when(psuHttpclient).createPsu(any(), any());
             final JsonService jsonService = JsonService.getInstance();
 
             final PaymentData paymentData = MockUtils.aPaymentdata();
@@ -161,11 +154,9 @@ class GenericPaymentServiceTest {
                     , paymentRequest.getPartnerConfiguration()
             );
 
-            // Create a new PSU
-            final Psu newPsu = psuHttpclient.createPsu(new PsuCreateRequest.PsuCreateRequestBuilder().build(), requestConfiguration);
 
             // Build PaymentInitiationRequest (Equens) from PaymentRequest (Payline)
-            final PaymentInitiationRequest request = underTest.buildPaymentInitiationRequest(genericPaymentRequest, newPsu, paymentData);
+            final PaymentInitiationRequest request = underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData);
 
             final String chaine = jsonService.toJson(request);
 
@@ -193,33 +184,12 @@ class GenericPaymentServiceTest {
         }
 
         @Test
-        void paymentRequest_psuCreateError() {
-            // given: the creation of the PSU fails
-            doThrow(new PluginException("partner error: 500 Internal Server Error"))
-                    .when(psuHttpclient)
-                    .createPsu(any(PsuCreateRequest.class), any(RequestConfiguration.class));
-
-            final PaymentData paymentData = MockUtils.aPaymentdata();
-            // when: calling paymentRequest() method
-            final PaymentRequest paymentRequest = MockUtils.aPaylinePaymentRequest();
-            final GenericPaymentRequest genericPaymentRequest = new GenericPaymentRequest(paymentRequest);
-            final PaymentResponse paymentResponse = underTest.paymentRequest(genericPaymentRequest, paymentData);
-
-            // then: the exception is properly catch and the payment response is a failure
-            assertEquals(PaymentResponseFailure.class, paymentResponse.getClass());
-            TestUtils.checkPaymentResponse((PaymentResponseFailure) paymentResponse);
-        }
-
-        @Test
         void paymentRequest_paymentInitError() {
             final PaymentData paymentData = MockUtils.aPaymentdata();
-            // given: the payment initiation fails
-            doReturn(MockUtils.aPsu())
-                    .when(psuHttpclient)
-                    .createPsu(any(PsuCreateRequest.class), any(RequestConfiguration.class));
+
             doThrow(new PluginException("partner error: 500 Internal Server Error"))
                     .when(pisHttpClient)
-                    .initPayment(any(PaymentInitiationRequest.class), any(RequestConfiguration.class));
+                    .initPayment(any(PaymentInitiationRequest.class), any(RequestConfiguration.class), any(List.class));
 
             // when: calling paymentRequest() method
             final PaymentRequest paymentRequest = MockUtils.aPaylinePaymentRequest();
@@ -240,9 +210,6 @@ class GenericPaymentServiceTest {
             final PaymentRequest paymentRequest = MockUtils.aPaylinePaymentRequestBuilder()
                     .withContractConfiguration(contractConfiguration)
                     .build();
-            doReturn(MockUtils.aPsu())
-                    .when(psuHttpclient)
-                    .createPsu(any(PsuCreateRequest.class), any(RequestConfiguration.class));
 
             // when: calling paymentRequest() method
             final GenericPaymentRequest genericPaymentRequest = new GenericPaymentRequest(paymentRequest);
@@ -259,13 +226,12 @@ class GenericPaymentServiceTest {
     public class buildPaymentInitiationRequest {
         @Test
         void buildPaymentInitiationRequest() {
-            final Psu psu = MockUtils.aPsu();
             final PaymentData paymentData = MockUtils.aPaymentdata();
             final GenericPaymentRequest genericPaymentRequest = new GenericPaymentRequest(MockUtils.aPaylinePaymentRequest());
             final String ibanFR = MockUtils.getIbanFR();
             final PaymentInitiationRequest expected = MockUtils.aPaymentInitiationRequest(ibanFR);
 
-            final PaymentInitiationRequest result = underTest.buildPaymentInitiationRequest(genericPaymentRequest, psu, paymentData);
+            final PaymentInitiationRequest result = underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData);
             assertEquals(result.getAspspId(), expected.getAspspId());
             assertEquals(result.getChargeBearer(), expected.getChargeBearer());
             assertEquals(result.getCreditorAccount().getIdentification(), expected.getCreditorAccount().getIdentification());
@@ -273,20 +239,16 @@ class GenericPaymentServiceTest {
             assertEquals(result.getCreditorName(), expected.getCreditorName());
             assertEquals(result.getEndToEndId(), expected.getEndToEndId());
             assertEquals(result.getInitiatingPartyReferenceId(), expected.getInitiatingPartyReferenceId());
-            assertEquals(result.getInitiatingPartyReturnUrl(), expected.getInitiatingPartyReturnUrl());
             assertEquals(result.getPaymentAmount(), expected.getPaymentAmount());
             assertEquals(result.getPaymentCurrency(), expected.getPaymentCurrency());
             assertEquals(result.getPaymentProduct(), expected.getPaymentProduct());
             assertEquals(result.getPreferredScaMethod(), expected.getPreferredScaMethod());
-            assertEquals(result.getPsuId(), expected.getPsuId());
-            assertEquals(result.getPsuSessionInformation().getHeaderUserAgent(), expected.getPsuSessionInformation().getHeaderUserAgent());
-            assertEquals(result.getPsuSessionInformation().getIpAddress(), expected.getPsuSessionInformation().getIpAddress());
-            assertEquals(result.getPurposeCode(), expected.getPurposeCode());
+             assertEquals(result.getPurposeCode(), expected.getPurposeCode());
             assertEquals(result.getRemittanceInformation(), expected.getRemittanceInformation());
             assertEquals(result.getRemittanceInformationStructured().getReference(), expected.getRemittanceInformationStructured().getReference());
-            assertEquals(result.getRiskInformation().getChannelType(), expected.getRiskInformation().getChannelType());
-            assertEquals(result.getRiskInformation().getMerchantCategoryCode(), expected.getRiskInformation().getMerchantCategoryCode());
-            assertEquals(result.getRiskInformation().getMerchantCustomerId(), expected.getRiskInformation().getMerchantCustomerId());
+            assertEquals(result.getPaymentContext().getChannelType(), expected.getPaymentContext().getChannelType());
+            assertEquals(result.getPaymentContext().getMerchantCategoryCode(), expected.getPaymentContext().getMerchantCategoryCode());
+            assertEquals(result.getPaymentContext().getMerchantCustomerId(), expected.getPaymentContext().getMerchantCustomerId());
             assertEquals(result.getDebtorName(), expected.getDebtorName());
             assertEquals(result.getInitiatingPartySubId(), expected.getInitiatingPartySubId());
 
@@ -294,7 +256,6 @@ class GenericPaymentServiceTest {
 
         @Test
         void buildPaymentInitiationRequest_AspspNull() {
-            final Psu psu = MockUtils.aPsu();
             final PaymentData paymentData = MockUtils.aPaymentDataBuilder().withAspspId(null).build();
             final ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration(MockUtils.getExampleCountry(), ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProductCode());
 
@@ -306,14 +267,13 @@ class GenericPaymentServiceTest {
 
 
             final InvalidDataException thrown = Assertions.assertThrows(InvalidDataException.class,
-                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, psu, paymentData));
+                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData));
 
             assertEquals("AspspId is required", thrown.getMessage());
         }
 
         @Test
         void buildPaymentInitiationRequest_AspspNotFound() {
-            final Psu psu = MockUtils.aPsu();
             final PaymentData paymentData = MockUtils.aPaymentDataBuilder().withAspspId("9999").build();
             final ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration(MockUtils.getExampleCountry(), ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProductCode());
 
@@ -325,14 +285,13 @@ class GenericPaymentServiceTest {
 
 
             final InvalidDataException thrown = Assertions.assertThrows(InvalidDataException.class,
-                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, psu, paymentData));
+                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData));
 
             assertEquals("Aspsp not found", thrown.getMessage());
         }
 
         @Test
         void buildPaymentInitiationRequest_WrongPaymentMode() {
-            final Psu psu = MockUtils.aPsu();
             final PaymentData paymentData = MockUtils.aPaymentDataBuilder().build();
             final ContractConfiguration contractConfiguration = MockUtils.aContractConfiguration(MockUtils.getExampleCountry(), ConfigurationServiceImpl.PaymentProduct.NORMAL.getPaymentProductCode());
 
@@ -344,14 +303,13 @@ class GenericPaymentServiceTest {
 
 
             final InvalidDataException thrown = Assertions.assertThrows(InvalidDataException.class,
-                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, psu, paymentData));
+                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData));
 
             assertEquals("Aspsp not compatible with this payment mode", thrown.getMessage());
         }
 
         @Test
         void buildPaymentInitiationRequest_WrongIBAN() {
-            final Psu psu = MockUtils.aPsu();
             final PaymentData paymentData = MockUtils.aPaymentDataBuilder()
                     .withIban("IT123456789")
                     .build();
@@ -363,14 +321,13 @@ class GenericPaymentServiceTest {
                             .build());
 
             Assertions.assertThrows(InvalidDataException.class,
-                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, psu, paymentData),
+                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData),
                     "IBAN should be from a country available by the merchant "
             );
         }
 
         @Test
         void buildPaymentInitiationRequest_WrongCountryIBAN() {
-            final Psu psu = MockUtils.aPsu();
             final PaymentData paymentData = MockUtils.aPaymentDataBuilder()
                     .withIban(MockUtils.getIbanES())
                     .build();
@@ -380,7 +337,7 @@ class GenericPaymentServiceTest {
                             .build());
 
             Assertions.assertThrows(InvalidDataException.class,
-                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, psu, paymentData),
+                    () -> underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData),
                     "IBAN should be from a country available by the merchant "
             );
         }
