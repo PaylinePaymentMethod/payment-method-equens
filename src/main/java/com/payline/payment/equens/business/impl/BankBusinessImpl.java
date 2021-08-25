@@ -74,6 +74,7 @@ public class BankBusinessImpl implements BankBusiness {
     public String getPrefixBic(String bic) {
         return bic.length() >= 8 ? bic.substring(0,8) : bic;
     }
+
     @Override
     public Aspsp convertToAspsp(final String label, final BankAffiliation bankAffiliation) {
         final Aspsp aspsp = new Aspsp();

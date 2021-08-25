@@ -4,16 +4,15 @@ import com.payline.payment.equens.bean.business.payment.PaymentStatus;
 import com.payline.payment.equens.bean.business.payment.PaymentStatusResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
 import com.payline.payment.equens.bean.pmapi.TransactionAdditionalData;
+import com.payline.payment.equens.business.PaymentBusiness;
+import com.payline.payment.equens.business.impl.PaymentBusinessImpl;
 import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.http.PisHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
-import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.BankAccount;
-import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.BankTransfer;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
-import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
 import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,6 +20,7 @@ public abstract class AbstractRedirectionServiceImpl {
 
     private PisHttpClient pisHttpClient = PisHttpClient.getInstance();
     private JsonService jsonService = JsonService.getInstance();
+    private PaymentBusiness paymentBusiness = new PaymentBusinessImpl();
 
     private static final Logger LOGGER = LogManager.getLogger(AbstractRedirectionServiceImpl.class);
     /**
@@ -30,7 +30,7 @@ public abstract class AbstractRedirectionServiceImpl {
      * @param requestConfiguration the request configuration
      * @return a PaymentResponse
      */
-    PaymentResponse updatePaymentStatus(final String paymentId, final RequestConfiguration requestConfiguration) {
+    PaymentResponse updatePaymentStatus(final String paymentId, final RequestConfiguration requestConfiguration, final boolean lastCall) {
         PaymentResponse paymentResponse;
         try {
             // Init HTTP client
@@ -39,12 +39,14 @@ public abstract class AbstractRedirectionServiceImpl {
             // Retrieve the payment status
             final PaymentStatusResponse paymentStatusResponse = pisHttpClient.paymentStatus(paymentId, requestConfiguration, true);
             final PaymentStatus status = paymentStatusResponse.getPaymentStatus();
+
             if (status == null) {
                 throw new PluginException("Missing payment status in the partner response", FailureCause.PARTNER_UNKNOWN_ERROR);
             }
 
             // Build transaction additional data
             final TransactionAdditionalData transactionAdditionalData = new TransactionAdditionalData(paymentStatusResponse.getAspspPaymentId());
+            final String transactionDataJson = jsonService.toJson(transactionAdditionalData);
 
             // Retrieve merchant IBAN
             String merchantIban = null;
@@ -52,49 +54,10 @@ public abstract class AbstractRedirectionServiceImpl {
                     .getProperty(Constants.ContractConfigurationKeys.MERCHANT_IBAN) != null) {
                 merchantIban = requestConfiguration.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.MERCHANT_IBAN).getValue();
             }
-
-            // Build the appropriate response
-            switch(status) {
-                case OPEN:
-                case AUTHORISED:
-                case PENDING:
-                case SETTLEMENT_IN_PROCESS:
-                case SETTLEMENT_COMPLETED:
-                    paymentResponse = PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
-                            .withPartnerTransactionId(paymentId)
-                            .withStatusCode(status.name())
-                            .withTransactionDetails(new BankTransfer(
-                                    this.getOwnerBankAccount(paymentStatusResponse),
-                                    this.getReceiverBankAccount(merchantIban)))
-                            .withTransactionAdditionalData(jsonService.toJson(transactionAdditionalData)).build();
-                    break;
-
-                case CANCELLED:
-                    paymentResponse = PaymentResponseFailure.PaymentResponseFailureBuilder.aPaymentResponseFailure()
-                            .withErrorCode("Payment not approved by PSU or insufficient funds")
-                            .withFailureCause(FailureCause.CANCEL)
-                            .withPartnerTransactionId(paymentId)
-                            .withTransactionAdditionalData(jsonService.toJson(transactionAdditionalData))
-                            .build();
-                    break;
-
-                case EXPIRED:
-                    paymentResponse = PaymentResponseFailure.PaymentResponseFailureBuilder.aPaymentResponseFailure()
-                            .withErrorCode("Consent approval has expired")
-                            .withFailureCause(FailureCause.SESSION_EXPIRED)
-                            .withPartnerTransactionId(paymentId)
-                            .withTransactionAdditionalData(jsonService.toJson(transactionAdditionalData)).build();
-                    break;
-
-                case ERROR:
-                default:
-                    paymentResponse = PaymentResponseFailure.PaymentResponseFailureBuilder.aPaymentResponseFailure()
-                            .withErrorCode("Payment was rejected due to an error")
-                            .withFailureCause(FailureCause.REFUSED)
-                            .withPartnerTransactionId(paymentId)
-                            .withTransactionAdditionalData(jsonService.toJson(transactionAdditionalData))
-                            .build();
-                    break;
+            if (lastCall) {
+                paymentResponse = paymentBusiness.fetchLastStatusPaymentResponse(paymentStatusResponse, paymentId, transactionDataJson, merchantIban);
+            } else {
+                paymentResponse = paymentBusiness.fetchPaymentResponse(paymentStatusResponse, paymentId, transactionDataJson, merchantIban);
             }
         } catch (final PluginException e) {
             paymentResponse = e.toPaymentResponseFailureBuilder()
@@ -111,54 +74,5 @@ public abstract class AbstractRedirectionServiceImpl {
         return paymentResponse;
     }
 
-    /**
-     * Extract the owner bank account data from the given PaymentStatusResponse.
-     *
-     * @param paymentStatusResponse the payment status response
-     * @return the owner bank account
-     */
-    BankAccount getOwnerBankAccount(final PaymentStatusResponse paymentStatusResponse) {
-        // pre-fill a builder with empty strings (null values not authorized)
-        final BankAccount.BankAccountBuilder ownerBuilder = BankAccount.BankAccountBuilder.aBankAccount()
-                .withHolder("")
-                .withAccountNumber("")
-                .withIban("")
-                .withBic("")
-                .withCountryCode("")
-                .withBankName("")
-                .withBankCode("");
 
-        // Fill available data
-        if (paymentStatusResponse.getDebtorName() != null) {
-            ownerBuilder.withHolder(paymentStatusResponse.getDebtorName());
-        }
-        if (paymentStatusResponse.getDebtorAccount() != null) {
-            ownerBuilder.withHolder(paymentStatusResponse.getDebtorAccount());
-        }
-        if (paymentStatusResponse.getDebtorAgent() != null) {
-            ownerBuilder.withBic(paymentStatusResponse.getDebtorAgent());
-        }
-
-        return ownerBuilder.build();
-    }
-
-    /**
-     * Build the receiver bank account with the given merchant IBAN.
-     * Every other field is filled with an empty string.
-     *
-     * @param merchantIban the merchant IBAN
-     * @return the receiver bank account
-     */
-    BankAccount getReceiverBankAccount(final String merchantIban) {
-        // pre-fill a builder fwith empty strings (null values not authorized)
-        final BankAccount.BankAccountBuilder receiverBuilder = BankAccount.BankAccountBuilder.aBankAccount()
-                .withHolder("")
-                .withAccountNumber("")
-                .withIban(merchantIban)
-                .withBic("")
-                .withCountryCode("")
-                .withBankName("")
-                .withBankCode("");
-        return receiverBuilder.build();
-    }
 }
