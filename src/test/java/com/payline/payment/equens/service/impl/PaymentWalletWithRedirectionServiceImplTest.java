@@ -85,7 +85,7 @@ class PaymentWalletWithRedirectionServiceImplTest {
         final PaymentResponseSuccess paymentResponseSuccess = PaymentResponseSuccess.PaymentResponseSuccessBuilder
                 .aPaymentResponseSuccess().withPartnerTransactionId("123")
                 .withTransactionDetails(new EmptyTransactionDetails()).build();
-        doReturn(paymentResponseSuccess).when(underTest).updatePaymentStatus(eq("1234"), any());
+        doReturn(paymentResponseSuccess).when(underTest).updatePaymentStatus(eq("1234"), any(), eq(false));
         PaymentResponse paymentResponse = underTest.finalizeRedirectionPaymentWallet(walletRedirectionPaymentRequest);
         assertEquals(paymentResponseSuccess, paymentResponse);
     }

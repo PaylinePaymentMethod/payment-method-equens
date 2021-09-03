@@ -33,7 +33,7 @@ public class PaymentWalletWithRedirectionServiceImpl extends AbstractRedirection
             // check and update payment status
             paymentResponse = this.updatePaymentStatus(paymentId, new RequestConfiguration(
                     redirectionPaymentRequest.getContractConfiguration(), redirectionPaymentRequest.getEnvironment(),
-                            redirectionPaymentRequest.getPartnerConfiguration()));
+                            redirectionPaymentRequest.getPartnerConfiguration()), false);
         } catch (final PluginException e) {
             paymentResponse = e.toPaymentResponseFailureBuilder().build();
         }
