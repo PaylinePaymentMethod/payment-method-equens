@@ -64,7 +64,6 @@ public class PaymentBusinessImpl implements PaymentBusiness {
         final PaymentStatus status = paymentStatusResponse.getPaymentStatus();
         // Build the appropriate response
         switch(status) {
-            case OPEN:
             case SETTLEMENT_IN_PROCESS:
             case SETTLEMENT_COMPLETED:
             case PENDING:
@@ -84,6 +83,9 @@ public class PaymentBusinessImpl implements PaymentBusiness {
 
             case EXPIRED:
                 paymentResponse = buildPaymentFailure(paymentId, transactionAdditionalData, "Consent approval has expired", FailureCause.SESSION_EXPIRED);
+                break;
+            case OPEN:
+                paymentResponse = buildPaymentFailure(paymentId, transactionAdditionalData, "Payment is rejected", FailureCause.REFUSED);
                 break;
             case ERROR:
             default:

@@ -82,7 +82,7 @@ class PaymentWithRedirectionServiceImplTest {
                 Arguments.of( PaymentStatus.CANCELLED, false, PaymentResponseFailure.class ),
                 Arguments.of( PaymentStatus.EXPIRED, false, PaymentResponseFailure.class ),
                 Arguments.of( PaymentStatus.ERROR, false, PaymentResponseFailure.class ),
-                Arguments.of( PaymentStatus.OPEN, true, PaymentResponseSuccess.class ),
+                Arguments.of( PaymentStatus.OPEN, true, PaymentResponseFailure.class ),
                 Arguments.of( PaymentStatus.AUTHORISED, true, PaymentResponseSuccess.class ),
                 Arguments.of( PaymentStatus.SETTLEMENT_IN_PROCESS, true, PaymentResponseSuccess.class ),
                 Arguments.of( PaymentStatus.PENDING, true, PaymentResponseSuccess.class ),

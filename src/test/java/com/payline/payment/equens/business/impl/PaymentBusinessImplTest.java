@@ -102,13 +102,14 @@ class PaymentBusinessImplTest {
 
     static Stream<Arguments> withErrorLastPaymentResponseArgs(){
         return Stream.of(
-                Arguments.of( PaymentStatus.CANCELLED, FailureCause.CANCEL, "Payment not approved by PSU or insufficient funds" ),
-                Arguments.of( PaymentStatus.EXPIRED, FailureCause.SESSION_EXPIRED, "Consent approval has expired" ),
-                Arguments.of( PaymentStatus.ERROR, FailureCause.REFUSED, "Payment was rejected due to an error"));
+                Arguments.of(PaymentStatus.CANCELLED, FailureCause.CANCEL, "Payment not approved by PSU or insufficient funds"),
+                Arguments.of(PaymentStatus.EXPIRED, FailureCause.SESSION_EXPIRED, "Consent approval has expired"),
+                Arguments.of(PaymentStatus.ERROR, FailureCause.REFUSED, "Payment was rejected due to an error"),
+                Arguments.of(PaymentStatus.OPEN, FailureCause.REFUSED, "Payment is rejected"));
     }
 
     @ParameterizedTest
-    @EnumSource(value = PaymentStatus.class, names = {"OPEN", "SETTLEMENT_IN_PROCESS", "SETTLEMENT_COMPLETED", "PENDING", "AUTHORISED"})
+    @EnumSource(value = PaymentStatus.class, names = {"SETTLEMENT_IN_PROCESS", "SETTLEMENT_COMPLETED", "PENDING", "AUTHORISED"})
     void fetchLastStatusResponseSuccess(final PaymentStatus status) {
         final PaymentResponse paymentResponse = underTest.fetchLastStatusPaymentResponse(MockUtils.aPaymentStatusResponse(status), PAYMENT_ID, TRANSACTION_ADDITIONAL_DATA, MERCHANT_IBAN);
         assertNotNull(paymentResponse);
