@@ -1,6 +1,5 @@
 package com.payline.payment.equens;
 
-import com.payline.payment.equens.bean.business.fraud.PsuSessionInformation;
 import com.payline.payment.equens.bean.business.payment.*;
 import com.payline.payment.equens.bean.business.psu.Psu;
 import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
@@ -23,6 +22,8 @@ import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.tomitribe.auth.signatures.Algorithm;
 import org.tomitribe.auth.signatures.Signature;
 import org.tomitribe.auth.signatures.Signer;
@@ -232,7 +233,6 @@ public class MockUtils {
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_ASPSPS, "https://xs2a.awltest.de/xs2a/routingservice/services/directory/v1/aspsps?allDetails=true");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PIS_PAYMENTS_STATUS, "https://xs2a.awltest.de/xs2a/routingservice/services/pis/v1/payments/{paymentId}/status");
-        partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.API_URL_PSU_PSUS, "https://xs2a.awltest.de/xs2a/routingservice/services/psumgmt/v1/psus");
 
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYLINE_CLIENT_NAME, "MarketPay");
         partnerConfigurationMap.put(Constants.PartnerConfigurationKeys.PAYLINE_ONBOARDING_ID, "XXXXXX");
@@ -371,7 +371,6 @@ public class MockUtils {
                 .withAspspId("1410")
                 .withEndToEndId("REF" + timestamp)
                 .withInitiatingPartyReferenceId( "PAYLINE" + timestamp )
-                .withInitiatingPartyReturnUrl( "http://redirectionURL.com" )
                 .withRemittanceInformation( "softDescriptor123456789012" )
                 .withRemittanceInformationStructured(
                         new RemittanceInformationStructured.RemittanceInformationStructuredBuilder()
@@ -392,14 +391,8 @@ public class MockUtils {
                 .withPaymentAmount("10.00")
                 .withPaymentCurrency("EUR")
                 .withPurposeCode(ConfigurationServiceImpl.PurposeCode.COMMERCE.getCode())
-                .withPsuSessionInformation(
-                        new PsuSessionInformation.PsuSessionInformationBuilder()
-                                .withIpAddress("192.168.0.1")
-                                .withHeaderUserAgent(MockUtils.aUserAgent())
-                                .build()
-                )
-                .withRiskInformation(
-                        new RiskInformation.RiskInformationBuilder()
+                .withPaymentContext(
+                        new PaymentContext.PaymentContextBuilder()
                                 .withDeliveryAddress(
                                         new Address.AddressBuilder()
                                                 .withPostCode("13100")
@@ -412,7 +405,6 @@ public class MockUtils {
                 )
                 .addPreferredScaMethod(ConfigurationServiceImpl.ScaMethod.REDIRECT)
                 .withChargeBearer(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer())
-                .withPsuId("1")
                 .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode())
                 .withDebtorName("Durand")
                 .withInitiatingPartySubId("12");
@@ -423,12 +415,10 @@ public class MockUtils {
      */
     public static PaymentInitiationResponse aPaymentInitiationResponse() {
         return jsonService.fromJson("{\n" +
-                "    \"MessageCreateDateTime\": \"" + aMessageCreateDateTime() + "\",\n" +
-                "    \"MessageId\": \"e8683740-38be-4026-b48e-72089b023e\",\n" +
                 "    \"PaymentId\": \"" + MockUtils.aPaymentId() + "\",\n" +
                 "    \"InitiatingPartyReferenceId\": \"REF1574181352\",\n" +
-                "    \"PaymentStatus\": \"OPEN\",\n" +
-                "    \"AspspRedirectUrl\": \"https://xs2a.banking.co.at/xs2a-sandbox/m044/v1/pis/confirmation/btWMz6mTz7I3SOe4lMqXiwciqe6igXBCeebfVWlmZ8N8zVw_qRKMMuhlLLXtPrVcBeH6HIP2qhdTTZ1HINXSkg==_=_psGLvQpt9Q/authorisations/fa8e44a7-3bf7-4543-82d1-5a1163aaaaad\"\n" +
+                "    \"PaymentStatus\": \"Open\",\n" +
+                "    \"Links\":{\"AspspRedirectUrl\":{\"Href\":\"https://xs2a.banking.co.at/xs2a-sandbox/m044/v1/pis/confirmation/btWMz6mTz7I3SOe4lMqXiwciqe6igXBCeebfVWlmZ8N8zVw_qRKMMuhlLLXtPrVcBeH6HIP2qhdTTZ1HINXSkg==_=_psGLvQpt9Q/authorisations/fa8e44a7-3bf7-4543-82d1-5a1163aaaaad\"}}" +
                 "}", PaymentInitiationResponse.class);
     }
 
@@ -699,5 +689,14 @@ public class MockUtils {
                 "    \"CountryCode\": \"FR\",\n" +
                 "    \"Name\": [\"La banque Postale\"\n]\n" +
                 "}", Aspsp.class);
+    }
+
+    public static List<Header> aPISHttpClientHeader() {
+        return List.of(new BasicHeader("PsuIpAddress", "127.0.0.1"),
+                new BasicHeader("MessageCreatedDateTime", "2021-08-16T12:02:19.727+0200"),
+                new BasicHeader("InitiatingPartyReturnUrl ", "http://localhost:8080/payline-widget/partnerReturn/token/1Kg2egYMGOnJiKl7os401629108112460?paylinereturn"),
+                new BasicHeader("HttpHeaderUserAgent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36"),
+                new BasicHeader("Content-Type", "application/json"),
+                new BasicHeader("X-Request-ID", "e4089fd0-1e57-4f89-a71d-598e4fe5bdfb"));
     }
 }

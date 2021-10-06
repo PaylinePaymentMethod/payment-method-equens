@@ -1,10 +1,7 @@
 package com.payline.payment.equens.service;
 
 import com.payline.payment.equens.bean.GenericPaymentRequest;
-import com.payline.payment.equens.bean.business.fraud.PsuSessionInformation;
 import com.payline.payment.equens.bean.business.payment.*;
-import com.payline.payment.equens.bean.business.psu.Psu;
-import com.payline.payment.equens.bean.business.psu.PsuCreateRequest;
 import com.payline.payment.equens.bean.business.reachdirectory.Aspsp;
 import com.payline.payment.equens.bean.business.reachdirectory.GetAspspsResponse;
 import com.payline.payment.equens.bean.configuration.RequestConfiguration;
@@ -13,7 +10,6 @@ import com.payline.payment.equens.exception.PluginException;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.payment.equens.utils.http.PisHttpClient;
-import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.pmapi.bean.common.Amount;
 import com.payline.pmapi.bean.common.Buyer;
 import com.payline.pmapi.bean.common.FailureCause;
@@ -23,6 +19,8 @@ import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseRedirect;
 import com.payline.pmapi.logger.LogManager;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.apache.logging.log4j.Logger;
 
 import java.math.BigInteger;
@@ -31,8 +29,10 @@ import java.util.*;
 public class GenericPaymentService {
     private static final Logger LOGGER = LogManager.getLogger(GenericPaymentService.class);
 
+    public static final String HTTP_HEADER_USER_AGENT = "HttpHeaderUserAgent";
+    public static final String PSU_IP_ADDRESS = "PsuIpAddress";
+
     private PisHttpClient pisHttpClient = PisHttpClient.getInstance();
-    private PsuHttpClient psuHttpclient = PsuHttpClient.getInstance();
     private static JsonService jsonService = JsonService.getInstance();
     private BankService bankService = BankService.getInstance();
 
@@ -71,10 +71,6 @@ public class GenericPaymentService {
 
             // Init HTTP clients
             pisHttpClient.init(paymentRequest.getPartnerConfiguration());
-            psuHttpclient.init(paymentRequest.getPartnerConfiguration());
-
-            // Create a new PSU
-            Psu newPsu = psuHttpclient.createPsu(new PsuCreateRequest.PsuCreateRequestBuilder().build(), requestConfiguration);
 
             // Check required contract properties
             List<String> requiredContractProperties = Arrays.asList(
@@ -93,16 +89,28 @@ public class GenericPaymentService {
                 }
             });
 
+            List<Header> headers = new ArrayList<>();
+
+            final String userIpAddress = paymentRequest.getBrowser() != null ? paymentRequest.getBrowser().getIp() : null;
+            final String headerUserAgent  = paymentRequest.getBrowser() != null ? paymentRequest.getBrowser().getUserAgent() : null;
+
+            if (headerUserAgent != null) {
+                headers.add(new BasicHeader(HTTP_HEADER_USER_AGENT, headerUserAgent));
+            }
+            if (userIpAddress != null) {
+                headers.add(new BasicHeader(PSU_IP_ADDRESS, userIpAddress));
+            }
+
             // Build PaymentInitiationRequest (Equens) from PaymentRequest (Payline)
-            PaymentInitiationRequest request = buildPaymentInitiationRequest(paymentRequest, newPsu, paymentData);
+            PaymentInitiationRequest request = buildPaymentInitiationRequest(paymentRequest, paymentData);
 
             // Send the payment initiation request
-            PaymentInitiationResponse paymentInitResponse = pisHttpClient.initPayment(request, requestConfiguration);
+            PaymentInitiationResponse paymentInitResponse = pisHttpClient.initPayment(request, requestConfiguration, headers);
 
             // URL
             PaymentResponseRedirect.RedirectionRequest.RedirectionRequestBuilder redirectionRequestBuilder = PaymentResponseRedirect.RedirectionRequest.RedirectionRequestBuilder.aRedirectionRequest()
                     .withRequestType(PaymentResponseRedirect.RedirectionRequest.RequestType.GET)
-                    .withUrl(paymentInitResponse.getAspspRedirectUrl());
+                    .withUrl(paymentInitResponse.getLinks().getAspspRedirectUrl().getHref());
 
             // request context
             Map<String, String> requestData = new HashMap<>();
@@ -252,7 +260,7 @@ public class GenericPaymentService {
     }
 
     // Build PaymentInitiationRequest (Equens) from PaymentRequest (Payline)
-    protected PaymentInitiationRequest buildPaymentInitiationRequest(GenericPaymentRequest paymentRequest, Psu newPsu, PaymentData paymentData) {
+    protected PaymentInitiationRequest buildPaymentInitiationRequest(GenericPaymentRequest paymentRequest, PaymentData paymentData) {
 
         // Control on the input data (to avoid NullPointerExceptions)
         validateRequest(paymentRequest);
@@ -281,7 +289,6 @@ public class GenericPaymentService {
                 .withAspspId(aspspId)
                 .withEndToEndId(paymentRequest.getOrder().getReference())
                 .withInitiatingPartyReferenceId(paymentRequest.getTransactionId())
-                .withInitiatingPartyReturnUrl(paymentRequest.getEnvironment().getRedirectionReturnURL())
                 .withRemittanceInformation(softDescriptor + pispContract)
                 .withRemittanceInformationStructured(
                         new RemittanceInformationStructured.RemittanceInformationStructuredBuilder()
@@ -295,14 +302,9 @@ public class GenericPaymentService {
                 .withPurposeCode(
                         paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.PURPOSE_CODE).getValue()
                 )
-                .withPsuSessionInformation(
-                        new PsuSessionInformation.PsuSessionInformationBuilder()
-                                .withIpAddress(paymentRequest.getBrowser() != null ? paymentRequest.getBrowser().getIp() : null)
-                                .withHeaderUserAgent(paymentRequest.getBrowser() != null ? paymentRequest.getBrowser().getUserAgent() : null)
-                                .build()
-                )
-                .withRiskInformation(
-                        new RiskInformation.RiskInformationBuilder()
+
+                .withPaymentContext(
+                        new PaymentContext.PaymentContextBuilder()
                                 .withMerchantCategoryCode(paymentRequest.getSubMerchant() != null ? paymentRequest.getSubMerchant().getSubMerchantMCC() : null)
                                 .withMerchantCustomerId(paymentRequest.getBuyer().getCustomerIdentifier())
                                 .withDeliveryAddress(deliveryAddress)
@@ -315,12 +317,11 @@ public class GenericPaymentService {
                 .withChargeBearer(
                         paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.CHARGE_BEARER).getValue()
                 )
-                .withPsuId(newPsu.getPsuId())
                 .withPaymentProduct(
                         paymentRequest.getContractConfiguration()
                                 .getProperty(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT).getValue()
-                ).withDebtorName(paymentRequest.getBuyer().getFullName().getLastName());
-
+                ).withDebtorName(paymentRequest.getBuyer().getFullName().getLastName())
+                .withDebtorPostalAddress(null);
         // add the debtor account only if he gives his IBAN, to avoid an empty object
         if (!PluginUtils.isEmpty(iban)) {
             paymentInitiationRequestBuilder.withDebtorAccount(

@@ -45,14 +45,14 @@ class PaymentWithRedirectionServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("statusMappingSet")
-    void updatePaymentStatus_nominal( PaymentStatus paymentStatus, Class expectedReturnType ){
+    void updatePaymentStatus_nominal( PaymentStatus paymentStatus, boolean lastCall, Class expectedReturnType ){
         // given: the paymentStatus method returns a payment with the given status and reason
         doReturn( MockUtils.aPaymentStatusResponse( paymentStatus ) )
                 .when( pisHttpClient )
                 .paymentStatus( anyString(), any(RequestConfiguration.class), anyBoolean() );
 
         // when: calling updateTransactionState method
-        PaymentResponse response = service.updatePaymentStatus( MockUtils.aPaymentId(), MockUtils.aRequestConfiguration() );
+        PaymentResponse response = service.updatePaymentStatus( MockUtils.aPaymentId(), MockUtils.aRequestConfiguration(),lastCall);
 
         // then: the response is of the given type, and complete
         assertEquals( expectedReturnType, response.getClass() );
@@ -74,14 +74,22 @@ class PaymentWithRedirectionServiceImplTest {
     }
     static Stream<Arguments> statusMappingSet(){
         return Stream.of(
-                Arguments.of( PaymentStatus.OPEN, PaymentResponseSuccess.class ),
-                Arguments.of( PaymentStatus.AUTHORISED, PaymentResponseSuccess.class ),
-                Arguments.of( PaymentStatus.SETTLEMENT_IN_PROCESS, PaymentResponseSuccess.class ),
-                Arguments.of( PaymentStatus.PENDING, PaymentResponseSuccess.class ),
-                Arguments.of( PaymentStatus.SETTLEMENT_COMPLETED, PaymentResponseSuccess.class ),
-                Arguments.of( PaymentStatus.CANCELLED, PaymentResponseFailure.class ),
-                Arguments.of( PaymentStatus.EXPIRED, PaymentResponseFailure.class ),
-                Arguments.of( PaymentStatus.ERROR, PaymentResponseFailure.class )
+                Arguments.of( PaymentStatus.OPEN, false, PaymentResponseOnHold.class ),
+                Arguments.of( PaymentStatus.AUTHORISED, false, PaymentResponseOnHold.class ),
+                Arguments.of( PaymentStatus.SETTLEMENT_IN_PROCESS, false, PaymentResponseSuccess.class ),
+                Arguments.of( PaymentStatus.PENDING, false, PaymentResponseOnHold.class ),
+                Arguments.of( PaymentStatus.SETTLEMENT_COMPLETED, false, PaymentResponseSuccess.class ),
+                Arguments.of( PaymentStatus.CANCELLED, false, PaymentResponseFailure.class ),
+                Arguments.of( PaymentStatus.EXPIRED, false, PaymentResponseFailure.class ),
+                Arguments.of( PaymentStatus.ERROR, false, PaymentResponseFailure.class ),
+                Arguments.of( PaymentStatus.OPEN, true, PaymentResponseFailure.class ),
+                Arguments.of( PaymentStatus.AUTHORISED, true, PaymentResponseSuccess.class ),
+                Arguments.of( PaymentStatus.SETTLEMENT_IN_PROCESS, true, PaymentResponseSuccess.class ),
+                Arguments.of( PaymentStatus.PENDING, true, PaymentResponseSuccess.class ),
+                Arguments.of( PaymentStatus.SETTLEMENT_COMPLETED, true, PaymentResponseSuccess.class ),
+                Arguments.of( PaymentStatus.CANCELLED, true, PaymentResponseFailure.class ),
+                Arguments.of( PaymentStatus.EXPIRED, true, PaymentResponseFailure.class ),
+                Arguments.of( PaymentStatus.ERROR, true, PaymentResponseFailure.class )
         );
     }
 
@@ -93,7 +101,7 @@ class PaymentWithRedirectionServiceImplTest {
                 .init( any(PartnerConfiguration.class) );
 
         // when: calling updateTransactionState method
-        PaymentResponse response = service.updatePaymentStatus( MockUtils.aPaymentId(), MockUtils.aRequestConfiguration() );
+        PaymentResponse response = service.updatePaymentStatus( MockUtils.aPaymentId(), MockUtils.aRequestConfiguration() , false);
 
         // then: the exception is properly catch and the payment response is a failure
         assertEquals( PaymentResponseFailure.class, response.getClass() );
@@ -108,7 +116,7 @@ class PaymentWithRedirectionServiceImplTest {
                 .paymentStatus( anyString(), any(RequestConfiguration.class), anyBoolean() );
 
         // when: calling updateTransactionState method
-        PaymentResponse response = service.updatePaymentStatus( MockUtils.aPaymentId(), MockUtils.aRequestConfiguration() );
+        PaymentResponse response = service.updatePaymentStatus( MockUtils.aPaymentId(), MockUtils.aRequestConfiguration() , false);
 
         // then: the exception is properly catch and the payment response is a failure
         assertEquals( PaymentResponseFailure.class, response.getClass() );

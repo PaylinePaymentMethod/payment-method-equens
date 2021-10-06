@@ -25,7 +25,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractRedirectionServic
             String paymentId = redirectionPaymentRequest.getRequestContext().getRequestData().get(Constants.RequestContextKeys.PAYMENT_ID);
 
             // check and update payment status
-            paymentResponse = this.updatePaymentStatus( paymentId, RequestConfiguration.build( redirectionPaymentRequest ) );
+            paymentResponse = this.updatePaymentStatus( paymentId, RequestConfiguration.build( redirectionPaymentRequest), false);
         }
         catch( PluginException e ){
             paymentResponse = e.toPaymentResponseFailureBuilder().build();
@@ -39,7 +39,8 @@ public class PaymentWithRedirectionServiceImpl extends AbstractRedirectionServic
         PaymentResponse paymentResponse;
 
         try {
-            paymentResponse = this.updatePaymentStatus( transactionStatusRequest.getTransactionId(), RequestConfiguration.build( transactionStatusRequest ) );
+            paymentResponse = this.updatePaymentStatus( transactionStatusRequest.getTransactionId(),
+                    RequestConfiguration.build(transactionStatusRequest), transactionStatusRequest.isNeedFinalStatus());
         }
         catch( PluginException e ){
             paymentResponse = e.toPaymentResponseFailureBuilder().build();

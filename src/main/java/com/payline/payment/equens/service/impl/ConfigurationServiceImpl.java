@@ -9,7 +9,6 @@ import com.payline.payment.equens.service.JsonService;
 import com.payline.payment.equens.utils.Constants;
 import com.payline.payment.equens.utils.PluginUtils;
 import com.payline.payment.equens.utils.http.PisHttpClient;
-import com.payline.payment.equens.utils.http.PsuHttpClient;
 import com.payline.payment.equens.utils.i18n.I18nService;
 import com.payline.payment.equens.utils.properties.ReleaseProperties;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
@@ -113,7 +112,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private I18nService i18n = I18nService.getInstance();
     private PisHttpClient pisHttpClient = PisHttpClient.getInstance();
-    private PsuHttpClient psuHttpClient = PsuHttpClient.getInstance();
     private ReleaseProperties releaseProperties = ReleaseProperties.getInstance();
     private BankService bankService = BankService.getInstance();
 
@@ -225,13 +223,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         contractProperties.put(clientNameKey, new ContractProperty(accountInfo.get(clientNameKey)));
         contractProperties.put(onboardingIdKey, new ContractProperty(accountInfo.get(onboardingIdKey)));
 
-        // Validate the merchant account on the 2 APIs (PIS and PSU) because they have separate subscriptions
+        // Validate the merchant account on the PIS API
         try {
             pisHttpClient.init(contractParametersCheckRequest.getPartnerConfiguration());
             pisHttpClient.authorize(altRequestConfiguration);
-
-            psuHttpClient.init(contractParametersCheckRequest.getPartnerConfiguration());
-            psuHttpClient.authorize(altRequestConfiguration);
         } catch (final PluginException e) {
             errors.put(clientNameKey, e.getMessage());
             errors.put(onboardingIdKey, "");
