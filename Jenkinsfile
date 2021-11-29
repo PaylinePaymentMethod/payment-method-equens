@@ -56,7 +56,7 @@ pipeline {
         stage("Dependency Check") {
             when { branch 'develop' }
             steps {
-                sh './gradlew dependencyCheckAggregate --info'
+                sh './gradlew dependencyCheckAggregate --stacktrace'
                 dependencyCheckPublisher pattern: '**/build/reports/dependency-check-report.xml'
             }
         }

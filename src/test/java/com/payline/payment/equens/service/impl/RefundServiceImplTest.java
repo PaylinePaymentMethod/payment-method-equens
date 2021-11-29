@@ -46,6 +46,7 @@ class RefundServiceImplTest {
                 .withPartnerTransactionId("partnerTransactionId")
                 .withSoftDescriptor("SoftDescriptor")
                 .withPartnerConfiguration(new PartnerConfiguration(new HashMap<>(), new HashMap<>()))
+                .withTotalRefundedAmount(new Amount(BigInteger.valueOf(50), Currency.getInstance("EUR")))
                 .build();
         final RefundResponse refundResponse = underTest.refundRequest(captureRequest);
         assertNotNull(refundResponse);
