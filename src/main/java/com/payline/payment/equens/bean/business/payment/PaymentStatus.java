@@ -8,9 +8,9 @@ public enum PaymentStatus {
     OPEN,
     @SerializedName(value = "Authorised", alternate = {"AUTHORISED"})
     AUTHORISED,
-    @SerializedName(value = "Settlement_in_process", alternate = {"SETTLEMENT_IN_PROCESS"})
+    @SerializedName(value = "SettlementInProcess", alternate = {"SETTLEMENT_IN_PROCESS"})
     SETTLEMENT_IN_PROCESS,
-    @SerializedName(value = "Settlement_completed", alternate = {"SETTLEMENT_COMPLETED"})
+    @SerializedName(value = "SettlementCompleted", alternate = {"SETTLEMENT_COMPLETED"})
     SETTLEMENT_COMPLETED,
     @SerializedName(value = "Cancelled", alternate = {"CANCELLED"})
     CANCELLED,
