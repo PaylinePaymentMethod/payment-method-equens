@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        jdk '~/java/jdk-17.0.1+12'
+    }
+
     options {
       gitLabConnection('GitlabConnection')
       gitlabBuilds(builds: ["Assemble", "Test"])
