@@ -19,7 +19,7 @@ class StringResponseTest {
                 new Header[]{ new BasicHeader("Name", "Value")} );
 
         // when: converting it to StringResponse
-        StringResponse stringResponse = StringResponse.fromHttpResponse( httpResponse );
+        final StringResponse stringResponse = StringResponse.fromHttpResponse( httpResponse );
 
         // then: the StringResponse attributes match the content of the HttpResponse
         assertNotNull( stringResponse );

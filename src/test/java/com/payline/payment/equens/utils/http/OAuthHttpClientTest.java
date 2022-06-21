@@ -22,7 +22,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.*;
-import org.mockito.internal.util.reflection.FieldSetter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -62,9 +61,9 @@ class OAuthHttpClientTest {
         MockitoAnnotations.initMocks(this);
 
         // Manual init of private attributes
-        FieldSetter.setField(oAuthHttpClient, OAuthHttpClient.class.getDeclaredField("retries"), 3);
-        FieldSetter.setField(oAuthHttpClient, OAuthHttpClient.class.getDeclaredField("tokenEndpointUrl"), "https://authorization.domain.org/token");
-        FieldSetter.setField(oAuthHttpClient, OAuthHttpClient.class.getDeclaredField("initialized"), new AtomicBoolean(true));
+          oAuthHttpClient.retries = 3;
+          oAuthHttpClient.tokenEndpointUrl = "https://authorization.domain.org/token";
+          oAuthHttpClient.initialized = new AtomicBoolean(true);
     }
 
     @AfterEach
@@ -79,8 +78,8 @@ class OAuthHttpClientTest {
     @Test
     void authorize_notInitialized() throws NoSuchFieldException {
         // given: the HTTP client has not been properly initialized before use
-        FieldSetter.setField(oAuthHttpClient, OAuthHttpClient.class.getDeclaredField("initialized"), new AtomicBoolean(false));
 
+        oAuthHttpClient.initialized = new AtomicBoolean(false);
         // when: calling the authorize method, then: an exception is thrown
         assertThrows(PluginException.class, () -> oAuthHttpClient.authorize(requestConfiguration));
 
@@ -121,10 +120,7 @@ class OAuthHttpClientTest {
     @MethodSource("authorize_blockingResponseContent_set")
     void authorize_blockingResponseContent(String responseContent) throws NoSuchFieldException {
         // given: the server returns a response with a non-sufficient content
-        StringResponse response = new StringResponse();
-        FieldSetter.setField(response, StringResponse.class.getDeclaredField("content"), responseContent);
-        FieldSetter.setField(response, StringResponse.class.getDeclaredField("statusCode"), HttpStatus.SC_OK);
-        FieldSetter.setField(response, StringResponse.class.getDeclaredField("statusMessage"), "OK");
+        final StringResponse response = HttpTestUtils.mockStringResponse(HttpStatus.SC_OK, "OK", responseContent);
         doReturn(response).when(oAuthHttpClient).post(anyString(), anyList(), any(HttpEntity.class));
 
         // when: calling the authorize method, an exception is thrown
@@ -158,10 +154,7 @@ class OAuthHttpClientTest {
     @MethodSource("authorize_nonBlockingResponseContent_set")
     void authorize_nonBlockingResponseContent(String responseContent) throws NoSuchFieldException {
         // given: the server returns a response with a sufficient content
-        StringResponse response = new StringResponse();
-        FieldSetter.setField(response, StringResponse.class.getDeclaredField("content"), responseContent);
-        FieldSetter.setField(response, StringResponse.class.getDeclaredField("statusCode"), HttpStatus.SC_OK);
-        FieldSetter.setField(response, StringResponse.class.getDeclaredField("statusMessage"), "OK");
+        final StringResponse response = HttpTestUtils.mockStringResponse(HttpStatus.SC_OK, "OK", responseContent);
         doReturn(response).when(oAuthHttpClient).post(anyString(), anyList(), any(HttpEntity.class));
 
         // when: calling the authorize method
@@ -198,10 +191,8 @@ class OAuthHttpClientTest {
     @MethodSource("authorize_error_set")
     void authorize_error(String content, int statusCode, String statusMessage) throws NoSuchFieldException {
         // given: the server returns an error
-        StringResponse response = new StringResponse();
-        FieldSetter.setField(response, StringResponse.class.getDeclaredField("content"), content);
-        FieldSetter.setField(response, StringResponse.class.getDeclaredField("statusCode"), statusCode);
-        FieldSetter.setField(response, StringResponse.class.getDeclaredField("statusMessage"), statusMessage);
+        final StringResponse response = HttpTestUtils.mockStringResponse(statusCode, statusMessage, content);
+
         doReturn(response).when(oAuthHttpClient).post(anyString(), anyList(), any(HttpEntity.class));
 
         // when: calling the authorize method, an exception is thrown
@@ -306,8 +297,8 @@ class OAuthHttpClientTest {
     @Test
     void isAuthorized_valid() throws NoSuchFieldException {
         // given: a valid authorization
-        Authorization validAuth = MockUtils.anAuthorizationBuilder().build();
-        FieldSetter.setField(oAuthHttpClient, OAuthHttpClient.class.getDeclaredField("authorization"), validAuth);
+        final Authorization validAuth = MockUtils.anAuthorizationBuilder().build();
+        oAuthHttpClient.authorization = validAuth;
 
         // when called, isAuthorized method returns true
         assertTrue(oAuthHttpClient.isAuthorized());
@@ -316,7 +307,7 @@ class OAuthHttpClientTest {
     @Test
     void isAuthorized_null() throws NoSuchFieldException {
         // given: the client does not contain a valid authorization
-        FieldSetter.setField(oAuthHttpClient, OAuthHttpClient.class.getDeclaredField("authorization"), null);
+        oAuthHttpClient.authorization = null;
 
         // when called, isAuthorized method returns false
         assertFalse(oAuthHttpClient.isAuthorized());
@@ -328,7 +319,7 @@ class OAuthHttpClientTest {
         Authorization expiredAuth = MockUtils.anAuthorizationBuilder()
                 .withExpiresAt(TestUtils.addTime(new Date(), Calendar.HOUR, -1))
                 .build();
-        FieldSetter.setField(oAuthHttpClient, OAuthHttpClient.class.getDeclaredField("authorization"), expiredAuth);
+        oAuthHttpClient.authorization = expiredAuth;
 
         // when called, isAuthorized method returns false
         assertFalse(oAuthHttpClient.isAuthorized());

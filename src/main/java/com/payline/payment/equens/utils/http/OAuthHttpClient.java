@@ -53,7 +53,7 @@ abstract class OAuthHttpClient {
     /**
      * Support for the current authorization information.
      */
-    private Authorization authorization;
+    protected Authorization authorization;
 
     /**
      * Client used to contact APIs through HTTP.
@@ -68,14 +68,14 @@ abstract class OAuthHttpClient {
     /**
      * The number of time the client must retry to send the request if it doesn't obtain a response.
      */
-    private int retries;
+    protected int retries;
 
     /**
      * Full URL (API domain + path) of the endpoint that delivers OAuth access token.
      * Since the domain and path change from one implementation to the other,
      * its value must be passed through the init method.
      */
-    private String tokenEndpointUrl;
+    protected String tokenEndpointUrl;
 
     /**
      * Initialize the instance.

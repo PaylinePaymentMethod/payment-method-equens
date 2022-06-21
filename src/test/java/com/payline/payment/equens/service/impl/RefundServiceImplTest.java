@@ -1,6 +1,7 @@
 package com.payline.payment.equens.service.impl;
 
 import com.payline.pmapi.bean.common.Amount;
+import com.payline.pmapi.bean.common.Balance;
 import com.payline.pmapi.bean.common.Buyer;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
@@ -17,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigInteger;
 import java.util.Currency;
 import java.util.HashMap;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -34,8 +36,15 @@ class RefundServiceImplTest {
     }
 
     @Test
-    void testCapture() {
-        final RefundRequest captureRequest = RefundRequest.RefundRequestBuilder.aRefundRequest()
+    void testRefund() {
+
+        final Balance balance = Balance.builder()
+                .totalRefundedAmount(new Amount(BigInteger.valueOf(1000), Currency.getInstance(Locale.FRANCE)))
+                .totalValidatedAmount(new Amount(BigInteger.valueOf(2000), Currency.getInstance(Locale.FRANCE)))
+                .totalResetedAmount(new Amount(BigInteger.valueOf(3000), Currency.getInstance(Locale.FRANCE)))
+                .build();
+
+        final RefundRequest refundRequest = RefundRequest.RefundRequestBuilder.aRefundRequest()
                 .withPartnerTransactionId("partnerTransactionId")
                 .withAmount(new Amount(BigInteger.valueOf(22), Currency.getInstance("EUR")))
                 .withBuyer(Buyer.BuyerBuilder.aBuyer().build())
@@ -47,8 +56,9 @@ class RefundServiceImplTest {
                 .withSoftDescriptor("SoftDescriptor")
                 .withPartnerConfiguration(new PartnerConfiguration(new HashMap<>(), new HashMap<>()))
                 .withTotalRefundedAmount(new Amount(BigInteger.valueOf(50), Currency.getInstance("EUR")))
+                .withBalance(balance)
                 .build();
-        final RefundResponse refundResponse = underTest.refundRequest(captureRequest);
+        final RefundResponse refundResponse = underTest.refundRequest(refundRequest);
         assertNotNull(refundResponse);
         assertTrue(refundResponse instanceof RefundResponseSuccess);
         final RefundResponseSuccess refundResponseSuccess = (RefundResponseSuccess) refundResponse;

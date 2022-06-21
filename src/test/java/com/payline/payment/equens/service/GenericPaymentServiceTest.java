@@ -62,7 +62,7 @@ class GenericPaymentServiceTest {
     }
 
     @Nested
-    public class testPaymentRequest {
+    class testPaymentRequest {
 
         @Test
         void nominalCase() {
@@ -223,7 +223,8 @@ class GenericPaymentServiceTest {
     }
 
     @Nested
-    public class buildPaymentInitiationRequest {
+    class buildPaymentInitiationRequest {
+
         @Test
         void buildPaymentInitiationRequest() {
             final PaymentData paymentData = MockUtils.aPaymentdata();
@@ -233,7 +234,6 @@ class GenericPaymentServiceTest {
 
             final PaymentInitiationRequest result = underTest.buildPaymentInitiationRequest(genericPaymentRequest, paymentData);
             assertEquals(result.getAspspId(), expected.getAspspId());
-            assertEquals(result.getChargeBearer(), expected.getChargeBearer());
             assertEquals(result.getCreditorAccount().getIdentification(), expected.getCreditorAccount().getIdentification());
             assertEquals(result.getDebtorAccount().getIdentification(), expected.getDebtorAccount().getIdentification());
             assertEquals(result.getCreditorName(), expected.getCreditorName());
@@ -249,7 +249,6 @@ class GenericPaymentServiceTest {
             assertEquals(result.getPaymentContext().getChannelType(), expected.getPaymentContext().getChannelType());
             assertEquals(result.getPaymentContext().getMerchantCategoryCode(), expected.getPaymentContext().getMerchantCategoryCode());
             assertEquals(result.getPaymentContext().getMerchantCustomerId(), expected.getPaymentContext().getMerchantCustomerId());
-            assertEquals(result.getDebtorName(), expected.getDebtorName());
             assertEquals(result.getInitiatingPartySubId(), expected.getInitiatingPartySubId());
 
         }
@@ -344,7 +343,8 @@ class GenericPaymentServiceTest {
     }
 
     @Nested
-    public class testBuildAddress {
+    class testBuildAddress {
+
         @Test
         void buildAddress_nominal() {
             // given: a Payline address

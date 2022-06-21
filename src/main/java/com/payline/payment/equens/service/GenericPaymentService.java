@@ -75,7 +75,6 @@ public class GenericPaymentService {
             // Check required contract properties
             List<String> requiredContractProperties = Arrays.asList(
                     Constants.ContractConfigurationKeys.CHANNEL_TYPE,
-                    Constants.ContractConfigurationKeys.CHARGE_BEARER,
                     Constants.ContractConfigurationKeys.MERCHANT_IBAN,
                     Constants.ContractConfigurationKeys.MERCHANT_NAME,
                     Constants.ContractConfigurationKeys.PURPOSE_CODE,
@@ -127,9 +126,9 @@ public class GenericPaymentService {
                     .withRedirectionRequest(redirectionRequestBuilder.build())
                     .withRequestContext(requestContext)
                     .build();
-        } catch (PluginException e) {
+        } catch (final PluginException e) {
             paymentResponse = e.toPaymentResponseFailureBuilder().build();
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             LOGGER.error("Unexpected plugin error", e);
             paymentResponse = PaymentResponseFailure.PaymentResponseFailureBuilder
                     .aPaymentResponseFailure()
@@ -314,14 +313,10 @@ public class GenericPaymentService {
                 .addPreferredScaMethod(
                         paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.SCA_METHOD).getValue()
                 )
-                .withChargeBearer(
-                        paymentRequest.getContractConfiguration().getProperty(Constants.ContractConfigurationKeys.CHARGE_BEARER).getValue()
-                )
                 .withPaymentProduct(
                         paymentRequest.getContractConfiguration()
                                 .getProperty(Constants.ContractConfigurationKeys.PAYMENT_PRODUCT).getValue()
-                ).withDebtorName(paymentRequest.getBuyer().getFullName().getLastName())
-                .withDebtorPostalAddress(null);
+                ).withDebtorPostalAddress(null);
         // add the debtor account only if he gives his IBAN, to avoid an empty object
         if (!PluginUtils.isEmpty(iban)) {
             paymentInitiationRequestBuilder.withDebtorAccount(

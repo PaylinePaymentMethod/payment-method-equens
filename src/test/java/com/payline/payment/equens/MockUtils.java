@@ -151,8 +151,6 @@ public class MockUtils {
         Map<String, ContractProperty> contractProperties = new HashMap<>();
         contractProperties.put(Constants.ContractConfigurationKeys.CHANNEL_TYPE,
                 new ContractProperty(ConfigurationServiceImpl.ChannelType.ECOMMERCE.getType()));
-        contractProperties.put(Constants.ContractConfigurationKeys.CHARGE_BEARER,
-                new ContractProperty(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer()));
         contractProperties.put(Constants.ContractConfigurationKeys.CLIENT_NAME, new ContractProperty("MarketPay"));
         contractProperties.put(Constants.ContractConfigurationKeys.MERCHANT_IBAN, new ContractProperty("FR1400490001510000000002"));
         contractProperties.put(Constants.ContractConfigurationKeys.MERCHANT_NAME, new ContractProperty("John Snow"));
@@ -404,9 +402,7 @@ public class MockUtils {
                                 .build()
                 )
                 .addPreferredScaMethod(ConfigurationServiceImpl.ScaMethod.REDIRECT)
-                .withChargeBearer(ConfigurationServiceImpl.ChargeBearer.SLEV.getBearer())
                 .withPaymentProduct(ConfigurationServiceImpl.PaymentProduct.INSTANT.getPaymentProductCode())
-                .withDebtorName("Durand")
                 .withInitiatingPartySubId("12");
     }
 

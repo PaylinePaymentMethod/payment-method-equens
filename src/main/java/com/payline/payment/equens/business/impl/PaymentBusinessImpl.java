@@ -113,16 +113,12 @@ public class PaymentBusinessImpl implements PaymentBusiness {
                 .withBankCode("");
 
         // Fill available data
-        if (paymentStatusResponse.getDebtorName() != null) {
-            ownerBuilder.withHolder(paymentStatusResponse.getDebtorName());
-        }
         if (paymentStatusResponse.getDebtorAccount() != null) {
             ownerBuilder.withIban(paymentStatusResponse.getDebtorAccount());
         }
         if (paymentStatusResponse.getDebtorAgent() != null) {
             ownerBuilder.withBic(paymentStatusResponse.getDebtorAgent());
         }
-
         return ownerBuilder.build();
     }
 
@@ -147,17 +143,17 @@ public class PaymentBusinessImpl implements PaymentBusiness {
     }
 
     /**
-     * Méthode permettant de construire des PaymentResponseFailed.
+     * Mï¿½thode permettant de construire des PaymentResponseFailed.
      * @param paymentId
      *          Identifiant du paiement.
      * @param transactionAdditionalData
-     *          Données additionnelles de la transaction.
+     *          Donnï¿½es additionnelles de la transaction.
      * @param message
      *          Message explicatif du refus de paiement.
      * @param failureCause
      *          Raison du refus de paiement.
      * @return
-     *          La reponse du paiement correctement formattée
+     *          La reponse du paiement correctement formattï¿½e
      */
     private PaymentResponseFailure buildPaymentFailure(final String paymentId, final String transactionAdditionalData, final String message, final FailureCause failureCause) {
         return PaymentResponseFailure.PaymentResponseFailureBuilder.aPaymentResponseFailure()
