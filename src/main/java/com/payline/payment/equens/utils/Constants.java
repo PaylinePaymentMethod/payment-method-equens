@@ -11,7 +11,6 @@ public class Constants {
     public static class ContractConfigurationKeys {
 
         public static final String CHANNEL_TYPE = "channelType";
-        public static final String CHARGE_BEARER = "chargeBearer";
         public static final String CLIENT_NAME = "clientName";
         public static final String MERCHANT_IBAN = "merchantIban";
         public static final String MERCHANT_NAME = "merchantName";

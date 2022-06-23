@@ -106,7 +106,7 @@ class PluginExceptionTest {
         }
 
         // the message is null, so the error code contains the exception class name
-        assertEquals("plugin error: NullPointerException", errorCode);
+        assertEquals("plugin error: equals(Object)\" because \"str\" is nul", errorCode);
     }
 
 }

@@ -5,7 +5,6 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
-import org.mockito.internal.util.reflection.FieldSetter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -61,28 +60,20 @@ class HttpTestUtils {
      * @return A mocked StringResponse
      */
     public static StringResponse mockStringResponse( int statusCode, String statusMessage, String content, Map<String, String> headers ){
-        StringResponse response = new StringResponse();
-
-        try {
-            if (content != null && !content.isEmpty()) {
-                FieldSetter.setField(response, StringResponse.class.getDeclaredField("content"), content);
-            }
-            if (headers != null && headers.size() > 0) {
-                FieldSetter.setField(response, StringResponse.class.getDeclaredField("headers"), headers);
-            }
-            if (statusCode >= 100 && statusCode < 600) {
-                FieldSetter.setField(response, StringResponse.class.getDeclaredField("statusCode"), statusCode);
-            }
-            if (statusMessage != null && !statusMessage.isEmpty()) {
-                FieldSetter.setField(response, StringResponse.class.getDeclaredField("statusMessage"), statusMessage);
-            }
+        final StringResponse.StringResponseBuilder builder = StringResponse.builder();
+        if (content != null && !content.isEmpty()) {
+            builder.content(content);
         }
-        catch( NoSuchFieldException e ){
-            // This would happen in a testing context: spare the exception throw, the test case will probably fail anyway
-            return null;
+        if (headers != null && headers.size() > 0) {
+            builder.headers(headers);
         }
-
-        return response;
+        if (statusCode >= 100 && statusCode < 600) {
+            builder.statusCode(statusCode);
+        }
+        if (statusMessage != null && !statusMessage.isEmpty()) {
+            builder.statusMessage(statusMessage);
+        }
+        return builder.build();
     }
 
 }

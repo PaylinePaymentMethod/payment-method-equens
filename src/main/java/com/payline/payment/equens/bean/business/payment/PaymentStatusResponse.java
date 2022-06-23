@@ -15,9 +15,6 @@ public class PaymentStatusResponse extends EquensApiMessage {
     @SerializedName("AspspPaymentId")
     private String aspspPaymentId;
     /** ? */
-    @SerializedName("DebtorName")
-    private String debtorName;
-    /** ? */
     @SerializedName("DebtorAgent")
     private String debtorAgent;
     /** ? */
@@ -37,10 +34,6 @@ public class PaymentStatusResponse extends EquensApiMessage {
 
     public String getAspspPaymentId() {
         return aspspPaymentId;
-    }
-
-    public String getDebtorName() {
-        return debtorName;
     }
 
     public String getDebtorAgent() {

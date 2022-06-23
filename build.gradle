@@ -16,7 +16,7 @@ targetCompatibility = 14
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.incremental = true  // Pour accélerer la compilation
+    options.incremental = true  // Pour accï¿½lerer la compilation
 }
 
 apply from: "monext.gradle"

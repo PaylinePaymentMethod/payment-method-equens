@@ -1,5 +1,8 @@
 package com.payline.payment.equens.utils.http;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -13,6 +16,9 @@ import java.util.Map;
 /**
  * Simple POJO supporting the core elements of an HTTP response, in a more readable format (especially the content).
  */
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class StringResponse {
 
     private String content;
@@ -67,8 +73,8 @@ public class StringResponse {
             }
 
             Header[] rawHeaders = httpResponse.getAllHeaders();
-            for( int i=0; i<rawHeaders.length; i++ ){
-                instance.headers.put( rawHeaders[i].getName().toLowerCase(), rawHeaders[i].getValue() );
+            for (final Header rawHeader : rawHeaders) {
+                instance.headers.put(rawHeader.getName().toLowerCase(), rawHeader.getValue());
             }
         }
 

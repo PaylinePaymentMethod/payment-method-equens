@@ -42,12 +42,6 @@ public class PaymentInitiationRequest {
     private RemittanceInformationStructured remittanceInformationStructured;
 
     /**
-     * name of the debtor
-     */
-    @SerializedName("DebtorName")
-    private String debtorName;
-
-    /**
      * Identification of the debtor account.
      */
     @SerializedName("DebtorAccount")
@@ -92,11 +86,6 @@ public class PaymentInitiationRequest {
      */
     @SerializedName("PreferredScaMethod")
     private List<String> preferredScaMethod;
-    /**
-     * Charge bearer
-     */
-    @SerializedName("ChargeBearer")
-    private String chargeBearer;
 
     /**
      * Indicates the requested payment method.
@@ -114,7 +103,6 @@ public class PaymentInitiationRequest {
         this.initiatingPartyReferenceId = builder.initiatingPartyReferenceId;
         this.remittanceInformation = builder.remittanceInformation;
         this.remittanceInformationStructured = builder.remittanceInformationStructured;
-        this.debtorName = builder.debtorName;
         this.debtorAccount = builder.debtorAccount;
         this.debtorPostalAddress=builder.debtorPostalAddress;
         this.creditorName = builder.creditorName;
@@ -124,7 +112,6 @@ public class PaymentInitiationRequest {
         this.purposeCode = builder.purposeCode;
         this.paymentContext = builder.paymentContext;
         this.preferredScaMethod = builder.preferredScaMethod;
-        this.chargeBearer = builder.chargeBearer;
         this.paymentProduct = builder.paymentProduct;
         this.initiatingPartySubId = builder.initiatingPartySubId;
     }
@@ -136,7 +123,6 @@ public class PaymentInitiationRequest {
         private String initiatingPartyReferenceId;
         private String remittanceInformation;
         private RemittanceInformationStructured remittanceInformationStructured;
-        private String debtorName;
         private Account debtorAccount;
         private Address debtorPostalAddress;
         private String creditorName;
@@ -146,7 +132,6 @@ public class PaymentInitiationRequest {
         private String purposeCode;
         private PaymentContext paymentContext;
         private List<String> preferredScaMethod;
-        private String chargeBearer;
         private String paymentProduct;
         private String initiatingPartySubId;
 
@@ -173,11 +158,6 @@ public class PaymentInitiationRequest {
 
         public PaymentInitiationRequestBuilder withRemittanceInformationStructured(RemittanceInformationStructured remittanceInformationStructured) {
             this.remittanceInformationStructured = remittanceInformationStructured;
-            return this;
-        }
-
-        public PaymentInitiationRequestBuilder withDebtorName(String debtorName){
-            this.debtorName = debtorName;
             return this;
         }
 
@@ -229,11 +209,6 @@ public class PaymentInitiationRequest {
             return this;
         }
 
-        public PaymentInitiationRequestBuilder withChargeBearer(String chargeBearer) {
-            this.chargeBearer = chargeBearer;
-            return this;
-        }
-
         public PaymentInitiationRequestBuilder withPaymentProduct(String paymentProduct) {
             this.paymentProduct = paymentProduct;
             return this;
@@ -271,9 +246,6 @@ public class PaymentInitiationRequest {
         return remittanceInformationStructured;
     }
 
-    public String getDebtorName() {
-        return this.debtorName;
-    }
 
     public Account getDebtorAccount() {
         return debtorAccount;
@@ -310,11 +282,6 @@ public class PaymentInitiationRequest {
     public List<String> getPreferredScaMethod() {
         return preferredScaMethod;
     }
-
-    public String getChargeBearer() {
-        return chargeBearer;
-    }
-
 
     public String getPaymentProduct() {
         return paymentProduct;

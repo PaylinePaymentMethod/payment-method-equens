@@ -52,20 +52,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
     }
 
-    public enum ChargeBearer {
-        CRED("CRED"), DEBT("DEBT"), SHAR("SHAR"), SLEV("SLEV");
-
-        private final String bearer;
-
-        ChargeBearer(final String bearer) {
-            this.bearer = bearer;
-        }
-
-        public String getBearer() {
-            return bearer;
-        }
-    }
-
     public enum PaymentProduct {
         NORMAL("Normal", true), INSTANT("Instant", false);
 
@@ -147,14 +133,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         final Map<String, String> scaMethods = new HashMap<>();
         scaMethods.put(ScaMethod.REDIRECT, ScaMethod.REDIRECT);
         parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.SCA_METHOD, scaMethods, ScaMethod.REDIRECT, true, locale));
-
-        // Charge bearer
-        final Map<String, String> chargeBearers = new HashMap<>();
-        chargeBearers.put(ChargeBearer.CRED.getBearer(), ChargeBearer.CRED.getBearer());
-        chargeBearers.put(ChargeBearer.DEBT.getBearer(), ChargeBearer.DEBT.getBearer());
-        chargeBearers.put(ChargeBearer.SHAR.getBearer(), ChargeBearer.SHAR.getBearer());
-        chargeBearers.put(ChargeBearer.SLEV.getBearer(), ChargeBearer.SLEV.getBearer());
-        parameters.add(this.newListBoxParameter(Constants.ContractConfigurationKeys.CHARGE_BEARER, chargeBearers, ChargeBearer.SLEV.getBearer(), true, locale));
 
         // purpose code
         final Map<String, String> purposeCodes = new HashMap<>();

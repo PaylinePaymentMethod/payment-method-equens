@@ -73,6 +73,4 @@ public abstract class AbstractRedirectionServiceImpl {
         }
         return paymentResponse;
     }
-
-
 }
